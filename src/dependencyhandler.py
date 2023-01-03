@@ -1,3 +1,5 @@
+import re
+
 class Dependency:
     def __init__(self, name, version, fileLocation):
         self.name = name
@@ -19,6 +21,7 @@ class Dependency:
 class DependencyHandler:
     def __init__(self):
         self.dependencies = []
+        # self.vulnerableDependencies = []
 
     def getDependencies(self):
         return self.dependencies
@@ -28,4 +31,22 @@ class DependencyHandler:
 
     # get all dependencies used in a code
     def scanDependencies(self, filePath):
-        pass
+        # temp read file, will move to codehandler later
+        with open(filePath) as file:
+            sourceFile = file.read()
+        fileExtension = filePath.split(".")[-1]
+
+        regexPattern = {
+                "py": [ # python extension
+                    re.compile('(?<=^import ).*'), # get words starting with import
+                    re.compile('(?<=from ).*?(?= import)') # get words between from and import
+                ]
+        }
+
+        for pattern in regexPattern[fileExtension]:
+            result = pattern.findall(sourceFile)
+            print(result)
+
+if __name__ == "__main__":
+    d = DependencyHandler()
+    d.scanDependencies("test.py")
