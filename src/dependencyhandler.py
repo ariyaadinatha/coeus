@@ -31,22 +31,21 @@ class DependencyHandler:
 
     # get all dependencies used in a code
     def scanDependencies(self, filePath):
-        # temp read file, will move to codehandler later
-        with open(filePath) as file:
-            sourceFile = file.read()
         fileExtension = filePath.split(".")[-1]
 
         regexPattern = {
                 "py": [ # python extension
-                    re.compile('(?<=^import ).*'), # get words starting with import
+                    re.compile('(?<=import ).*'), # get words starting with import
                     re.compile('(?<=from ).*?(?= import)') # get words between from and import
                 ]
         }
 
-        for pattern in regexPattern[fileExtension]:
-            result = pattern.findall(sourceFile)
-            print(result)
+        with open(filePath) as file:
+            sourceFile = file.read()
 
-if __name__ == "__main__":
-    d = DependencyHandler()
-    d.scanDependencies("test.py")
+        try:
+            for pattern in regexPattern[fileExtension]:
+                result = pattern.findall(sourceFile)
+                print(result)
+        except Exception as e:
+            print(e)
