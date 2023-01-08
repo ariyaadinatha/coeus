@@ -7,4 +7,5 @@ if __name__ == "__main__":
     ch.getAllFilesFromRepository("testcase")
     d = DependencyHandler()
     for filePath in ch.getImportantFiles():
+        # print(filePath)
         d.scanDependencies(filePath)

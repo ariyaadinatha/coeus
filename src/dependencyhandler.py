@@ -35,17 +35,27 @@ class DependencyHandler:
 
         regexPattern = {
                 "py": [ # python extension
-                    re.compile('(?<=import ).*'), # get words starting with import
-                    re.compile('(?<=from ).*?(?= import)') # get words between from and import
+                    re.compile('(?<=^import ).*'), # get words starting with import
+                    re.compile('(?<=^from ).*?(?= import)') # get words between from and import
                 ]
         }
 
-        with open(filePath) as file:
-            sourceFile = file.read()
+        importList = []
 
         try:
-            for pattern in regexPattern[fileExtension]:
-                result = pattern.findall(sourceFile)
-                print(result)
+            with open(filePath) as file:
+                # sourceFile = file.read()
+                for lineNumber, line in enumerate(file, start=1):
+                    for pattern in regexPattern[fileExtension]:
+                        result = (pattern.search(line))
+                        if result:
+                            dependencyName = result.group(0)
+                            print(f"{dependencyName} dependency found at line {lineNumber}")
+                            importList.append(dependencyName)
+            
+            # remove duplicate item
+            return list(set(importList))
+
         except Exception as e:
-            print(e)
+            pass
+            # print(repr(e))
