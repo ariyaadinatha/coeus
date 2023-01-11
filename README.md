@@ -14,8 +14,8 @@ Static analysis tools that able to perform static analysis for multiple programm
 
 ### Dependencies
 
-* CodeQL
 * Python3
+* requests
 
 ### Installing
 
@@ -27,7 +27,7 @@ Static analysis tools that able to perform static analysis for multiple programm
 * How to run the program
 * Step-by-step bullets
 ```
-code blocks for commands
+python3 src/main.py
 ```
 
 ## Help
