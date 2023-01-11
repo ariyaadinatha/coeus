@@ -61,8 +61,8 @@ class DependencyHandler:
     def addVulnerableDependency(self, vulnDependendency):
         self.vulnerableDependencies.append(vulnDependendency)
 
-    # get dependency vulnerability
-    def getDependencyVulnerability(self, dependency: Dependency):
+    # scan dependency vulnerability
+    def scanDependency(self, dependency: Dependency):
         url = "https://api.osv.dev/v1/query"
         obj = {
             "version": dependency.getVersion(),
@@ -75,10 +75,10 @@ class DependencyHandler:
         result = requests.post(url, json=obj)
         return result.json()
 
-    # list all vulnerability
+    # scan all vulnerability
     def scanDependencies(self):
         for dependency in self.dependencies:
-            result = self.getDependencyVulnerability(dependency)
+            result = self.scanDependency(dependency)
             if result:
                 for vuln in result["vulns"]:
                     parsedRes = self.parseDependencyResult(vuln)
@@ -96,6 +96,7 @@ class DependencyHandler:
 
                     self.addVulnerableDependency(vulnDep)
 
+    # get important key from OSV response
     def parseDependencyResult(self, result):
         vulnResult = {}
         vulnResult["details"] = result.get("details")
