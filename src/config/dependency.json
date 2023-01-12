@@ -1,0 +1,22 @@
+{
+    "requirements.txt": {
+        "ecosystem": "PyPI",
+        "pattern": {
+            "type": "regex",
+            "expression": [".*==.*"]
+        }
+    },
+    "composer.lock": {
+        "ecosystem": "x",
+        "pattern": {
+            "type": "json",
+            "expression": ["packages"]
+        }
+    },
+    "package-lock.json": {
+        "ecosystem": "x",
+        "pattern": {
+            "type": "json"
+        }
+    }
+}
