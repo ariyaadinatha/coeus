@@ -4,6 +4,11 @@
         "pattern": {
             "type": "regex",
             "expression": [".*==.*"]
+        },
+        "parse": {
+            "expression": ["=="],
+            "name": 0,
+            "version": 1
         }
     },
     "composer.lock": {

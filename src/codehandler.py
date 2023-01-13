@@ -1,9 +1,11 @@
 import json
 import os
+import re
 
 class CodeHandler:
     def __init__(self):
-        self.filesPath = []
+        self.codeFilesPath = []
+        self.dependencyFilesPath = []
         # load file configuration
         with open("config/files.json") as file:
             fileConfig = json.load(file)
@@ -16,31 +18,44 @@ class CodeHandler:
     def addDependencyFile(self, file):
         self.dependencyFiles.append(file)
 
-    def addFilePath(self, path):
-        self.filesPath.append(path)
+    def addCodeFilePath(self, path):
+        self.codeFilesPath.append(path)
+
+    def addDependencyFilePath(self, path):
+        self.dependencyFilesPath.append(path)
 
     def readFile(self, source):
         with open(source, 'r') as file:
             content = file.read()
         return content
 
-    def getImportantFiles(self):
-        return self.filesPath
+    def getCodeFilesPath(self):
+        return self.codeFilesPath
+
+    def getDependencyFilesPath(self):
+        return self.dependencyFilesPath
 
     # get all relevant files from a project
     def getAllFilesFromRepository(self, repositoryPath):
         try:
             for path, subdirs, files in os.walk(repositoryPath):
                 for name in files:
-                    if self.checkValidExtension(name):
-                        self.addFilePath(os.path.join(path, name))
+                    if self.checkValidCodeExtension(name):
+                        self.addCodeFilePath(os.path.join(path, name))
+
+                    if self.checkValidDependency(name):
+                        self.addDependencyFilePath(os.path.join(path, name))
         except Exception as e:
             print(e)
             
-    def checkValidExtension(self, name):
+    def checkValidCodeExtension(self, name):
         fileExtension = name.split(".")[-1]
-        validExtension = set(self.codeFiles).union(self.dependencyFiles)
+        validExtension = set(self.codeFiles)
         return True if (fileExtension in validExtension) else False
+
+    def checkValidDependency(self, name):
+        validDependency = set(self.dependencyFiles)
+        return True if (name in validDependency) else False
     
     def readFile(self, filePath):
         with open(filePath) as file:
@@ -50,6 +65,25 @@ class CodeHandler:
 
     # get all dependencies
     def getDependencies(self):
-        pass
+        filesPath = self.getDependencyFilesPath()
+        with open("rules/dependency.json", 'r') as file:
+            dependencyRules = json.load(file)
+
+        for filePath in filesPath:
+            fileName = filePath.split("/")[-1]
+            try:
+                rules = dependencyRules[fileName]
+                content = self.readFile(filePath)
+                if rules["pattern"]["type"] == "regex":
+                    for expression in rules["pattern"]["expression"]:
+                        print(re.compile(expression).findall(content))
+                        print(fileName)
+
+                if rules["pattern"]["type"] == "json":
+                    pass
+                    
+            except Exception as e:
+                print(repr(e))
+
     # ast
     # tokenize

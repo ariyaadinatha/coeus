@@ -10,5 +10,11 @@ def dependencyVulnExample():
     for item in dh.getVulnerableDependencies():
         print(item.getDependency())
 
+def getDependenccy():
+    ch = CodeHandler()
+    ch.getAllFilesFromRepository("/home/adinatha/Documents/Programming/tugas-akhir/coeus")
+    # print(ch.getDependencyFilesPath())
+    ch.getDependencies()
+
 if __name__ == "__main__":
-    dependencyVulnExample()
+    getDependenccy()
