@@ -24,11 +24,6 @@ class CodeHandler:
     def addDependencyFilePath(self, path):
         self.dependencyFilesPath.append(path)
 
-    def readFile(self, source):
-        with open(source, 'r') as file:
-            content = file.read()
-        return content
-
     def getCodeFilesPath(self):
         return self.codeFilesPath
 
@@ -74,13 +69,16 @@ class CodeHandler:
             try:
                 rules = dependencyRules[fileName]
                 content = self.readFile(filePath)
+                print(filePath)
                 if rules["pattern"]["type"] == "regex":
                     for expression in rules["pattern"]["expression"]:
                         print(re.compile(expression).findall(content))
                         print(fileName)
 
                 if rules["pattern"]["type"] == "json":
-                    pass
+                    dependencyDict = json.loads(content)
+                    for expression in rules["pattern"]["expression"]:
+                        print(dependencyDict[expression])
                     
             except Exception as e:
                 print(repr(e))
