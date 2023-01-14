@@ -12,16 +12,22 @@
         }
     },
     "composer.lock": {
-        "ecosystem": "x",
+        "ecosystem": "Packagist",
         "pattern": {
             "type": "json",
-            "expression": ["packages"]
+            "expression": ["packages"],
+            "enumerate": "list",
+            "keyName": "name",
+            "versionName": "version"
         }
     },
     "package-lock.json": {
-        "ecosystem": "x",
+        "ecosystem": "npm",
         "pattern": {
-            "type": "json"
+            "type": "json",
+            "expression": ["dependencies"],
+            "enumerate": "dict",
+            "versionName": "version"
         }
     }
 }

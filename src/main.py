@@ -12,9 +12,12 @@ def dependencyVulnExample():
 
 def getDependenccy():
     ch = CodeHandler()
+    dh = DependencyHandler()
     ch.getAllFilesFromRepository("/home/adinatha/Documents/Programming/tugas-akhir/coeus")
     # print(ch.getDependencyFilesPath())
-    ch.getDependencies()
+    ch.getDependencies(dh)
+    for item in dh.getDependencies():
+        print(item.getDependency())
 
 if __name__ == "__main__":
     getDependenccy()
