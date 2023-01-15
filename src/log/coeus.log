@@ -1,0 +1,22 @@
+[2023-01-15 10:09:29,579-INFO-<module>-30]: =============== Starting coeus ===============
+[2023-01-15 10:09:29,579-INFO-getAllFilesFromRepository-37]: Searching all relevant files
+[2023-01-15 10:09:29,581-INFO-getDependencies-66]: Searching dependencies...
+[2023-01-15 10:09:29,582-INFO-getDependencies-74]: Found requirements.txt
+[2023-01-15 10:09:29,582-INFO-getDependencies-81]: Matching regex pattern...
+[2023-01-15 10:09:29,584-INFO-getDependencies-85]: Completed pattern matching for requirements.txt
+[2023-01-15 10:09:29,584-INFO-scanDependencies-87]: Total dependencies: 132
+[2023-01-15 10:09:29,584-INFO-scanDependencies-88]: Scanning dependency vulnerabilities...
+[2023-01-15 10:10:35,603-INFO-scanDependencies-107]: Completed scanning dependency vulnerabilities
+[2023-01-15 10:10:35,603-INFO-scanDependencies-108]: Vulnerabilities found: 5
+[2023-01-15 10:20:16,355-INFO-<module>-30]: =============== Starting coeus ===============
+[2023-01-15 10:20:16,355-INFO-getAllFilesFromRepository-37]: Searching all relevant files
+[2023-01-15 10:20:16,358-INFO-getDependencies-66]: Searching dependencies...
+[2023-01-15 10:20:16,358-INFO-getDependencies-74]: Found requirements.txt
+[2023-01-15 10:20:16,358-INFO-getDependencies-81]: Matching regex pattern...
+[2023-01-15 10:20:16,359-INFO-getDependencies-85]: Completed pattern matching for requirements.txt
+[2023-01-15 10:20:16,359-INFO-scanDependencies-87]: Total dependencies: 71
+[2023-01-15 10:20:16,359-INFO-scanDependencies-88]: Scanning dependency vulnerabilities...
+[2023-01-15 10:21:12,502-INFO-scanDependencies-107]: Completed scanning dependency vulnerabilities
+[2023-01-15 10:21:12,502-INFO-scanDependencies-108]: Vulnerabilities found: 2
+[2023-01-15 10:21:12,503-INFO-<module>-33]: Execution time: 56.14767813682556
+[2023-01-15 10:21:12,503-INFO-<module>-34]: =============== Successfully running coeus ===============
