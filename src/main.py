@@ -21,10 +21,10 @@ def getDependenccy():
     # for item in dh.getDependencies():
     #     print(item.getDependency())
     dh.scanDependencies()
-    for item in dh.getVulnerableDependencies():
-        print(item.getDependency())
+    # for item in dh.getVulnerableDependencies():
+    #     print(item.getDependency())
     #### !!!!! TO DO, FIX DUMP FEATURE !!!!! ####
-    # dh.dumpVulnerabilities()
+    dh.dumpVulnerabilities()
     
 
 if __name__ == "__main__":

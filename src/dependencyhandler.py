@@ -3,6 +3,7 @@ import requests
 from log import logger
 from datetime import date
 import json
+import os
 
 class Dependency:
     def __init__(self, name, version, ecosystem, fileLocation):
@@ -28,12 +29,12 @@ class Dependency:
 
 class VulnerableDependency(Dependency):
     def __init__(self, name, version, ecosystem, fileLocation, 
-    details, aliases, severity=None, fixed=None):
+    details, aliases, severity=None, affected=None):
         super().__init__(name, version, ecosystem, fileLocation)
         self.details = details
         self.aliases = aliases
         self.severity = severity
-        self.fixed = fixed
+        self.affected = affected
 
     def getDetails(self):
         return self.details
@@ -44,8 +45,8 @@ class VulnerableDependency(Dependency):
     def getSeverity(self):
         return self.severity
 
-    def getFixed(self):
-        return self.fixed
+    def getAffected(self):
+        return self.affected
 
 class DependencyHandler:
     def __init__(self):
@@ -100,7 +101,7 @@ class DependencyHandler:
                             parsedRes["details"],
                             parsedRes["aliases"],
                             parsedRes["severity"],
-                            parsedRes["fixed"]
+                            parsedRes["affected"]
                         )
 
                         self.addVulnerableDependency(vulnDep)
@@ -115,16 +116,18 @@ class DependencyHandler:
         vulnResult["details"] = result.get("details")
         vulnResult["aliases"] = result.get("aliases")
         vulnResult["severity"] = result.get("severity")
-        vulnResult["fixed"] = result.get("affected")[0].get("ranges")
+        vulnResult["affected"] = result.get("affected")[0].get("ranges")
     
         return vulnResult
 
     #### !!!!! TO DO, FIX DUMP FEATURE !!!!! ####
     def dumpVulnerabilities(self):
-        print(type(self.getVulnerableDependencies()))
-        json_string = json.dumps([ob.__dict__ for ob in self.getVulnerableDependencies()])
+        vulnerableDependenciesList = [x.getDependency() for x in self.getVulnerableDependencies()]
+        if not os.path.exists("reports"):
+            os.makedirs("reports")
+
         with open(f"reports/{str(date.today())}-dependency-vulnerabiliies.json", "w") as fileRes:
-            fileRes.write(json.dumps(json_string, indent=4))
+            fileRes.write(json.dumps(vulnerableDependenciesList, indent=4))
 
 
     # get all dependencies used in a code
