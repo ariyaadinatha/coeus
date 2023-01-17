@@ -1,0 +1,33 @@
+{
+    "requirements.txt": {
+        "ecosystem": "PyPI",
+        "pattern": {
+            "type": "regex",
+            "expression": [".*==.*"]
+        },
+        "parse": {
+            "expression": ["=="],
+            "name": 0,
+            "version": 1
+        }
+    },
+    "composer.lock": {
+        "ecosystem": "Packagist",
+        "pattern": {
+            "type": "json",
+            "expression": ["packages"],
+            "enumerate": "list",
+            "keyName": "name",
+            "versionName": "version"
+        }
+    },
+    "package-lock.json": {
+        "ecosystem": "npm",
+        "pattern": {
+            "type": "json",
+            "expression": ["dependencies"],
+            "enumerate": "dict",
+            "versionName": "version"
+        }
+    }
+}

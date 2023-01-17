@@ -1,5 +1,9 @@
 import re
 import requests
+from log import logger
+from datetime import date
+import json
+import os
 
 class Dependency:
     def __init__(self, name, version, ecosystem, fileLocation):
@@ -25,12 +29,12 @@ class Dependency:
 
 class VulnerableDependency(Dependency):
     def __init__(self, name, version, ecosystem, fileLocation, 
-    details, aliases, severity=None, fixed=None):
+    details, aliases, severity=None, affected=None):
         super().__init__(name, version, ecosystem, fileLocation)
         self.details = details
         self.aliases = aliases
         self.severity = severity
-        self.fixed = fixed
+        self.affected = affected
 
     def getDetails(self):
         return self.details
@@ -41,8 +45,8 @@ class VulnerableDependency(Dependency):
     def getSeverity(self):
         return self.severity
 
-    def getFixed(self):
-        return self.fixed
+    def getAffected(self):
+        return self.affected
 
 class DependencyHandler:
     def __init__(self):
@@ -63,38 +67,48 @@ class DependencyHandler:
 
     # scan dependency vulnerability
     def scanDependency(self, dependency: Dependency):
-        url = "https://api.osv.dev/v1/query"
-        obj = {
-            "version": dependency.getVersion(),
-            "package": {
-                "name": dependency.getName(),
-                "ecosystem": dependency.getEcosystem()
+        try:
+            url = "https://api.osv.dev/v1/query"
+            obj = {
+                "version": dependency.getVersion(),
+                "package": {
+                    "name": dependency.getName(),
+                    "ecosystem": dependency.getEcosystem()
+                }
             }
-        }
 
-        result = requests.post(url, json=obj)
-        return result.json()
+            result = requests.post(url, json=obj)
+            return result.json()
+        except Exception as e:
+            logger.error(f"Error : {repr(e)}")
 
     # scan all vulnerability
     def scanDependencies(self):
-        for dependency in self.dependencies:
-            result = self.scanDependency(dependency)
-            if result:
-                for vuln in result["vulns"]:
-                    parsedRes = self.parseDependencyResult(vuln)
-                    depObj = dependency.getDependency()
-                    vulnDep = VulnerableDependency(
-                        depObj["name"],
-                        depObj["version"],
-                        depObj["ecosystem"],
-                        depObj["fileLocation"],
-                        parsedRes["details"],
-                        parsedRes["aliases"],
-                        parsedRes["severity"],
-                        parsedRes["fixed"]
-                    )
+        try:
+            logger.info(f"Total dependencies: {len(self.getDependencies())}")
+            logger.info("Scanning dependency vulnerabilities...")
+            for dependency in self.getDependencies():
+                result = self.scanDependency(dependency)
+                if result:
+                    for vuln in result["vulns"]:
+                        parsedRes = self.parseDependencyResult(vuln)
+                        depObj = dependency.getDependency()
+                        vulnDep = VulnerableDependency(
+                            depObj["name"],
+                            depObj["version"],
+                            depObj["ecosystem"],
+                            depObj["fileLocation"],
+                            parsedRes["details"],
+                            parsedRes["aliases"],
+                            parsedRes["severity"],
+                            parsedRes["affected"]
+                        )
 
-                    self.addVulnerableDependency(vulnDep)
+                        self.addVulnerableDependency(vulnDep)
+            logger.info("Completed scanning dependency vulnerabilities")
+            logger.info(f"Vulnerabilities found: {len(self.getVulnerableDependencies())}")
+        except Exception as e:
+            logger.error(f"Error : {repr(e)}")
 
     # get important key from OSV response
     def parseDependencyResult(self, result):
@@ -102,9 +116,19 @@ class DependencyHandler:
         vulnResult["details"] = result.get("details")
         vulnResult["aliases"] = result.get("aliases")
         vulnResult["severity"] = result.get("severity")
-        vulnResult["fixed"] = result.get("affected")[0].get("ranges")
+        vulnResult["affected"] = result.get("affected")[0].get("ranges")
     
         return vulnResult
+
+    #### !!!!! TO DO, FIX DUMP FEATURE !!!!! ####
+    def dumpVulnerabilities(self):
+        vulnerableDependenciesList = [x.getDependency() for x in self.getVulnerableDependencies()]
+        if not os.path.exists("reports"):
+            os.makedirs("reports")
+
+        with open(f"reports/{str(date.today())}-dependency-vulnerabiliies.json", "w") as fileRes:
+            fileRes.write(json.dumps(vulnerableDependenciesList, indent=4))
+
 
     # get all dependencies used in a code
     def scanDependenciesUsingRegex(self, filePath):
@@ -125,11 +149,11 @@ class DependencyHandler:
                         result = (pattern.search(line))
                         if result:
                             dependencyName = result.group(0)
-                            print(f"{dependencyName} dependency found at line {lineNumber}")
+                            # print(f"{dependencyName} dependency found at line {lineNumber}")
                             importList.append(dependencyName)
             
             # remove duplicate item
             return list(set(importList))
 
         except Exception as e:
-            print(repr(e))
+            logger.error(f"Error : {repr(e)}")

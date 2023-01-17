@@ -1,35 +1,121 @@
 import json
 import os
+import re
+from dependencyhandler import Dependency
+from log import logger
 
 class CodeHandler:
     def __init__(self):
-        self.filesPath = []
+        self.codeFilesPath = []
+        self.dependencyFilesPath = []
+        # load file configuration
         with open("config/files.json") as file:
             fileConfig = json.load(file)
-        self.importantDependencyFiles = fileConfig["importantFiles"]["dependencyFile"]
-        self.codeFilesList = fileConfig["importantFiles"]["sourceCode"]
+        self.dependencyFiles = fileConfig["importantFiles"]["dependencyFile"]
+        self.codeFiles = fileConfig["importantFiles"]["sourceCode"]
+
+    def addCodeFile(self, file):
+        self.codeFiles.append(file)
+
+    def addDependencyFile(self, file):
+        self.dependencyFiles.append(file)
+
+    def addCodeFilePath(self, path):
+        self.codeFilesPath.append(path)
+
+    def addDependencyFilePath(self, path):
+        self.dependencyFilesPath.append(path)
+
+    def getCodeFilesPath(self):
+        return self.codeFilesPath
+
+    def getDependencyFilesPath(self):
+        return self.dependencyFilesPath
 
     # get all relevant files from a project
     def getAllFilesFromRepository(self, repositoryPath):
+        logger.info("Searching all relevant files")
         try:
             for path, subdirs, files in os.walk(repositoryPath):
                 for name in files:
-                    fileExtension = name.split(".")[-1]
-                    if ((fileExtension in self.codeFilesList) or (fileExtension in self.importantDependencyFiles)):
-                        self.filesPath.append(os.path.join(path, name))
-        
-        except Exception as e:
-            print(e)
-            
-    def getImportantFiles(self):
-        return self.filesPath
+                    if self.checkValidCodeExtension(name):
+                        self.addCodeFilePath(os.path.join(path, name))
 
+                    if self.checkValidDependency(name):
+                        self.addDependencyFilePath(os.path.join(path, name))
+        except Exception as e:
+            logger.error(f"Error : {e}")
+            
+    def checkValidCodeExtension(self, name):
+        fileExtension = name.split(".")[-1]
+        validExtension = set(self.codeFiles)
+        return True if (fileExtension in validExtension) else False
+
+    def checkValidDependency(self, name):
+        validDependency = set(self.dependencyFiles)
+        return True if (name in validDependency) else False
+    
     def readFile(self, filePath):
         with open(filePath) as file:
             sourceFile = file.read()
         
         return sourceFile
 
-    # dependency
+    # get all dependencies from files
+    def getDependencies(self, dependencyHandler):
+        logger.info("Searching dependencies...")
+        filesPath = self.getDependencyFilesPath()
+        with open("rules/dependency.json", 'r') as file:
+            dependencyRules = json.load(file)
+
+        for filePath in filesPath:
+            fileName = filePath.split("/")[-1]
+            try:
+                logger.info(f"Found {fileName}")
+                rules = dependencyRules[fileName]
+                content = self.readFile(filePath)
+                ecosystem = rules["ecosystem"]
+                pattern= rules["pattern"]
+                patternType = rules["pattern"]["type"]
+                if patternType == "regex":
+                    logger.info(f"Matching {patternType} pattern...")
+                    for expression in rules["pattern"]["expression"]:
+                        regexResult = (re.compile(expression).findall(content))
+                        self.dependencyParser(regexResult, pattern, dependencyHandler, filePath, ecosystem)
+                    logger.info(f"Completed pattern matching for {fileName}")
+
+                if patternType == "json":
+                    logger.info(f"Matching {patternType} pattern...")
+                    dependencyDict = json.loads(content)
+                    self.dependencyParser(dependencyDict[rules["pattern"]["expression"][0]], pattern, dependencyHandler, filePath, ecosystem)
+                    logger.info(f"Completed pattern matching for {fileName}")
+                    
+            except Exception as e:
+                logger.error(f"Error : {repr(e)}")
+
+    def dependencyParser(self, dependencyList, pattern, dependencyHandler, filePath, ecosystem):
+        try:
+            patternType = pattern["type"]
+            if patternType == "regex":
+                for dependency in dependencyList:
+                    parsedDep = dependency.split("==")
+                    dep = Dependency(parsedDep[0], parsedDep[1], ecosystem, filePath)
+                    dependencyHandler.addDependency(dep)
+
+            if patternType == "json":
+                patternEnumerate = pattern["enumerate"]
+                if patternEnumerate == "list":
+                    for dep in dependencyList:
+                        dep = Dependency(dep[pattern["keyName"]], dep[pattern["versionName"]], ecosystem, filePath)
+                        dependencyHandler.addDependency(dep)
+
+                if patternEnumerate == "dict":
+                    for key, values in dependencyList.items():
+                        dep = Dependency(key, values[pattern["versionName"]], ecosystem, filePath)
+                        dependencyHandler.addDependency(dep)
+        
+        except Exception as e:
+            logger.error(f"Error : {repr(e)}")
+
     # ast
     # tokenize
