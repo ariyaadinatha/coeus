@@ -16,11 +16,12 @@ Static analysis tools that able to perform static analysis for multiple programm
 
 * Python3
 * requests
+* tree-sitter
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Inside `src` create folders named `vendor` and `build`
+* Pull tree-sitter for python, php, java, javascript on `vendor`
 
 ### Executing program
 
@@ -47,8 +48,4 @@ Ariya Adinatha
 ## Acknowledgments
 
 Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+* [tree-sitter](https://github.com/tree-sitter/tree-sitter)
