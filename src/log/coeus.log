@@ -20,3 +20,10 @@
 [2023-01-17 01:57:35,347-INFO-scanDependencies-109]: Vulnerabilities found: 68
 [2023-01-17 01:57:35,356-INFO-<module>-34]: Execution time: 516.7451779842377
 [2023-01-17 01:57:35,357-INFO-<module>-35]: =============== Successfully running coeus ===============
+[2023-02-02 20:35:45,259-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:36:02,833-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:38:08,467-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:39:26,651-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:39:49,196-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:49:19,617-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-02 20:49:30,435-INFO-getAllFilesFromRepository-38]: Searching all relevant files

@@ -3,8 +3,9 @@ import os
 import re
 from dependencyhandler import Dependency
 from log import logger
+from tree_sitter import Language, Parser
 
-class CodeHandler:
+class FileHandler:
     def __init__(self):
         self.codeFilesPath = []
         self.dependencyFilesPath = []
@@ -49,11 +50,11 @@ class CodeHandler:
     def checkValidCodeExtension(self, name):
         fileExtension = name.split(".")[-1]
         validExtension = set(self.codeFiles)
-        return True if (fileExtension in validExtension) else False
+        return (fileExtension in validExtension)
 
     def checkValidDependency(self, name):
         validDependency = set(self.dependencyFiles)
-        return True if (name in validDependency) else False
+        return (name in validDependency)
     
     def readFile(self, filePath):
         with open(filePath) as file:
@@ -117,5 +118,30 @@ class CodeHandler:
         except Exception as e:
             logger.error(f"Error : {repr(e)}")
 
-    # ast
-    # tokenize
+
+class Code:
+    def __init__(self, language, sourceCode):
+        self.language = Language('build/my-languages.so', language)
+        self.sourceCode = sourceCode
+        Language.build_library(
+          # Store the library in the `build` directory
+          'build/my-languages.so',
+          # Include one or more languages
+          [
+            'vendor/tree-sitter-java',
+            'vendor/tree-sitter-php',
+            'vendor/tree-sitter-javascript',
+            'vendor/tree-sitter-python'
+          ]
+        )
+        self.parser = Parser()
+        self.parser.set_language(self.language)
+
+    def getSourceCode(self):
+        return self.sourceCode
+
+    def parseLanguage(self):
+        tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
+        rootNode = tree.root_node
+        
+        return rootNode.sexp()
