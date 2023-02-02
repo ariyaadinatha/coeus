@@ -1,6 +1,7 @@
 from dependencyhandler import Dependency
 from dependencyhandler import DependencyHandler
-from codehandler import CodeHandler
+from codehandler import FileHandler
+from codehandler import Code
 from log import logger
 import time
 
@@ -12,24 +13,28 @@ def dependencyVulnExample():
     for item in dh.getVulnerableDependencies():
         print(item.getDependency())
 
-def getDependenccy():
-    ch = CodeHandler()
+def getDependency():
+    fh = FileHandler()
     dh = DependencyHandler()
-    ch.getAllFilesFromRepository("/home/adinatha/Documents/Programming/tugas-akhir/coeus")
-    # print(ch.getDependencyFilesPath())
-    ch.getDependencies(dh)
-    # for item in dh.getDependencies():
-    #     print(item.getDependency())
+    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus")
+    fh.getDependencies(dh)
     dh.scanDependencies()
-    # for item in dh.getVulnerableDependencies():
-    #     print(item.getDependency())
-    #### !!!!! TO DO, FIX DUMP FEATURE !!!!! ####
     dh.dumpVulnerabilities()
-    
+
+def parseLanguage():
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus/src/testcase/python")
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
+        parsed = code.parseLanguage()
+
+        print(f"{codePath} : {parsed} \n")
 
 if __name__ == "__main__":
-    logger.info("=============== Starting coeus ===============")
-    startTime = time.time()
-    getDependenccy()
-    logger.info(f"Execution time: {(time.time() - startTime)}")
-    logger.info("=============== Successfully running coeus ===============")
+    parseLanguage()
+    # logger.info("=============== Starting coeus ===============")
+    # startTime = time.time()
+    # getDependency()
+    # logger.info(f"Execution time: {(time.time() - startTime)}")
+    # logger.info("=============== Successfully running coeus ===============")
