@@ -121,8 +121,6 @@ class FileHandler:
 
 class Code:
     def __init__(self, language, sourceCode):
-        self.language = Language('build/my-languages.so', language)
-        self.sourceCode = sourceCode
         Language.build_library(
           # Store the library in the `build` directory
           'build/my-languages.so',
@@ -134,6 +132,8 @@ class Code:
             'vendor/tree-sitter-python'
           ]
         )
+        self.language = Language('build/my-languages.so', language)
+        self.sourceCode = sourceCode
         self.parser = Parser()
         self.parser.set_language(self.language)
 
