@@ -29,7 +29,7 @@ cd coeus
 ```
 python3 -m venv env
 source env/bin/activate
-pip install -r requirements
+pip install -r requirements.txt
 ```
 * Create folder named `vendor` inside `src`
 ```
