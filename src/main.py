@@ -16,7 +16,7 @@ def dependencyVulnExample():
 def getDependency():
     fh = FileHandler()
     dh = DependencyHandler()
-    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus")
+    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/bruh")
     fh.getDependencies(dh)
     dh.scanDependencies()
     dh.dumpVulnerabilities()
@@ -27,11 +27,13 @@ def parseLanguage():
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
-        parsed = code.parseLanguage()
 
-        print(f"{codePath} : {parsed} \n")
+        # parsed = code.parseLanguage()
+        # print(f"{codePath} : {parsed} \n")
+        code.traverseTree(code.getRootNode())
 
 if __name__ == "__main__":
+    # getDependency()
     parseLanguage()
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
