@@ -136,12 +136,26 @@ class Code:
         self.sourceCode = sourceCode
         self.parser = Parser()
         self.parser.set_language(self.language)
+        self.tree = tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
+        self.rootNode = self.tree.root_node
 
     def getSourceCode(self):
         return self.sourceCode
 
+    def getRootNode(self):
+        return self.rootNode
+
+    def getTree(self):
+        return self.tree
+
     def parseLanguage(self):
-        tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
-        rootNode = tree.root_node
-        
-        return rootNode.sexp()
+        return self.rootNode.sexp()
+
+    def traverseTree(self, node, depth=0):
+        removedList = ['"', '=', '(', ')', '[', ']', ':']
+        indent = ' ' * depth
+        if node.type in removedList:
+            return
+        print(f'{indent}{node.type}: {node.text}')
+        for child in node.children:
+            self.traverseTree(child, depth + 2)

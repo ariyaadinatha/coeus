@@ -27,3 +27,76 @@
 [2023-02-02 20:39:49,196-INFO-getAllFilesFromRepository-38]: Searching all relevant files
 [2023-02-02 20:49:19,617-INFO-getAllFilesFromRepository-38]: Searching all relevant files
 [2023-02-02 20:49:30,435-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-11 01:07:20,267-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-13 09:06:59,914-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-13 09:06:59,918-INFO-getDependencies-67]: Searching dependencies...
+[2023-02-13 09:06:59,918-INFO-getDependencies-75]: Found composer.lock
+[2023-02-13 09:06:59,918-INFO-getDependencies-89]: Matching json pattern...
+[2023-02-13 09:06:59,920-INFO-getDependencies-92]: Completed pattern matching for composer.lock
+[2023-02-13 09:06:59,920-INFO-scanDependencies-88]: Total dependencies: 0
+[2023-02-13 09:06:59,920-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-13 09:06:59,920-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-13 09:06:59,920-INFO-scanDependencies-109]: Vulnerabilities found: 0
+[2023-02-13 09:12:25,979-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-13 09:12:25,979-INFO-getDependencies-67]: Searching dependencies...
+[2023-02-13 09:12:25,979-INFO-getDependencies-75]: Found composer.lock
+[2023-02-13 09:12:25,980-INFO-getDependencies-89]: Matching json pattern...
+[2023-02-13 09:12:25,981-INFO-getDependencies-92]: Completed pattern matching for composer.lock
+[2023-02-13 09:12:25,981-INFO-scanDependencies-88]: Total dependencies: 0
+[2023-02-13 09:12:25,981-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-13 09:12:25,981-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-13 09:12:25,981-INFO-scanDependencies-109]: Vulnerabilities found: 0
+[2023-02-13 09:17:01,977-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-13 09:17:01,977-INFO-getDependencies-67]: Searching dependencies...
+[2023-02-13 09:17:01,978-INFO-getDependencies-75]: Found composer.lock
+[2023-02-13 09:17:01,978-INFO-getDependencies-89]: Matching json pattern...
+[2023-02-13 09:17:01,978-INFO-getDependencies-92]: Completed pattern matching for composer.lock
+[2023-02-13 09:17:01,979-INFO-scanDependencies-88]: Total dependencies: 0
+[2023-02-13 09:17:01,979-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-13 09:17:01,979-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-13 09:17:01,979-INFO-scanDependencies-109]: Vulnerabilities found: 0
+[2023-02-13 09:17:34,297-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-13 09:17:34,297-INFO-getDependencies-67]: Searching dependencies...
+[2023-02-13 09:17:34,297-INFO-getDependencies-75]: Found composer.lock
+[2023-02-13 09:17:34,297-INFO-getDependencies-89]: Matching json pattern...
+[2023-02-13 09:17:34,298-INFO-getDependencies-92]: Completed pattern matching for composer.lock
+[2023-02-13 09:17:34,298-INFO-scanDependencies-88]: Total dependencies: 67
+[2023-02-13 09:17:34,298-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-13 09:18:10,216-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-13 09:18:10,216-INFO-scanDependencies-109]: Vulnerabilities found: 6
+[2023-02-17 12:58:45,804-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:06:01,202-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:06:40,757-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:07:06,632-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:08:01,012-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:22:16,180-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 13:23:27,621-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:06:06,181-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:07:30,817-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:09:18,135-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:10:20,277-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:10:43,287-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:10:55,151-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:12:51,939-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:13:08,826-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:23:39,717-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:25:36,688-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:25:56,105-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:26:13,496-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:28:34,735-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:31:03,057-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:31:27,428-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:31:36,155-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:32:35,588-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:32:55,035-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:33:09,809-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:34:11,124-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:34:23,150-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:34:46,090-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:35:17,344-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:36:19,476-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:36:34,953-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:36:57,650-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:37:33,003-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:38:05,417-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 14:38:12,791-INFO-getAllFilesFromRepository-38]: Searching all relevant files
