@@ -6,12 +6,13 @@ from log import logger
 import time
 
 def dependencyVulnExample():
-    dep = Dependency("jinja2", "2.4.1", "PyPI", "testcase/dependency")
+    dep = Dependency("urllib3", "1.26.4", "PyPI", "testcase/dependency")
     dh = DependencyHandler()
     dh.addDependency(dep)
     dh.scanDependencies()
     for item in dh.getVulnerableDependencies():
         print(item.getDependency())
+        print("")
 
 def getDependency():
     fh = FileHandler()
@@ -24,15 +25,20 @@ def getDependency():
 def parseLanguage():
     fh = FileHandler()
     fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus/src/testcase/python")
+    result = []
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
 
         # parsed = code.parseLanguage()
         # print(f"{codePath} : {parsed} \n")
-        code.traverseTree(code.getRootNode())
+        # code.traverseTree(code.getRootNode())
+        # code.traverse_tree(code.getRootNode())
+        code.searchTree(code.getRootNode(), "assignment", result)
+    # print(result)
 
 if __name__ == "__main__":
+    # dependencyVulnExample()
     # getDependency()
     parseLanguage()
     # logger.info("=============== Starting coeus ===============")

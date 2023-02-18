@@ -159,3 +159,24 @@ class Code:
         print(f'{indent}{node.type}: {node.text}')
         for child in node.children:
             self.traverseTree(child, depth + 2)
+
+    def searchTree(self, node, keyword, result):
+        if node.type == keyword:
+            result.append(node)
+        for child in node.children:
+            self.searchTree(child, keyword, result)
+
+    def getAllVariable(self, node, result):
+        if node.type == "assignment":
+            varNameNode = node.children[0]
+            variableName = self.getSourceCode()[varNameNode.start_byte:varNameNode.end_byte]
+            varValueNode = node.children[2]
+            variableValue = self.getSourceCode()[varValueNode.start_byte:varValueNode.end_byte]
+            result.append(node)
+            result.append({variableName: variableValue})
+        for child in node.children:
+            self.searchTree(child, keyword, result)
+
+    def getAllFunctions(self):
+        # TODO
+        pass
