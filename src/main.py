@@ -34,8 +34,13 @@ def parseLanguage():
         # print(f"{codePath} : {parsed} \n")
         # code.traverseTree(code.getRootNode())
         # code.traverse_tree(code.getRootNode())
-        code.searchTree(code.getRootNode(), "assignment", result)
-    # print(result)
+        # code.searchTree(code.getRootNode(), "assignment", result)
+        code.getNodes(code.getRootNode(), "assignment", result)
+        # code.getNodes(code.getRootNode(), "call", result)
+    
+    print(result)
+    # for item in result:
+    #     print(item.children[1].text)
 
 if __name__ == "__main__":
     # dependencyVulnExample()

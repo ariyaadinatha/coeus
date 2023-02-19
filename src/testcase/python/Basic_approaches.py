@@ -1,10 +1,10 @@
 nama = "budi"
 
+def halo(param):
+	return param+1
+
 if nama == "budi":
     print("Hai budi")
-
-# def basic():
-#     text = "this is a demo"
-#     eval(text)
-#     tixt = "second demo"
-#     eval(tixt)
+    var = 1
+    halo(var)
+    sleep(1)

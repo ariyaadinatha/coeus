@@ -40,7 +40,7 @@ def traverse_tree(node):
         var_name = code[var_name_node.start_byte:var_name_node.end_byte]
         print(f"Variable name: {var_name}")
         # Get the variable value
-        var_value_node = node.children[2]
+        var_value_node = node.children[1]
         var_value = code[var_value_node.start_byte:var_value_node.end_byte]
         print(f"Variable value: {var_value}")
     for child in node.children:
