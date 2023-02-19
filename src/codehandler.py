@@ -119,6 +119,7 @@ class FileHandler:
             logger.error(f"Error : {repr(e)}")
 
 
+
 class Code:
     def __init__(self, language, sourceCode):
         Language.build_library(
@@ -159,3 +160,19 @@ class Code:
         print(f'{indent}{node.type}: {node.text}')
         for child in node.children:
             self.traverseTree(child, depth + 2)
+
+    def searchTree(self, node, keyword, result):
+        if node.type == keyword:
+            result.append(node)
+        for child in node.children:
+            self.searchTree(child, keyword, result)
+
+    def getNodes(self, node, keyword, result):
+        if node.type == keyword:
+            varNameNode = node.children[0]
+            variableName = self.getSourceCode()[varNameNode.start_byte:varNameNode.end_byte]
+            varValueNode = node.children[-1]
+            variableValue = self.getSourceCode()[varValueNode.start_byte:varValueNode.end_byte]
+            result.append({variableName: variableValue})
+        for child in node.children:
+            self.getNodes(child, keyword, result)

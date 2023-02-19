@@ -100,3 +100,70 @@
 [2023-02-17 14:37:33,003-INFO-getAllFilesFromRepository-38]: Searching all relevant files
 [2023-02-17 14:38:05,417-INFO-getAllFilesFromRepository-38]: Searching all relevant files
 [2023-02-17 14:38:12,791-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 15:41:30,949-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 15:42:15,071-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-17 16:35:51,243-INFO-scanDependencies-88]: Total dependencies: 1
+[2023-02-17 16:35:51,243-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-17 16:35:53,168-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-17 16:35:53,168-INFO-scanDependencies-109]: Vulnerabilities found: 10
+[2023-02-17 16:36:23,373-INFO-scanDependencies-88]: Total dependencies: 1
+[2023-02-17 16:36:23,374-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-17 16:36:23,966-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-17 16:36:23,966-INFO-scanDependencies-109]: Vulnerabilities found: 2
+[2023-02-17 16:37:31,860-INFO-scanDependencies-88]: Total dependencies: 1
+[2023-02-17 16:37:31,860-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-02-17 16:37:32,575-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-02-17 16:37:32,575-INFO-scanDependencies-109]: Vulnerabilities found: 2
+[2023-02-18 17:02:43,981-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 17:02:53,054-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 17:03:24,731-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 17:04:06,096-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:44:04,413-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:53:43,961-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:53:50,667-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:54:09,391-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:54:31,657-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:54:38,954-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:54:44,308-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:54:55,364-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:56:47,975-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:56:55,559-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 20:59:15,620-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:01:29,983-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:01:52,267-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:02:53,121-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:50:58,258-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:51:11,692-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:51:30,392-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:52:06,755-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:52:18,611-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:52:25,135-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:53:00,312-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 21:55:43,735-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:29:43,314-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:30:13,943-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:30:41,244-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:30:54,897-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:31:05,574-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:31:14,981-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:31:25,099-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:32:18,274-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:32:35,298-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:32:43,815-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:48:33,031-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:48:59,347-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:49:32,117-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:50:33,468-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:52:16,914-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:53:34,337-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:53:42,043-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:53:53,506-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:54:02,951-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:54:14,410-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:54:38,667-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:56:13,162-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:56:27,848-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:56:39,330-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:57:07,569-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-18 22:57:28,401-INFO-getAllFilesFromRepository-38]: Searching all relevant files
+[2023-02-19 01:44:08,398-INFO-getAllFilesFromRepository-38]: Searching all relevant files
