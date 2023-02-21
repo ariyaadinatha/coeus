@@ -120,7 +120,6 @@ class DependencyHandler:
     
         return vulnResult
 
-    #### !!!!! TO DO, FIX DUMP FEATURE !!!!! ####
     def dumpVulnerabilities(self):
         vulnerableDependenciesList = [x.getDependency() for x in self.getVulnerableDependencies()]
         if not os.path.exists("reports"):
@@ -131,6 +130,7 @@ class DependencyHandler:
 
 
     # get all dependencies used in a code
+    # legacy, not used
     def scanDependenciesUsingRegex(self, filePath):
         fileExtension = filePath.split(".")[-1]
         importList = []
