@@ -1,5 +1,7 @@
-from dependencyhandler import Dependency
 from dependencyhandler import DependencyHandler
+from dependencyhandler import Dependency
+from secrethandler import SecretDetection
+from vulnhandler import VulnerableHandler
 from codehandler import FileHandler
 from codehandler import Code
 from log import logger
@@ -38,14 +40,34 @@ def parseLanguage():
         code.getNodes(code.getRootNode(), "assignment", result)
         # code.getNodes(code.getRootNode(), "call", result)
     
-    print(result)
-    # for item in result:
-    #     print(item.children[1].text)
+    # print(result)
+
+    # a=[list(d.keys())[0] for d in data]
+    for item in result:
+        print(list(item.keys()))
+
+def secretDetection():
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus/src/testcase/python")
+    sc = SecretDetection()
+    vh = VulnerableHandler()
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
+        code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
+
+        # Secret Detection
+        sc.wordlistDetection(code.getSourceCode(), vh, codePath)
+        for i in (vh.getVulnerable()):
+            print(i.getVulnerable())
+
+
 
 if __name__ == "__main__":
     # dependencyVulnExample()
     # getDependency()
-    parseLanguage()
+    # parseLanguage()
+    secretDetection()
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
     # getDependency()
