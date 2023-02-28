@@ -1,9 +1,10 @@
 import json
 import os
 import re
-from dependencyhandler import Dependency
-from log import logger
-from tree_sitter import Language, Parser
+from handler.dependency.dependencyhandler import Dependency
+from utils.log import logger
+from tree_sitter import Language, Parser, Node
+from typing import Callable
 import csv
 import uuid
 
@@ -159,17 +160,22 @@ class Code:
     def parseLanguage(self):
         return self.rootNode.sexp()
 
-    def traverseTree(self, node, tree, depth=0):
+    def traverseTree(self, node: Node, tree: list[tuple], depth=0):
         removedList = ['"', '=', '(', ')', '[', ']', ':']
         indent = ' ' * depth
         if node.type in removedList:
             return
         
+        print(node)
+
         print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
-        tree.append((node.type, node.text.decode("utf-8") ))
+        tree.append((node.id, node.type, node.text.decode("utf-8"), node.parent.id))
 
         for child in node.children:
             self.traverseTree(child, tree, depth + 2)
+
+    def convertNodeToCSVRow(node: Node) -> tuple:
+        return (node.id, node.type, node.text.decode("utf-8"), node.parent.id)
 
     def exportToCSV(self):
         header = ['type', 'content']
