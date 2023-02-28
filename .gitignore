@@ -3,4 +3,6 @@ env/
 build/
 vendor/
 reports/
+src/csv/
+src/log/
 src/test.py
