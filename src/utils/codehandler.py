@@ -1,7 +1,7 @@
 import json
 import os
 import re
-from dependencyhandler import Dependency
+from handler.dependency.dependencyhandler import Dependency
 from log import logger
 from tree_sitter import Language, Parser, Node
 import csv
