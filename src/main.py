@@ -3,7 +3,7 @@ from handler.dependency.secrethandler import SecretDetection
 from handler.dependency.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import Code
-from log import logger
+from utils.log import logger
 import time
 
 def dependencyVulnExample():

@@ -1,6 +1,6 @@
 import re
 import requests
-from log import logger
+from utils.log import logger
 from datetime import date
 import json
 import os

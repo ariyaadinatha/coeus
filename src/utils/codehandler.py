@@ -2,8 +2,9 @@ import json
 import os
 import re
 from handler.dependency.dependencyhandler import Dependency
-from log import logger
+from utils.log import logger
 from tree_sitter import Language, Parser, Node
+from typing import Callable
 import csv
 import uuid
 
@@ -159,25 +160,16 @@ class Code:
     def parseLanguage(self):
         return self.rootNode.sexp()
 
-    def traverseTree(self, node, tree, depth=0):
+    def traverseTree(self, node: Node, tree: list[tuple], depth=0):
         removedList = ['"', '=', '(', ')', '[', ']', ':']
         indent = ' ' * depth
         if node.type in removedList:
             return
         
-        print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
-        tree.append((node.type, node.text.decode("utf-8") ))
+        print(node)
 
-        for child in node.children:
-            self.traverseTree(child, tree, depth + 2)
-    
-    def traverseTreeWithFunc(self, node: Node, tree: list[tuple], func: function, depth=0):
-        removedList = ['"', '=', '(', ')', '[', ']', ':']
-        indent = ' ' * depth
-        if node.type in removedList:
-            return
-        
-        tree.append((node.type, node.text.decode("utf-8") ))
+        print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
+        tree.append((node.id, node.type, node.text.decode("utf-8"), node.parent.id))
 
         for child in node.children:
             self.traverseTree(child, tree, depth + 2)
