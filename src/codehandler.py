@@ -4,6 +4,8 @@ import re
 from dependencyhandler import Dependency
 from log import logger
 from tree_sitter import Language, Parser
+import csv
+import uuid
 
 class FileHandler:
     def __init__(self):
@@ -139,6 +141,8 @@ class Code:
         self.parser.set_language(self.language)
         self.tree = tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
         self.rootNode = self.tree.root_node
+        self.treeList = []
+        self.traverseTree(self.rootNode, self.treeList)
 
     def getSourceCode(self):
         return self.sourceCode
@@ -148,18 +152,32 @@ class Code:
 
     def getTree(self):
         return self.tree
+    
+    def getTreeList(self):
+        return self.treeList
 
     def parseLanguage(self):
         return self.rootNode.sexp()
 
-    def traverseTree(self, node, depth=0):
+    def traverseTree(self, node, tree, depth=0):
         removedList = ['"', '=', '(', ')', '[', ']', ':']
         indent = ' ' * depth
         if node.type in removedList:
             return
-        print(f'{indent}{node.type}: {node.text}')
+        
+        print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
+        tree.append((node.type, node.text.decode("utf-8") ))
+
         for child in node.children:
-            self.traverseTree(child, depth + 2)
+            self.traverseTree(child, tree, depth + 2)
+
+    def exportToCSV(self):
+        header = ['type', 'content']
+        with open(f'./csv/{uuid.uuid4().hex}.csv', 'w+') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+            for node in self.treeList:
+                writer.writerow([node[0], node[1]])
 
     def searchTree(self, node, keyword, result):
         if node.type == keyword:
