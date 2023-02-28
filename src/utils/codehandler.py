@@ -3,7 +3,7 @@ import os
 import re
 from dependencyhandler import Dependency
 from log import logger
-from tree_sitter import Language, Parser
+from tree_sitter import Language, Parser, Node
 import csv
 import uuid
 
@@ -170,6 +170,20 @@ class Code:
 
         for child in node.children:
             self.traverseTree(child, tree, depth + 2)
+    
+    def traverseTreeWithFunc(self, node: Node, tree: list[tuple], func: function, depth=0):
+        removedList = ['"', '=', '(', ')', '[', ']', ':']
+        indent = ' ' * depth
+        if node.type in removedList:
+            return
+        
+        tree.append((node.type, node.text.decode("utf-8") ))
+
+        for child in node.children:
+            self.traverseTree(child, tree, depth + 2)
+
+    def convertNodeToCSVRow(node: Node) -> tuple:
+        return (node.id, node.type, node.text.decode("utf-8"), node.parent.id)
 
     def exportToCSV(self):
         header = ['type', 'content']

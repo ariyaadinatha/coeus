@@ -1,9 +1,8 @@
-from dependencyhandler import DependencyHandler
-from dependencyhandler import Dependency
-from secrethandler import SecretDetection
-from vulnhandler import VulnerableHandler
-from codehandler import FileHandler
-from codehandler import Code
+from handler.dependency.dependencyhandler import DependencyHandler, Dependency
+from handler.dependency.secrethandler import SecretDetection
+from handler.dependency.vulnhandler import VulnerableHandler
+from utils.codehandler import FileHandler
+from utils.codehandler import Code
 from log import logger
 import time
 
@@ -26,18 +25,19 @@ def getDependency():
 
 def parseLanguage():
     fh = FileHandler()
-    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus/src/testcase/python")
+    fh.getAllFilesFromRepository("./testcase/python")
     result = []
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
 
-        # parsed = code.parseLanguage()
-        # print(f"{codePath} : {parsed} \n")
+        parsed = code.parseLanguage()
+        print(f"{codePath} : {parsed} \n")
+
         # code.traverseTree(code.getRootNode())
         # code.traverse_tree(code.getRootNode())
         # code.searchTree(code.getRootNode(), "assignment", result)
-        code.getNodes(code.getRootNode(), "assignment", result)
+        # code.getNodes(code.getRootNode(), "assignment", result)
         # code.getNodes(code.getRootNode(), "call", result)
     
     # print(result)
@@ -67,9 +67,43 @@ if __name__ == "__main__":
     # dependencyVulnExample()
     # getDependency()
     # parseLanguage()
-    secretDetection()
+    # secretDetection()
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
     # getDependency()
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     # logger.info("=============== Successfully running coeus ===============")
+
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("./testcase/python")
+    result = []
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
+
+        # print(codePath)
+
+        root = code.getRootNode()
+        parsed = code.parseLanguage()
+        tree = code.getTree()
+
+        print(tree.text)
+
+        # children = code.getNodes(root, )
+
+        # print('root')
+        # print(root)
+        # print('parsed')
+        # print(parsed)
+
+        nodes = []
+        code.traverseTree(root, nodes)
+        print('nodes')
+        print(nodes)
+
+        code.exportToCSV()
+
+        # converter = cfg.Converter()
+        # result = converter.ast_to_cfg(tree)
+
+        break
