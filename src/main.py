@@ -1,6 +1,6 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.dependency.secrethandler import SecretDetection
-from handler.dependency.vulnhandler import VulnerableHandler
+from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import Code
 from utils.log import logger
@@ -67,27 +67,27 @@ if __name__ == "__main__":
     # dependencyVulnExample()
     # getDependency()
     # parseLanguage()
-    # secretDetection()
+    secretDetection()
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
     # getDependency()
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     # logger.info("=============== Successfully running coeus ===============")
 
-    fh = FileHandler()
-    fh.getAllFilesFromRepository("./testcase/python")
-    result = []
-    for codePath in fh.getCodeFilesPath():
-        sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
+    # fh = FileHandler()
+    # fh.getAllFilesFromRepository("./testcase/python")
+    # result = []
+    # for codePath in fh.getCodeFilesPath():
+    #     sourceCode = fh.readFile(codePath)
+    #     code = Code("python", sourceCode)
 
         # print(codePath)
 
-        root = code.getRootNode()
-        parsed = code.parseLanguage()
-        tree = code.getTree()
+    #    root = code.getRootNode()
+    #    parsed = code.parseLanguage()
+    #    tree = code.getTree()
 
-        print(tree.text)
+    #    print(tree.text)
 
         # children = code.getNodes(root, )
 
@@ -96,14 +96,14 @@ if __name__ == "__main__":
         # print('parsed')
         # print(parsed)
 
-        nodes = []
-        code.traverseTree(root, nodes)
-        print('nodes')
-        print(nodes)
+    #    nodes = []
+    #    code.traverseTree(root, nodes)
+    #    print('nodes')
+    #    print(nodes)
 
-        code.exportToCSV()
+    #    code.exportToCSV()
 
         # converter = cfg.Converter()
         # result = converter.ast_to_cfg(tree)
 
-        break
+    #    break

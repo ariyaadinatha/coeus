@@ -143,7 +143,7 @@ class Code:
         self.tree = tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
         self.rootNode = self.tree.root_node
         self.treeList = []
-        self.traverseTree(self.rootNode, self.treeList)
+        # self.traverseTree(self.rootNode, self.treeList)
 
     def getSourceCode(self):
         return self.sourceCode

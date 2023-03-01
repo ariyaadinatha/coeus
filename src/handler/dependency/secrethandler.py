@@ -1,6 +1,6 @@
 from tree_sitter import Language, Parser
 from utils.codehandler import Code, FileHandler
-from handler.dependency.vulnhandler import Vulnerable
+from utils.vulnhandler import Vulnerable
 from utils.log import logger
 from datetime import datetime
 import json
