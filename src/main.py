@@ -55,25 +55,15 @@ def secretDetection():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
         code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
+        code.searchTree(code.getRootNode(), "argument_list", sc.getAssignmentList())
 
         # Secret Detection
-        sc.wordlistDetection(code.getSourceCode(), vh, codePath)
-        for i in (vh.getVulnerable()):
-            print(i.getVulnerable())
+        sc.valueDetection(code.getSourceCode(), vh, codePath)
+        sc.clearAssignmentList()
+        # for i in (vh.getVulnerable()):
+        #     print(i.getVulnerable())
 
-
-
-if __name__ == "__main__":
-    # dependencyVulnExample()
-    # getDependency()
-    # parseLanguage()
-    secretDetection()
-    # logger.info("=============== Starting coeus ===============")
-    # startTime = time.time()
-    # getDependency()
-    # logger.info(f"Execution time: {(time.time() - startTime)}")
-    # logger.info("=============== Successfully running coeus ===============")
-
+def injection():
     fh = FileHandler()
     fh.getAllFilesFromRepository("./testcase/python")
     result = []
@@ -104,3 +94,30 @@ if __name__ == "__main__":
 
         # converter = cfg.Converter()
         # result = converter.ast_to_cfg(tree)
+
+
+
+if __name__ == "__main__":
+    # dependencyVulnExample()
+    # getDependency()
+    # parseLanguage()
+    secretDetection()
+    
+    
+    # injection()
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    # logger.info("=============== Starting coeus ===============")
+    # startTime = time.time()
+    # getDependency()
+    # logger.info(f"Execution time: {(time.time() - startTime)}")
+    # logger.info("=============== Successfully running coeus ===============")
+
+    

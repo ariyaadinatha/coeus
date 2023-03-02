@@ -32,10 +32,24 @@ class SecretDetection:
         return variableName, varNameNode.start_point[0]+1
         
     def getNodeValue(self, node, sourceCode):
-        varValueNode = node.children[-1]
-        variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
-        
-        return variableValue, variableValue.start_point[0]+1
+        # PYTHON
+        if (node.type == "assignment"):
+            varValueNode = node.children[-1]
+            variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
+
+            return variableValue, varValueNode.start_point[0]+1
+
+        if (node.type == "argument_list"):
+            ignoreValue = ["(", ")", ","]
+            valueList = []
+            for i in range(len(node.children)):
+                varValueNode = node.children[i]
+                variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
+                # print(variableValue)
+                if variableValue not in ignoreValue:
+                    valueList.append(variableValue)
+
+            return valueList, varValueNode.start_point[0]+1
 
     ### START OF SECRET DETECTION ALGORITHM ###
     def wordlistDetection(self, sourceCode, vulnHandler, codePath):
@@ -54,16 +68,32 @@ class SecretDetection:
             variableName, variableValue = self.getNodeActualValue(node, sourceCode)
 
     # detecting value using regex
-    def valueDetection(self):
+    def valueDetection(self, sourceCode, vulnHandler, codePath):
         for node in self.getAssignmentList():
-            variableName, variableValue = self.getNodeActualValue(node, sourceCode)
+            variableValue, variableLine = self.getNodeValue(node, sourceCode)
+            if (node.type == "argument_list"):
+                for value in variableValue:
+                    self.scanSusVariable(value, variableLine)
+
+            if (node.type == "assignment"):
+                self.scanSusVariable(variableValue, variableLine)
+
+    def scanSusVariable(self, variableValue, variableLine):
+        regexPattern = [
+            re.compile(".{9,}"),
+            re.compile("(?=.*[a-z])(?=.*[A-Z]).+"),
+            re.compile("(?=.*\d).+"),
+            re.compile("(?=.*[@#$%^&+=]).+")
+        ]
+
+        sus = 0
+        for pattern in regexPattern:
+            sus +=1 if pattern.search(variableValue) else 0
+
+        if (sus > 2):
+            print(f"SUS VARIABLE: {variableValue}, LINE: {variableLine}")
+            return 1
+        else:
+            return 0
 
     ### END OF SECRET DETECTION ALGORITHM ###
-    
-
-if __name__ == "__main__":
-    sc = SecretDetection()
-    sc.addAssignment("a")
-    print(sc.getAssignmentList())
-    sc.getAssignmentList().append("b")
-    print(sc.getAssignmentList())

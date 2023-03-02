@@ -140,7 +140,7 @@ class Code:
         self.sourceCode = sourceCode
         self.parser = Parser()
         self.parser.set_language(self.language)
-        self.tree = tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
+        self.tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
         self.rootNode = self.tree.root_node
         self.treeList = []
 
