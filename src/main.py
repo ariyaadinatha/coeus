@@ -74,18 +74,18 @@ if __name__ == "__main__":
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     # logger.info("=============== Successfully running coeus ===============")
 
-    # fh = FileHandler()
-    # fh.getAllFilesFromRepository("./testcase/python")
-    # result = []
-    # for codePath in fh.getCodeFilesPath():
-    #     sourceCode = fh.readFile(codePath)
-    #     code = Code("python", sourceCode)
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("./testcase/python")
+    result = []
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
 
         # print(codePath)
 
-    #    root = code.getRootNode()
-    #    parsed = code.parseLanguage()
-    #    tree = code.getTree()
+        root = code.getRootNode()
+        parsed = code.parseLanguage()
+        tree = code.getTree()
 
     #    print(tree.text)
 
@@ -93,17 +93,14 @@ if __name__ == "__main__":
 
         # print('root')
         # print(root)
-        # print('parsed')
-        # print(parsed)
+        print('parsed')
+        print(parsed)
 
-    #    nodes = []
-    #    code.traverseTree(root, nodes)
-    #    print('nodes')
-    #    print(nodes)
+        code.createTreeListWithId(root, code.treeList, "parent")
+        print('nodes')
+        print(code.getTreeList())
 
     #    code.exportToCSV()
 
         # converter = cfg.Converter()
         # result = converter.ast_to_cfg(tree)
-
-    #    break
