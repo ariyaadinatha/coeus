@@ -93,17 +93,14 @@ if __name__ == "__main__":
 
         # print('root')
         # print(root)
-        # print('parsed')
-        # print(parsed)
+        print('parsed')
+        print(parsed)
 
-        nodes = []
-        code.traverseTree(root, nodes)
+        code.createTreeListWithId(root, code.treeList, "parent")
         print('nodes')
-        print(nodes)
+        print(code.getTreeList())
 
         code.exportToCSV()
 
         # converter = cfg.Converter()
         # result = converter.ast_to_cfg(tree)
-
-        break

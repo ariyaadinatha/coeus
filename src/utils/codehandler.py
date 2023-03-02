@@ -143,7 +143,6 @@ class Code:
         self.tree = tree = self.parser.parse(bytes(self.getSourceCode(), "utf8"))
         self.rootNode = self.tree.root_node
         self.treeList = []
-        self.traverseTree(self.rootNode, self.treeList)
 
     def getSourceCode(self):
         return self.sourceCode
@@ -155,6 +154,9 @@ class Code:
         return self.tree
     
     def getTreeList(self):
+        if self.treeList == []:
+            self.createTreeListWithId(self.getRootNode, self.treeList, 'root')
+            
         return self.treeList
 
     def parseLanguage(self):
@@ -166,24 +168,39 @@ class Code:
         if node.type in removedList:
             return
         
-        print(node)
-
         print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
-        tree.append((node.id, node.type, node.text.decode("utf-8"), node.parent.id))
+
+        tree.append((node.type, node.text.decode("utf-8")))
 
         for child in node.children:
             self.traverseTree(child, tree, depth + 2)
 
-    def convertNodeToCSVRow(node: Node) -> tuple:
+    def createTreeListWithId(self, node: Node, tree: list[tuple], parentId: str, depth=0):
+        removedList = ['"', '=', '(', ')', '[', ']', ':']
+        indent = ' ' * depth
+        if node.type in removedList:
+            return
+        
+        print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
+
+        nodeId = uuid.uuid4().hex
+
+        tree.append((nodeId, node.type, node.text.decode("utf-8"), parentId))
+
+        for child in node.children:
+            self.createTreeListWithId(child, tree, nodeId, depth + 2)
+
+    def convertNodeToCSVRow(self, node: Node) -> tuple:
         return (node.id, node.type, node.text.decode("utf-8"), node.parent.id)
 
     def exportToCSV(self):
-        header = ['type', 'content']
+        header = ['id', 'type', 'content', 'parent_id']
         with open(f'./csv/{uuid.uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
             for node in self.treeList:
-                writer.writerow([node[0], node[1]])
+                row = [attr for attr in node]
+                writer.writerow(row)
 
     def searchTree(self, node, keyword, result):
         if node.type == keyword:
