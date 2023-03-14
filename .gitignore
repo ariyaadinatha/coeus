@@ -4,5 +4,6 @@ build/
 vendor/
 reports/
 src/csv/
+src/log/
 src/reports/
 src/test.py
