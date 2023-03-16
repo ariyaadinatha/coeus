@@ -5,119 +5,81 @@ from utils.codehandler import FileHandler
 from utils.codehandler import Code
 from utils.log import logger
 import time
+import click
 
-def dependencyVulnExample():
-    dep = Dependency("urllib3", "1.26.4", "PyPI", "testcase/dependency")
-    dh = DependencyHandler()
-    dh.addDependency(dep)
-    dh.scanDependencies()
-    for item in dh.getVulnerableDependencies():
-        print(item.getDependency())
-        print("")
+@click.group()
+def cli():
+    pass
 
-def getDependency():
+@click.command(short_help='Scan code for dependencies vulnerabilities')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
+def dependency(path, output):
     fh = FileHandler()
     dh = DependencyHandler()
-    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/bruh")
+    fh.getAllFilesFromRepository(path)
     fh.getDependencies(dh)
     dh.scanDependencies()
+    ### TO DO ADD ANOTHER OPTIONS OF OUTPUT
     dh.dumpVulnerabilities()
+cli.add_command(dependency)
 
-def parseLanguage():
+@click.command(short_help='Scan code for hardcoded secret')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
+def secret(path, output):
     fh = FileHandler()
-    fh.getAllFilesFromRepository("./testcase/python")
-    result = []
-    for codePath in fh.getCodeFilesPath():
-        sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
-
-        parsed = code.parseLanguage()
-        print(f"{codePath} : {parsed} \n")
-
-        # code.traverseTree(code.getRootNode())
-        # code.traverse_tree(code.getRootNode())
-        # code.searchTree(code.getRootNode(), "assignment", result)
-        # code.getNodes(code.getRootNode(), "assignment", result)
-        # code.getNodes(code.getRootNode(), "call", result)
-    
-    # print(result)
-
-    # a=[list(d.keys())[0] for d in data]
-    for item in result:
-        print(list(item.keys()))
-
-def secretDetection():
-    fh = FileHandler()
-    fh.getAllFilesFromRepository("/home/caffeine/Documents/Code/tugas-akhir/coeus/src/testcase/python")
+    fh.getAllFilesFromRepository(path)
     sc = SecretDetection()
     vh = VulnerableHandler()
     for codePath in fh.getCodeFilesPath():
+        codeExtension = codePath.split(".")[-1]
+        extensionAlias = {
+            "py": "python",
+            "java": "java",
+            "js": "javascript",
+            "php": "php"
+        }
         sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
-        code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
-        code.searchTree(code.getRootNode(), "argument_list", sc.getAssignmentList())
+        code = Code(extensionAlias[codeExtension], sourceCode)
+
+        if codeExtension == "py":
+            code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
+            code.searchTree(code.getRootNode(), "argument_list", sc.getAssignmentList())
+        
+        if codeExtension == "java":
+            pass
+
+        if codeExtension == "js":
+            pass
+
+        if codeExtension == "php":
+            pass
 
         # Secret Detection
         sc.valueDetection(code.getSourceCode(), vh, codePath)
         sc.clearAssignmentList()
-        # for i in (vh.getVulnerable()):
-        #     print(i.getVulnerable())
+        for i in (vh.getVulnerable()):
+            print(i.getVulnerable())
+cli.add_command(secret)
 
+@click.command(short_help='Scan code for injection vulnerability')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def injection():
-    fh = FileHandler()
-    fh.getAllFilesFromRepository("./testcase/python")
-    result = []
-    for codePath in fh.getCodeFilesPath():
-        sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
+    pass
+cli.add_command(injection)
 
-        # print(codePath)
-
-        root = code.getRootNode()
-        parsed = code.parseLanguage()
-        tree = code.getTree()
-
-    #    print(tree.text)
-
-        # children = code.getNodes(root, )
-
-        # print('root')
-        # print(root)
-        print('parsed')
-        print(parsed)
-
-        code.createTreeListWithId(root, code.treeList, "parent")
-        print('nodes')
-        print(code.getTreeList())
-
-    #    code.exportToCSV()
-
-        # converter = cfg.Converter()
-        # result = converter.ast_to_cfg(tree)
-
-
+@click.command(short_help='Scan code for broken access control')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
+def access():
+    pass
+cli.add_command(access)
 
 if __name__ == "__main__":
-    # dependencyVulnExample()
-    # getDependency()
-    # parseLanguage()
-    secretDetection()
-    
-    
-    # injection()
-    
-    
-    
-    
-    
-    
-    
-    
-    
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
-    # getDependency()
+    cli()
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     # logger.info("=============== Successfully running coeus ===============")
-
-    

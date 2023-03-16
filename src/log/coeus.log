@@ -1,0 +1,41 @@
+[2023-03-17 01:48:05,775-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 01:48:05,775-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 01:48:05,775-INFO-getDependencies-70]: Searching dependencies...
+[2023-03-17 01:48:05,775-INFO-scanDependencies-88]: Total dependencies: 0
+[2023-03-17 01:48:05,776-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-03-17 01:48:05,776-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-03-17 01:48:05,776-INFO-scanDependencies-109]: Vulnerabilities found: 0
+[2023-03-17 02:09:11,786-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:09:11,786-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:09:11,786-INFO-getDependencies-70]: Searching dependencies...
+[2023-03-17 02:09:11,786-INFO-scanDependencies-88]: Total dependencies: 0
+[2023-03-17 02:09:11,786-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-03-17 02:09:11,786-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-03-17 02:09:11,787-INFO-scanDependencies-109]: Vulnerabilities found: 0
+[2023-03-17 02:09:18,294-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:09:18,295-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:09:32,709-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:09:32,709-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:09:51,572-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:09:51,572-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:09:59,502-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:09:59,503-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:10:08,296-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:10:08,296-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:13:01,828-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:13:01,828-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:14:01,992-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:14:01,992-ERROR-getAllFilesFromRepository-51]: Error : expected str, bytes or os.PathLike object, not Context
+[2023-03-17 02:20:22,613-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:21:43,783-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:22:02,649-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:25:40,450-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:28:12,209-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:28:32,425-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:28:48,752-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:29:24,095-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:29:32,727-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:30:26,778-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:31:36,351-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:32:09,372-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-03-17 02:52:19,156-INFO-getAllFilesFromRepository-41]: Searching all relevant files
