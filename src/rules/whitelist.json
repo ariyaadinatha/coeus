@@ -1,0 +1,10 @@
+{
+    "type": "json",
+    "whitelist": {
+        "testcase/python/Basic_approaches.py": {
+            "iniFUncsimisterirunss": "QWEasd123",
+            "bruh": "waiwIASdij123",
+            "secretArray": "asd"
+        }
+    }
+}

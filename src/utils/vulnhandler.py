@@ -8,6 +8,7 @@ class Vulnerable:
         self.files = files
         self.line = line
         self.date = date
+        self.whitelist = False
 
     def getTitle(self):
         return self.title
@@ -33,8 +34,14 @@ class Vulnerable:
     def getDate(self):
         return self.date
 
+    def getWhitelist(self):
+        return self.whitelist
+
     def getVulnerable(self):
         return self.__dict__
+
+    def setWhitelist(self):
+        self.whitelist = True
 
 class VulnerableHandler:
     def __init__(self):

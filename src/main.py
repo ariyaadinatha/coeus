@@ -1,5 +1,5 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
-from handler.dependency.secrethandler import SecretDetection
+from handler.secret.secrethandler import SecretDetection
 from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import Code
@@ -60,7 +60,10 @@ def secret(path, output):
         sc.valueDetection(code.getSourceCode(), vh, codePath)
         sc.clearAssignmentList()
         for i in (vh.getVulnerable()):
-            print(i.getVulnerable())
+            # print(i.getVulnerable())
+            # print()
+            pass
+
 cli.add_command(secret)
 
 @click.command(short_help='Scan code for injection vulnerability')
