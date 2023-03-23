@@ -1,3 +1,7 @@
+from datetime import date
+import json
+import os
+
 class Vulnerable:
     def __init__(self, title, details, aliases, severity, evidence, files, line, date):
         self.title = title
@@ -52,4 +56,13 @@ class VulnerableHandler:
 
     def addVulnerable(self, vuln):
         self.vulnerableList.append(vuln)
+
+    def dumpVulnerabilities(self, filename):
+        vulnerableList = [x.getVulnerable() for x in self.getVulnerable()]
+        
+        if not os.path.exists("reports"):
+            os.makedirs("reports")
+
+        with open(f"reports/{str(date.today())}-{filename}.json", "w") as fileRes:
+            fileRes.write(json.dumps(vulnerableList, indent=4))
 

@@ -44,25 +44,35 @@ def secret(path, output):
         code = Code(extensionAlias[codeExtension], sourceCode)
 
         if codeExtension == "py":
+            # variable, list
             code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
-            code.searchTree(code.getRootNode(), "argument_list", sc.getAssignmentList())
+            # function
+            code.searchTree(code.getRootNode(), "call", sc.getAssignmentList())
         
         if codeExtension == "java":
-            pass
+            # variable, array
+            code.searchTree(code.getRootNode(), "variable_declarator", sc.getAssignmentList())
+            # function
+            code.searchTree(code.getRootNode(), "method_invocation", sc.getAssignmentList())
 
         if codeExtension == "js":
-            pass
+            # variable, array
+            code.searchTree(code.getRootNode(), "variable_declarator", sc.getAssignmentList())
+            # function
+            code.searchTree(code.getRootNode(), "call_expression", sc.getAssignmentList())
 
         if codeExtension == "php":
-            pass
+            # variable, array
+            code.searchTree(code.getRootNode(), "assignment_expression", sc.getAssignmentList())
+            # function
+            code.searchTree(code.getRootNode(), "function_call_expression", sc.getAssignmentList())
 
         # Secret Detection
         sc.valueDetection(code.getSourceCode(), vh, codePath)
         sc.clearAssignmentList()
-        for i in (vh.getVulnerable()):
-            # print(i.getVulnerable())
-            # print()
-            pass
+
+    vh.dumpVulnerabilities("vulnerable")
+            # pass
 
 cli.add_command(secret)
 
