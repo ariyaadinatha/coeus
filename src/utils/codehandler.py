@@ -133,7 +133,8 @@ class Code:
             'vendor/tree-sitter-java',
             'vendor/tree-sitter-php',
             'vendor/tree-sitter-javascript',
-            'vendor/tree-sitter-python'
+            'vendor/tree-sitter-python',
+            'vendor/tree-sitter-typescript/typescript'
           ]
         )
         self.language = Language('build/my-languages.so', language)
