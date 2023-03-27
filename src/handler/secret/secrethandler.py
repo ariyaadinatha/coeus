@@ -272,6 +272,15 @@ class SecretDetection:
             re.compile("(?=.*[@#$%^&+=]).+")
         ]
 
+        excludedPattern = [
+            re.compile("\n"),
+            re.compile("\s")
+        ]
+
+        for pattern in excludedPattern:
+            if pattern.search(variableValue):
+                return 0
+                
         sus = 0
         # print(f"scan var {variableValue}")
         for pattern in regexPattern:
