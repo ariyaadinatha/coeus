@@ -137,23 +137,10 @@ class SecretDetection:
                 variableName = sourceCode[variableNameNode.start_byte:variableNameNode.end_byte]
                 variableType = node.children[-1].type
 
-#                 print(f"""
-# var: {variableName}
-# type: {variableType}
-# len: {len(node.children[-1].children)}
-# code: {codePath.split("/")[-1]}""")
-
                 for i in range (len(node.children[-1].children)):
                     variableValueNode = node.children[-1].children[i]
                     variableValue = sourceCode[variableValueNode.start_byte:variableValueNode.end_byte]
                     variableLine = variableValueNode.start_point[0]+1
-
-                    # # JAVA. should have created recursive, but ...
-                    # if variableType == "object_creation_expression":
-                    #     variableValueNode = node.children[-1].children[-1].children[i]
-                    #     variableValue = sourceCode[variableValueNode.start_byte:variableValueNode.end_byte]
-                    #     print("JAVA ", variableValue)
-
 
                     if variableValue not in excludedContent:
                         # print(variableValue)
@@ -168,7 +155,6 @@ class SecretDetection:
                             vulnHandler.addVulnerable(vuln)
 
             else:
-                # continue
                 variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
                 cleanVariable = self.apostropheCleaner(variableValue)
 
@@ -181,88 +167,6 @@ class SecretDetection:
                         "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
                         "CWE-798", "High", {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
                     vulnHandler.addVulnerable(vuln)
-
-            # if len(node.children) > 1:   
-            #     variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
-            #     print(f"ARR / FUNCT: {variableValue}")
-
-            # if len(node.children) == 0:
-            #     variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
-            #     print(f"VAR: {variableValue}")
-            #     # print(type(variableValue))
-
-            # list, array, arguments
-            # if len(variableValue) > 1:
-            #     functionArguments, functionLine, functionName = self.getNestedValueNode()
-            #     for argument in functionArguments:
-                    # if argument not in whitelist
-
-            #         if self.scanSecretVariable(argument):
-            #             print(f"SUS {argument}, name {variableName}, line {variableLine}")
-                        # vuln = Vulnerable("Use of Hardcoded Credentials", 
-                        # "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                        # "CWE-798", "High", {variableName: variableValue}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                        # vulnHandler.addVulnerable(vuln)
-
-            # variableValue, variableLine, variableName = self.getNodeValue(node, sourceCode)
-            # if (node.type == "argument_list" or node.children[-1].type == "list"):
-            #     # print(variableValue)
-            #     # print(node.children[-1].type)
-            #     for value in variableValue:
-            #         if self.scanSecretVariable(value, suspectedVariable):
-            #             # print(f"BADUT MEMBERONTAK {suspectedVariable}")
-            #             secretFound = True
-            
-            # TO DO ADD ANOTHER EXTENSION
-            # if (node.type == "assignment"):
-            #     if (node.children[-1].type == "list"):
-            #         pass
-            #     # if self.scanSecretVariable(variableValue, suspectedVariable):
-            #     #     # print(f"BADUT MEMBERONTAK {suspectedVariable}")
-            #     #     secretFound = True
-
-            # if secretFound == True:
-            #     # print("FOUND : ", variableValue, variableLine, variableName)
-            #     vuln = Vulnerable("Use of Hardcoded Credentials", 
-            #     "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-            #     "CWE-798", "High", {variableName: variableValue}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-            #     vulnHandler.addVulnerable(vuln)
-            #     self.checkWhiteList(variableName, suspectedVariable, codePath)
-
-
-    # detecting value using regex
-    def valueDetectionOld(self, sourceCode, vulnHandler, codePath):
-        valueNode = ["assignment", "variable_declarator", "assignment_expression"]
-        functionNode = ["call", "method_invocation", "call_expression", "function_call_expression"]
-        for node in self.getAssignmentList():
-            secretFound = False
-            variableValue, variableLine, variableName = self.getNodeValue(node, sourceCode)
-            suspectedVariable = ""
-            if (node.type == "argument_list" or node.children[-1].type == "list"):
-                # print(variableValue)
-                # print(node.children[-1].type)
-                for value in variableValue:
-                    if self.scanSecretVariable(value, suspectedVariable):
-                        # print(f"BADUT MEMBERONTAK {suspectedVariable}")
-                        secretFound = True
-            
-            # TO DO ADD ANOTHER EXTENSION
-            if (node.type == "assignment"):
-
-                if (node.children[-1].type == "list"):
-                    pass
-                # if self.scanSecretVariable(variableValue, suspectedVariable):
-                #     # print(f"BADUT MEMBERONTAK {suspectedVariable}")
-                #     secretFound = True
-
-            if secretFound == True:
-                # print("FOUND : ", variableValue, variableLine, variableName)
-                vuln = Vulnerable("Use of Hardcoded Credentials", 
-                "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                "CWE-798", "High", {variableName: variableValue}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                vulnHandler.addVulnerable(vuln)
-                self.checkWhiteList(variableName, suspectedVariable, codePath)
-
 
     def scanSecretVariable(self, variableValue):
         regexPattern = [

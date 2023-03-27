@@ -15,13 +15,16 @@ def cli():
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def dependency(path, output):
-    fh = FileHandler()
-    dh = DependencyHandler()
-    fh.getAllFilesFromRepository(path)
-    fh.getDependencies(dh)
-    dh.scanDependencies()
-    ### TO DO ADD ANOTHER OPTIONS OF OUTPUT
-    dh.dumpVulnerabilities()
+    try:
+        fh = FileHandler()
+        dh = DependencyHandler()
+        fh.getAllFilesFromRepository(path)
+        fh.getDependencies(dh)
+        dh.scanDependencies()
+        ### TO DO ADD ANOTHER OPTIONS OF OUTPUT
+        dh.dumpVulnerabilities()
+    except Exception as e:
+        logger.error(f"Error : {repr(e)}")
 cli.add_command(dependency)
 
 @click.command(short_help='Scan code for hardcoded secret')
@@ -39,13 +42,13 @@ def secret(path, output):
             "java": "java",
             "js": "javascript",
             "php": "php",
-            "ts": "typescript"
+            # "ts": "typescript"
         }
         try:
             sourceCode = fh.readFile(codePath)
             code = Code(extensionAlias[codeExtension], sourceCode)
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Error : {repr(e)}")
 
         try:
             if codeExtension == "py":
@@ -60,7 +63,8 @@ def secret(path, output):
                 # function
                 code.searchTree(code.getRootNode(), "method_invocation", sc.getAssignmentList())
 
-            if codeExtension == "js" or codeExtension == "ts":
+            # if codeExtension == "js" or codeExtension == "ts":
+            if codeExtension == "js":
                 # variable, array
                 code.searchTree(code.getRootNode(), "variable_declarator", sc.getAssignmentList())
                 # function
@@ -75,11 +79,11 @@ def secret(path, output):
             # Secret Detection
             sc.valueDetection(code.getSourceCode(), vh, codePath)
             sc.clearAssignmentList()
-        except:
-            pass
+        except Exception as e:
+            logger.error(f"Error : {repr(e)}")
 
-    vh.dumpVulnerabilities("test")
-            # pass
+    fileNameOutput = path.split("/")[-1]
+    vh.dumpVulnerabilities(fileNameOutput)
 
 cli.add_command(secret)
 
