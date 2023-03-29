@@ -91,7 +91,7 @@ cli.add_command(secret)
 @click.command(short_help='Scan code for injection vulnerability')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def injection():
+def injection(path, output):
     fh = FileHandler()
     fh.getAllFilesFromRepository("./testcase/python")
     for codePath in fh.getCodeFilesPath():
@@ -110,7 +110,12 @@ def injection():
         # ***: convert node to IR
         converter = IRConverter()
         astRoot = converter.createAstTree(root)
-        converter.printTree(astRoot)
+
+        print("root children")
+        print(astRoot.astChildren)
+
+        print("tree")
+        converter.printTree(astRoot)        
 cli.add_command(injection)
 
 @click.command(short_help='Scan code for broken access control')
