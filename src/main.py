@@ -4,6 +4,7 @@ from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import Code
 from utils.log import logger
+from utils.intermediate_representation.converter import IRConverter
 import time
 
 def dependencyVulnExample():
@@ -53,7 +54,7 @@ def secretDetection():
     vh = VulnerableHandler()
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
+        code = Code("javascript", sourceCode)
         code.searchTree(code.getRootNode(), "assignment", sc.getAssignmentList())
         code.searchTree(code.getRootNode(), "argument_list", sc.getAssignmentList())
 
@@ -66,45 +67,33 @@ def secretDetection():
 def injection():
     fh = FileHandler()
     fh.getAllFilesFromRepository("./testcase/python")
-    result = []
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
 
-        # print(codePath)
+        print(codePath)
 
         root = code.getRootNode()
         parsed = code.parseLanguage()
         tree = code.getTree()
 
-    #    print(tree.text)
+        # ***: export tree to CSV
+        # code.traverseTree(root, [])
+        # code.createTreeListWithId(root, code.treeList, "parent")
+        # code.exportToCSV()
 
-        # children = code.getNodes(root, )
-
-        # print('root')
-        # print(root)
-        print('parsed')
-        print(parsed)
-
-        code.createTreeListWithId(root, code.treeList, "parent")
-        print('nodes')
-        print(code.getTreeList())
-
-    #    code.exportToCSV()
-
-        # converter = cfg.Converter()
-        # result = converter.ast_to_cfg(tree)
-
-
+        # ***: convert node to IR
+        converter = IRConverter()
+        astRoot = converter.createAstTree(root)
+        converter.printTree(astRoot)
 
 if __name__ == "__main__":
     # dependencyVulnExample()
     # getDependency()
     # parseLanguage()
-    secretDetection()
+    # secretDetection()
     
-    
-    # injection()
+    injection()
     
     
     
