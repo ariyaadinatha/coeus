@@ -168,14 +168,14 @@ class Code:
         if node.type in removedList:
             return
         
-        print(f'{indent}[{node.id}] {node.type}: {node.text.decode("utf-8") }')
+        print(f'{indent}[{node.id}] {node.type} - is_named?{node.is_named} : {node.text.decode("utf-8") }')
 
         tree.append((node.type, node.text.decode("utf-8")))
 
         for child in node.children:
             self.traverseTree(child, tree, depth + 2)
 
-    def createTreeListWithId(self, node: Node, tree: list[tuple], parentId: str, depth=0):
+    def createTreeListWithId(self, node: Node, tree: list[tuple], parentId: str, rootId: str = "default", statement_order: int = 0, depth=0):
         removedList = ['"', '=', '(', ')', '[', ']', ':']
         indent = ' ' * depth
         if node.type in removedList:
@@ -185,16 +185,33 @@ class Code:
 
         nodeId = uuid.uuid4().hex
 
-        tree.append((nodeId, node.type, node.text.decode("utf-8"), parentId))
+        # track statement order
+        if (rootId == "default"):
+            rootId = nodeId
 
-        for child in node.children:
-            self.createTreeListWithId(child, tree, nodeId, depth + 2)
+        # add node information to tree
+        if parentId == rootId:
+            tree.append((nodeId, node.type, node.text.decode("utf-8"), parentId, statement_order))
+        else:
+            tree.append((nodeId, node.type, node.text.decode("utf-8"), parentId, 0))
+
+        # iterate through children
+        for index, child in enumerate(node.children, start = 1):
+            if parentId == rootId:
+                print(child.text.decode("utf-8"))
+            self.createTreeListWithId(
+                node = child,
+                tree = tree,
+                parentId = nodeId,
+                rootId = rootId,
+                statement_order = statement_order + index,
+                depth = depth + 2)
 
     def convertNodeToCSVRow(self, node: Node) -> tuple:
         return (node.id, node.type, node.text.decode("utf-8"), node.parent.id)
 
     def exportToCSV(self):
-        header = ['id', 'type', 'content', 'parent_id']
+        header = ['id', 'type', 'content', 'parent_id', 'statement_order']
         with open(f'./csv/{uuid.uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
