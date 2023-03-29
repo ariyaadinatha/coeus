@@ -36,15 +36,36 @@ class IRConverter():
 
         return astRoot
 
+    # TODO: integrate with createAst if alr working
+    def createCfgTree(self, root: ASTNode) -> ASTNode:
+        queue = [(root, 0)]
+
+        while len(queue) != 0:
+            currNode, statementOrder = queue.pop(0)
+
+            if statementOrder != 0:
+                currNode.createCfgNode(statementOrder)
+            
+            statementOrder = 0
+            for child in currNode.astChildren:
+                print(child.type)
+                if "statement" in child.type:
+                    statementOrder += 1
+                    queue.append((child, statementOrder))
+                else:
+                    queue.append((child, 0))
+
+        return root
+    
     def printTree(self, node: ASTNode, depth=0):
         indent = ' ' * depth
 
-        print(f'{indent}[{node.id}] {node.type} : {node.content}')
+        print(f'{indent}[{node.id}] {node.type} control?{node.controlFlowProps != None} : {node.content}')
 
         for child in node.astChildren:
             self.printTree(child, depth + 2)
 
-    def exportToCsv(self, root: ASTNode):
+    def exportAstToCsv(self, root: ASTNode):
         header = ['id', 'type', 'content', 'parent_id']
         with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
@@ -60,6 +81,23 @@ class IRConverter():
 
                 for child in node.astChildren:
                     queue.append(child)
+    
+    def exportCfgToCsv(self, root: ASTNode):
+        header = ['id', 'statement_order']
+        with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+
+            queue = [root]
+
+            while queue:
+                node = queue.pop(0)
+
+                row = [node.id, node.controlFlowProps.statementOrder]
+                writer.writerow(row)
+
+                for child in node.astChildren:
+                    queue.append(child)            
 
     def isIgnoredType(self, node: Node) -> bool:
         ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
@@ -68,14 +106,3 @@ class IRConverter():
             return True
         
         return False
-
-    def createCfg(self, root: ASTNode):
-        #
-        ignoredList = ['"', '=', '(', ')', '[', ']', ':']
-        while type(node.id) is int:
-            if node.type in ignoredList:
-                continue
-
-
-
-

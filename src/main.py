@@ -110,12 +110,11 @@ def injection(path, output):
         # ***: convert node to IR
         converter = IRConverter()
         astRoot = converter.createAstTree(root)
-
-        print("root children")
-        print(astRoot.astChildren)
+        converter.createCfgTree(astRoot)
 
         print("tree")
-        converter.printTree(astRoot)        
+        converter.printTree(astRoot)     
+        converter.exportAstToCsv(astRoot)
 cli.add_command(injection)
 
 @click.command(short_help='Scan code for broken access control')
