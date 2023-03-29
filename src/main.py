@@ -4,6 +4,7 @@ from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import Code
 from utils.log import logger
+from utils.intermediate_representation.converter import IRConverter
 import time
 import click
 
@@ -91,7 +92,25 @@ cli.add_command(secret)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def injection():
-    pass
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("./testcase/python")
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
+
+        root = code.getRootNode()
+        parsed = code.parseLanguage()
+        tree = code.getTree()
+
+        # ***: export tree to CSV
+        # code.traverseTree(root, [])
+        # code.createTreeListWithId(root, code.treeList, "parent")
+        # code.exportToCSV()
+
+        # ***: convert node to IR
+        converter = IRConverter()
+        astRoot = converter.createAstTree(root)
+        converter.printTree(astRoot)
 cli.add_command(injection)
 
 @click.command(short_help='Scan code for broken access control')
@@ -102,6 +121,11 @@ def access():
 cli.add_command(access)
 
 if __name__ == "__main__":
+    # dependencyVulnExample()
+    # getDependency()
+    # parseLanguage()
+    # secretDetection()
+
     # logger.info("=============== Starting coeus ===============")
     # startTime = time.time()
     cli()
