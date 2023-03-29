@@ -92,19 +92,25 @@ cli.add_command(secret)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def injection():
-    root = code.getRootNode()
-    parsed = code.parseLanguage()
-    tree = code.getTree()
+    fh = FileHandler()
+    fh.getAllFilesFromRepository("./testcase/python")
+    for codePath in fh.getCodeFilesPath():
+        sourceCode = fh.readFile(codePath)
+        code = Code("python", sourceCode)
 
-    # ***: export tree to CSV
-    # code.traverseTree(root, [])
-    # code.createTreeListWithId(root, code.treeList, "parent")
-    # code.exportToCSV()
+        root = code.getRootNode()
+        parsed = code.parseLanguage()
+        tree = code.getTree()
 
-    # ***: convert node to IR
-    converter = IRConverter()
-    astRoot = converter.createAstTree(root)
-    converter.printTree(astRoot)
+        # ***: export tree to CSV
+        # code.traverseTree(root, [])
+        # code.createTreeListWithId(root, code.treeList, "parent")
+        # code.exportToCSV()
+
+        # ***: convert node to IR
+        converter = IRConverter()
+        astRoot = converter.createAstTree(root)
+        converter.printTree(astRoot)
 cli.add_command(injection)
 
 @click.command(short_help='Scan code for broken access control')
