@@ -32,8 +32,8 @@ class ASTNode:
       
       return False
     
-    def createCfgNode(self):
-      self.controlFlowProps = ControlFlowProps(cfgParent)
+    def createCfgNode(self, statementOrder: int):
+      self.controlFlowProps = ControlFlowProps(statementOrder)
 
     def createDfgNode(self, dfgParent):
       if self.parent.type == "assignment":
@@ -41,11 +41,9 @@ class ASTNode:
 
 # class to store all control flow related actions
 class ControlFlowProps:
-    def __init__(self, cfgParent=None) -> None:
-      if type(cfgParent) is ControlFlowProps:
+    def __init__(self, statementOrder: int) -> None:
         self.cfgId = uuid.uuid4().hex
-        self.cfgParentId = cfgParent.cfgId
-        self.cfgParent = cfgParent
+        self.statementOrder = statementOrder
 
 # clas to store all variables and their values
 class DataFlowProps:
