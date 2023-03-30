@@ -66,7 +66,7 @@ class IRConverter():
             self.printTree(child, depth + 2)
 
     def exportAstToCsv(self, root: ASTNode):
-        header = ['id', 'type', 'content', 'parent_id']
+        header = ['id', 'type', 'content', 'parent_id', 'statement_order']
         with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
@@ -76,7 +76,8 @@ class IRConverter():
             while queue:
                 node = queue.pop(0)
 
-                row = [node.id, node.type, node.content, node.parentId]
+                statementOrder = node.controlFlowProps.statementOrder if node.controlFlowProps is not None else -1
+                row = [node.id, node.type, node.content, node.parentId, statementOrder]
                 writer.writerow(row)
 
                 for child in node.astChildren:
