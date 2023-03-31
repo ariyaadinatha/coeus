@@ -3,11 +3,12 @@ import json
 import os
 
 class Vulnerable:
-    def __init__(self, title, details, aliases, severity, evidence, files, line, date):
+    def __init__(self, title, details, aliases, severity, confidence, evidence, files, line, date):
         self.title = title
         self.details = details
         self.aliases = aliases
         self.severity = severity
+        self.confidence = confidence
         self.evidence = evidence
         self.files = files
         self.line = line

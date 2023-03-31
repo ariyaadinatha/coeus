@@ -3,12 +3,13 @@ from utils.codehandler import Code, FileHandler
 from utils.vulnhandler import Vulnerable
 from utils.log import logger
 from datetime import datetime
+import difflib
 import json
 import re
 
 class SecretDetection:
     def __init__(self):
-        with open("rules/secret.json", 'r') as file:
+        with open("rules/secret-wordlist.json", 'r') as file:
             wordlist = json.load(file)["wordlist"]
         self.secretWordlist = wordlist
         self.assignmentList = []
@@ -94,7 +95,7 @@ class SecretDetection:
         return valueList, varValueNode.start_point[0]+1, functionName
 
     def checkWhiteList(self, variableName, variableValue, codePath):
-        with open("rules/whitelist.json", 'r') as file:
+        with open("rules/secret-whitelist.json", 'r') as file:
             whiteList = json.load(file)["whitelist"]
 
         if codePath not in whiteList:
@@ -122,7 +123,7 @@ class SecretDetection:
                 # print(variableName, variableLine)
                 vulnHandler.addVulnerable(vuln)
 
-    # detecting value using regex
+    # secret detection algorithm
     def valueDetection(self, sourceCode, vulnHandler, codePath):
         # valueNode = ["assignment", "variable_declarator", "assignment_expression"]
         # functionNode = ["call", "method_invocation", "call_expression", "function_call_expression"]
@@ -143,67 +144,93 @@ class SecretDetection:
                     variableLine = variableValueNode.start_point[0]+1
 
                     if variableValue not in excludedContent:
+                        confidenceLevel = 0
                         # print(variableValue)
                         cleanVariable = self.apostropheCleaner(variableValue)
                         if self.checkWhiteList(variableName, cleanVariable, codePath):
                             continue
-
+                        
+                        # REGEX DETECTION
                         if self.scanSecretVariable(cleanVariable):
+                            confidenceLevel += 1
+
+                        # SIMILARITY DETECTION
+                        if self.similarityDetection(variableName):
+                            confidenceLevel += 2
+
+                        if confidenceLevel > 0:
+                            confidence = None
+                            if confidenceLevel == 1:
+                                confidence = "Low"
+                            if confidenceLevel == 2:
+                                confidence = "Medium"
+                            if confidenceLevel == 3:
+                                confidence = "High"
+
                             vuln = Vulnerable("Use of Hardcoded Credentials", 
-                                "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                                "CWE-798", "High", {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+                                    "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
+                                    "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
                             vulnHandler.addVulnerable(vuln)
 
             else:
                 variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
                 cleanVariable = self.apostropheCleaner(variableValue)
+                confidenceLevel = 0
 
                 # skip variable if found on whitelist
                 if self.checkWhiteList(variableName, cleanVariable, codePath):
                     continue
 
+                # REGEX DETECTION
                 if self.scanSecretVariable(cleanVariable):
+                    confidenceLevel += 1
+
+                # SIMILARITY DETECTION
+                if self.similarityDetection(variableName):
+                    confidenceLevel += 2
+
+                if confidenceLevel > 0:
+                    confidence = None
+                    if confidenceLevel == 1:
+                        confidence = "Low"
+                    if confidenceLevel == 2:
+                        confidence = "Medium"
+                    if confidenceLevel == 3:
+                        confidence = "High"
+                
                     vuln = Vulnerable("Use of Hardcoded Credentials", 
                         "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                        "CWE-798", "High", {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+                        "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
                     vulnHandler.addVulnerable(vuln)
 
+
+    # Regex based detection
     def scanSecretVariable(self, variableValue):
-        regexPattern = [
-            re.compile(".{9,}"),
-            re.compile("(?=.*[a-z])(?=.*[A-Z]).+"),
-            re.compile("(?=.*\d).+"),
-            re.compile("(?=.*[@#$%^&+=]).+")
-        ]
+        with open("rules/secret-regex.json", 'r') as file:
+            regex = json.load(file)
 
-        excludedPattern = [
-            re.compile("\n"),
-            re.compile("\s")
-        ]
+        regexPattern = [re.compile(x) for x in regex["pattern"]]
+        excludedPattern = [re.compile(x) for x in regex["exclussion"]]
 
+        # find variable in excluded pattern
         for pattern in excludedPattern:
             if pattern.search(variableValue):
                 return 0
                 
         sus = 0
-        # print(f"scan var {variableValue}")
         for pattern in regexPattern:
             sus +=1 if pattern.search(variableValue) else 0
 
-        if (sus > 2):
-            suspectedVariable = variableValue
-            # print(f"SUS: {suspectedVariable}")
-            return 1
-        else:
-            return 0
+        return (sus > 2)
 
-    # TODO
-    def complementaryScan():
-        pass
+    def similarityDetection(self, variableName):
+        threshold = 0.7
 
-    # TODO
-    def similarityDetection(self):
-        for node in self.getAssignmentList():
-            variableName, variableValue = self.getNodeActualValue(node, sourceCode)
+        similarities = [(word, difflib.SequenceMatcher(None, variableName, word).ratio()) for word in self.getSecretWordList()]
+        maxSimilarity = max(similarities, key=lambda x: x[1])
 
-    ### END OF SECRET DETECTION ALGORITHM ###
+        # if maxSimilarity[1] >= threshold:
+        #     print(variableName, maxSimilarity[0], maxSimilarity[1])
+
+        
+        return maxSimilarity[1] >= threshold
