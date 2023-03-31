@@ -125,13 +125,8 @@ def access():
 cli.add_command(access)
 
 if __name__ == "__main__":
-    # dependencyVulnExample()
-    # getDependency()
-    # parseLanguage()
-    # secretDetection()
-
-    # logger.info("=============== Starting coeus ===============")
-    # startTime = time.time()
+    logger.info("=============== Starting coeus ===============")
+    startTime = time.time()
     cli()
-    # logger.info(f"Execution time: {(time.time() - startTime)}")
-    # logger.info("=============== Successfully running coeus ===============")
+    logger.info(f"Execution time: {(time.time() - startTime)}")
+    logger.info("=============== Successfully running coeus ===============")
