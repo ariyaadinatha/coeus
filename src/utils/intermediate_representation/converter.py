@@ -48,7 +48,6 @@ class IRConverter():
             
             statementOrder = 0
             for child in currNode.astChildren:
-                print(child.type)
                 if "statement" in child.type:
                     statementOrder += 1
                     queue.append((child, statementOrder))
@@ -56,7 +55,64 @@ class IRConverter():
                     queue.append((child, 0))
 
         return root
+
+    def createSymbolTable(self, root: ASTNode) -> dict:
+        # 1. check node with type assignment
+        # 2. store left node as variable
+        # 3. store right node as value
+        # 4. store right node as variable if reassignment
+
+        symbolTable = {}
+
+        queue = [root]
+
+        while len(queue) != 0:
+            currNode = queue.pop(0)
+
+            # print("children assignment")
+            # print(currNode.content)
+            # print(currNode.node.children_by_field_name("assignment"))
+
+            if currNode.parent is not None and currNode.parent.type == "assignment":
+                # check variable declaration or not
+                if currNode.type == "identifier":
+                    if currNode.node.next_sibling is None:
+                        symbolTable[currNode.id] = {
+                                                    "parent": currNode.node.prev_sibling.id,
+                                                    "scope": currNode.parent,
+                                                    "type": "variable",
+                                                    "is_reference": True,
+                                                    "identifier": currNode.content
+                                                    }
+                    else:
+                        symbolTable[currNode.id] = {
+                                                    "parent": None,
+                                                    "scope": currNode.parent,
+                                                    "type": "reference",
+                                                    "is_assignment": True,
+                                                    "identifier": currNode.content
+                                                    }
+                
+            for child in currNode.astChildren:
+                queue.append(child)
+
+        return symbolTable
     
+    def createDfgTree(self, root: ASTNode):
+        symbolTable = self.createSymbolTable(root)
+
+        queue = [root]
+
+        while len(queue) != 0:
+            currNode = queue.pop(0)
+
+            if currNode.id in symbolTable:
+                dataProps = symbolTable[currNode.id]
+                currNode.createDfgNode(dataProps["parent"], True, dataProps["type"], dataProps["scope"])
+                
+            for child in currNode.astChildren:
+                queue.append(child)
+
     def printTree(self, node: ASTNode, depth=0):
         indent = ' ' * depth
 
@@ -66,18 +122,19 @@ class IRConverter():
             self.printTree(child, depth + 2)
 
     def exportAstToCsv(self, root: ASTNode):
-        header = ['id', 'type', 'content', 'parent_id', 'statement_order']
+        header = ['id', 'tree_sitter_id', 'type', 'content', 'parent_id', 'statement_order', 'dfg_parent_id']
         with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue = [root]
+            queue: list[ASTNode] = [root]
 
             while queue:
                 node = queue.pop(0)
 
                 statementOrder = node.controlFlowProps.statementOrder if node.controlFlowProps is not None else -1
-                row = [node.id, node.type, node.content, node.parentId, statementOrder]
+                dfgParentId = node.dataFlowProps.dfgParentId if node.dataFlowProps is not None else -1
+                row = [node.id, node.treeSitterId, node.type, node.content, node.parentId, statementOrder, dfgParentId]
                 writer.writerow(row)
 
                 for child in node.astChildren:
