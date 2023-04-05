@@ -9,6 +9,7 @@ class ASTNode:
           return
         else:
           self.id = uuid.uuid4().hex
+          self.treeSitterId = node.id
           self.content = node.text.decode("utf-8")
           self.type = node.type
           self.node = node
@@ -23,6 +24,9 @@ class ASTNode:
           else:
             self.parent = None
             self.parentId = None
+    
+    def __str__(self) -> str:
+      return f'[{self.id}] {self.type} : {self.content}'
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
@@ -35,9 +39,8 @@ class ASTNode:
     def createCfgNode(self, statementOrder: int):
       self.controlFlowProps = ControlFlowProps(statementOrder)
 
-    def createDfgNode(self, dfgParent):
-      if self.parent.type == "assignment":
-        self.dataFlowProps = DataFlowProps(dfgParent)
+    def createDfgNode(self, dfgParentId, isVariable, type, scope):
+      self.dataFlowProps = DataFlowProps(dfgParentId)
 
 # class to store all control flow related actions
 class ControlFlowProps:
@@ -47,11 +50,9 @@ class ControlFlowProps:
 
 # clas to store all variables and their values
 class DataFlowProps:
-    def __init__(self, dfgParent=None) -> None:
+    def __init__(self, dfgParentId=None) -> None:
       # determine whether node is a variable or variable value
       self.dfgId = uuid.uuid4().hex
+      self.dfgParentId = dfgParentId
+      # self.scope = 
       # TODO: determine the variable scope
-      
-      # determine whether a dataflow exists from parent to this node
-      if type(dfgParent) is DataFlowProps:
-        self.dfgParentId = dfgParent.dfgId

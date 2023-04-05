@@ -93,14 +93,12 @@ cli.add_command(secret)
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def injection(path, output):
     fh = FileHandler()
-    fh.getAllFilesFromRepository("./testcase/python")
+    fh.getAllFilesFromRepository("./testcase/graph")
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = Code("python", sourceCode)
 
         root = code.getRootNode()
-        parsed = code.parseLanguage()
-        tree = code.getTree()
 
         # ***: export tree to CSV
         # code.traverseTree(root, [])
@@ -111,6 +109,7 @@ def injection(path, output):
         converter = IRConverter()
         astRoot = converter.createAstTree(root)
         converter.createCfgTree(astRoot)
+        converter.createDfgTree(astRoot)
 
         print("tree")
         converter.printTree(astRoot)     
