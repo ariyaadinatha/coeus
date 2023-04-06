@@ -29,5 +29,15 @@
             "enumerate": "dict",
             "versionName": "version"
         }
+    },
+    "pom.xml": {
+        "ecosystem": "Maven",
+        "pattern": {
+            "type": "json",
+            "expression": ["dependencies"],
+            "enumerate": "list",
+            "keyName": "name",
+            "versionName": "version"
+        }
     }
 }

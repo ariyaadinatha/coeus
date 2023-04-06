@@ -1,17 +1,27 @@
-[2023-03-31 12:25:31,079-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:25:31,080-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:32:06,084-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:32:06,085-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:35:12,824-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:35:12,824-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:38:52,284-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:38:52,285-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:40:22,691-ERROR-secret-52]: Error : UnicodeDecodeError('utf-8', b'\t\r\n\t/***********************************************\r\n\t* Bookmark site script- \xa9 Dynamic Drive DHTML code library (www.dynamicdrive.com)\r\n\t* This notice MUST stay intact for legal use\r\n\t* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code\r\n\t***********************************************/\r\n\t\r\n\t/* Modified heavily by Jeremy Druin */\r\n\tfunction bookmarkSite(){\r\n\t\r\n\t\ttry{\r\n\t\t\tvar lURL = document.location;\r\n\t\t\tvar lTitle = "Mutillidae";\r\n\t\t\t\t\r\n\t\t\tif (window.sidebar){ \r\n\t\t\t\t// firefox\r\n\t\t\t\twindow.sidebar.addPanel(lTitle, lURL, "");\r\n\t\t\t}else if(window.opera && window.print){ \r\n\t\t\t\t// opera\r\n\t\t\t\tvar elem = document.createElement(\'a\');\r\n\t\t\t\telem.setAttribute(\'href\',lURL);\r\n\t\t\t\telem.setAttribute(\'title\',lTitle);\r\n\t\t\t\telem.setAttribute(\'rel\',\'sidebar\');\r\n\t\t\t\telem.click();\r\n\t\t\t}else if(document.all){\r\n\t\t\t\t// ie\r\n\t\t\t\twindow.external.AddFavorite(lURL, lTitle);\r\n\t\t\t}// end if\r\n\t\t}catch(e){\r\n\t\t\talert(\'Could not add bookmark for \' + lTitle + \' at URL \' + lURL + \'.\\n\\nError: \' + e.message);\r\n\t\t}// end try\r\n\t\t\r\n\t}// end function bookmarkSite\r\n', 79, 80, 'invalid start byte')
-[2023-03-31 12:57:47,012-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:57:47,013-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:57:59,307-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 12:57:59,307-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 12:59:28,524-ERROR-secret-52]: Error : UnicodeDecodeError('utf-8', b'\t\r\n\t/***********************************************\r\n\t* Bookmark site script- \xa9 Dynamic Drive DHTML code library (www.dynamicdrive.com)\r\n\t* This notice MUST stay intact for legal use\r\n\t* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code\r\n\t***********************************************/\r\n\t\r\n\t/* Modified heavily by Jeremy Druin */\r\n\tfunction bookmarkSite(){\r\n\t\r\n\t\ttry{\r\n\t\t\tvar lURL = document.location;\r\n\t\t\tvar lTitle = "Mutillidae";\r\n\t\t\t\t\r\n\t\t\tif (window.sidebar){ \r\n\t\t\t\t// firefox\r\n\t\t\t\twindow.sidebar.addPanel(lTitle, lURL, "");\r\n\t\t\t}else if(window.opera && window.print){ \r\n\t\t\t\t// opera\r\n\t\t\t\tvar elem = document.createElement(\'a\');\r\n\t\t\t\telem.setAttribute(\'href\',lURL);\r\n\t\t\t\telem.setAttribute(\'title\',lTitle);\r\n\t\t\t\telem.setAttribute(\'rel\',\'sidebar\');\r\n\t\t\t\telem.click();\r\n\t\t\t}else if(document.all){\r\n\t\t\t\t// ie\r\n\t\t\t\twindow.external.AddFavorite(lURL, lTitle);\r\n\t\t\t}// end if\r\n\t\t}catch(e){\r\n\t\t\talert(\'Could not add bookmark for \' + lTitle + \' at URL \' + lURL + \'.\\n\\nError: \' + e.message);\r\n\t\t}// end try\r\n\t\t\r\n\t}// end function bookmarkSite\r\n', 79, 80, 'invalid start byte')
-[2023-03-31 13:18:52,768-INFO-<module>-128]: =============== Starting coeus ===============
-[2023-03-31 13:18:52,769-INFO-getAllFilesFromRepository-41]: Searching all relevant files
-[2023-03-31 13:20:21,160-ERROR-secret-52]: Error : UnicodeDecodeError('utf-8', b'\t\r\n\t/***********************************************\r\n\t* Bookmark site script- \xa9 Dynamic Drive DHTML code library (www.dynamicdrive.com)\r\n\t* This notice MUST stay intact for legal use\r\n\t* Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code\r\n\t***********************************************/\r\n\t\r\n\t/* Modified heavily by Jeremy Druin */\r\n\tfunction bookmarkSite(){\r\n\t\r\n\t\ttry{\r\n\t\t\tvar lURL = document.location;\r\n\t\t\tvar lTitle = "Mutillidae";\r\n\t\t\t\t\r\n\t\t\tif (window.sidebar){ \r\n\t\t\t\t// firefox\r\n\t\t\t\twindow.sidebar.addPanel(lTitle, lURL, "");\r\n\t\t\t}else if(window.opera && window.print){ \r\n\t\t\t\t// opera\r\n\t\t\t\tvar elem = document.createElement(\'a\');\r\n\t\t\t\telem.setAttribute(\'href\',lURL);\r\n\t\t\t\telem.setAttribute(\'title\',lTitle);\r\n\t\t\t\telem.setAttribute(\'rel\',\'sidebar\');\r\n\t\t\t\telem.click();\r\n\t\t\t}else if(document.all){\r\n\t\t\t\t// ie\r\n\t\t\t\twindow.external.AddFavorite(lURL, lTitle);\r\n\t\t\t}// end if\r\n\t\t}catch(e){\r\n\t\t\talert(\'Could not add bookmark for \' + lTitle + \' at URL \' + lURL + \'.\\n\\nError: \' + e.message);\r\n\t\t}// end try\r\n\t\t\r\n\t}// end function bookmarkSite\r\n', 79, 80, 'invalid start byte')
+[2023-04-06 17:56:09,511-INFO-dependency-19]: =============== Starting dependency detection ===============
+[2023-04-06 17:56:09,511-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-06 17:56:09,530-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-06 17:56:09,530-INFO-getDependencies-83]: Found pom.xml
+[2023-04-06 17:56:09,530-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-06 17:56:09,534-ERROR-getDependencies-123]: Error: KeyError('cglib-nodep.version')
+[2023-04-06 17:56:09,534-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-06 17:56:09,534-INFO-getDependencies-130]: Completed pattern matching for pom.xml
+[2023-04-06 17:56:09,534-INFO-getDependencies-83]: Found requirements.txt
+[2023-04-06 17:56:09,534-INFO-getDependencies-92]: Matching regex pattern...
+[2023-04-06 17:56:09,535-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-06 17:56:09,535-INFO-getDependencies-96]: Completed pattern matching for requirements.txt
+[2023-04-06 17:56:09,535-INFO-getDependencies-83]: Found package-lock.json
+[2023-04-06 17:56:09,536-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-06 17:56:09,545-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-06 17:56:09,546-INFO-getDependencies-130]: Completed pattern matching for package-lock.json
+[2023-04-06 17:56:09,546-INFO-getDependencies-83]: Found pom.xml
+[2023-04-06 17:56:09,546-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-06 17:56:09,550-ERROR-getDependencies-123]: Error: KeyError('cglib-nodep.version')
+[2023-04-06 17:56:09,550-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-06 17:56:09,550-INFO-getDependencies-130]: Completed pattern matching for pom.xml
+[2023-04-06 17:56:09,551-INFO-scanDependencies-88]: Total dependencies: 703
+[2023-04-06 17:56:09,551-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
+[2023-04-06 18:03:32,539-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
+[2023-04-06 18:03:32,540-INFO-scanDependencies-109]: Vulnerabilities found: 136
+[2023-04-06 18:03:32,554-INFO-dependency-33]: Execution time: 443.04273796081543
+[2023-04-06 18:03:32,554-INFO-dependency-34]: =============== Finished dependency detection ===============

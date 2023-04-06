@@ -1,6 +1,7 @@
 {
     "importantFiles": {
         "sourceCode": ["py", "java", "js", "php"],
-        "dependencyFile": ["pom.xml", "requirements.txt", "composer.lock", "composer.json", "package.json", "package-lock.json"]
+        "dependencyFile": ["requirements.txt", "composer.lock", "package-lock.json", "pom.xml"],
+        "placeHolder": ["composer.json", "package.json"]
     }
 }

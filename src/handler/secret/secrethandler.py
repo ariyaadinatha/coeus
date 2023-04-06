@@ -1,11 +1,13 @@
 from tree_sitter import Language, Parser
-from utils.codehandler import Code, FileHandler
+from utils.codehandler import FileHandler
 from utils.vulnhandler import Vulnerable
 from utils.log import logger
 from datetime import datetime
 import difflib
 import json
 import re
+import traceback
+import sys
 
 class SecretDetection:
     def __init__(self):
@@ -74,11 +76,15 @@ class SecretDetection:
 
     def getDirectValueNode(self, node, sourceCode):
         varValueNode = node.children[-1]
-        variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
+        # variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
+        variableValue = varValueNode.text.decode('utf-8')
+        
 
         varNameNode = node.children[0]
-        variableName = sourceCode[varNameNode.start_byte:varNameNode.end_byte]
+        # variableName = sourceCode[varNameNode.start_byte:varNameNode.end_byte]
+        variableName = varNameNode.text.decode('utf-8')
         
+        # print(variableName, variableValue)
         return variableValue, varValueNode.start_point[0]+1, variableName
 
     def getNestedValueNode(self, node, sourceCode):
@@ -110,7 +116,10 @@ class SecretDetection:
         return 1
 
     def apostropheCleaner(self, variableValue):
-        return variableValue[1:-1] if (variableValue[0] == '"' and variableValue[-1] == '"') else variableValue
+        try:
+            return variableValue[1:-1] if (variableValue[0] == '"' and variableValue[-1] == '"') else variableValue
+        except Exception as e:
+            logger.error(f"Aposthrophe cleaner error: {repr(e)}\n{traceback.format_exc()}\nVariableValue: {variableValue}")
 
     ### START OF SECRET DETECTION ALGORITHM ###
     def wordlistDetection(self, sourceCode, vulnHandler, codePath):
@@ -127,81 +136,111 @@ class SecretDetection:
     def valueDetection(self, sourceCode, vulnHandler, codePath):
         # valueNode = ["assignment", "variable_declarator", "assignment_expression"]
         # functionNode = ["call", "method_invocation", "call_expression", "function_call_expression"]
-        multipleNode = ["argument_list", "array", "arguments", "array_creation_expression", "list", "method_invocation"]
-        for node in self.getAssignmentList():
-            excludedContent = ["[", "]", "(", ")", ","]
-            if node.children[-1].type == "object_creation_expression":
-                continue
+        try:
 
-            if (node.children[-1].type in multipleNode):
-                variableNameNode = node.children[0]
-                variableName = sourceCode[variableNameNode.start_byte:variableNameNode.end_byte]
-                variableType = node.children[-1].type
-
-                for i in range (len(node.children[-1].children)):
-                    variableValueNode = node.children[-1].children[i]
-                    variableValue = sourceCode[variableValueNode.start_byte:variableValueNode.end_byte]
-                    variableLine = variableValueNode.start_point[0]+1
-
-                    if variableValue not in excludedContent:
-                        confidenceLevel = 0
-                        # print(variableValue)
-                        cleanVariable = self.apostropheCleaner(variableValue)
-                        if self.checkWhiteList(variableName, cleanVariable, codePath):
-                            continue
-                        
-                        # REGEX DETECTION
-                        if self.scanSecretVariable(cleanVariable):
-                            confidenceLevel += 1
-
-                        # SIMILARITY DETECTION
-                        if self.similarityDetection(variableName):
-                            confidenceLevel += 2
-
-                        if confidenceLevel > 0:
-                            confidence = None
-                            if confidenceLevel == 1:
-                                confidence = "Low"
-                            if confidenceLevel == 2:
-                                confidence = "Medium"
-                            if confidenceLevel == 3:
-                                confidence = "High"
-
-                            vuln = Vulnerable("Use of Hardcoded Credentials", 
-                                    "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                                    "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                            vulnHandler.addVulnerable(vuln)
-
-            else:
-                variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
-                cleanVariable = self.apostropheCleaner(variableValue)
-                confidenceLevel = 0
-
-                # skip variable if found on whitelist
-                if self.checkWhiteList(variableName, cleanVariable, codePath):
+            multipleNode = ["argument_list", "array", "arguments", "array_creation_expression", "list", "method_invocation"]
+            for node in self.getAssignmentList():
+                excludedContent = ["[", "]", "(", ")", ","]
+                if node.children[-1].type == "object_creation_expression":
                     continue
 
-                # REGEX DETECTION
-                if self.scanSecretVariable(cleanVariable):
-                    confidenceLevel += 1
+                if (node.children[-1].type in multipleNode):
+                    variableNameNode = node.children[0]
+                    
+                    # BRUHHHHHHH
+                    # variableName = sourceCode[variableNameNode.start_byte:variableNameNode.end_byte]
+                    variableName = node.children[0].text.decode('utf-8')
 
-                # SIMILARITY DETECTION
-                if self.similarityDetection(variableName):
-                    confidenceLevel += 2
 
-                if confidenceLevel > 0:
-                    confidence = None
-                    if confidenceLevel == 1:
-                        confidence = "Low"
-                    if confidenceLevel == 2:
-                        confidence = "Medium"
-                    if confidenceLevel == 3:
-                        confidence = "High"
-                
-                    vuln = Vulnerable("Use of Hardcoded Credentials", 
-                        "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
-                        "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
-                    vulnHandler.addVulnerable(vuln)
+                    variableType = node.children[-1].type
+                    
+                    # print(f"variableName: {variableName}")
+                    # print(f"variableType: {variableType}")
+
+                    for i in range (len(node.children[-1].children)):
+                        variableValueNode = node.children[-1].children[i]
+                        
+                        # BRUUUHHHHH
+                        # variableValue = sourceCode[variableValueNode.start_byte:variableValueNode.end_byte]
+                        variableValue = variableValueNode.text.decode('utf-8')
+
+
+                        variableLine = variableValueNode.start_point[0]+1
+
+                        # print(f"variableValue: {variableValue}")
+                        # print(f"\nNode: {node.children[0].text.decode('utf-8')}\nValue Node: {variableValueNode.text.decode('utf-8')}")
+
+
+
+                        if variableValue not in excludedContent:
+                            confidenceLevel = 0
+                            # print(variableValue)
+                            if variableValue == None or len(variableValue) == 0:
+                                continue
+                            cleanVariable = self.apostropheCleaner(variableValue)
+                            if self.checkWhiteList(variableName, cleanVariable, codePath):
+                                continue
+                            
+                            # REGEX DETECTION
+                            if self.scanSecretVariable(cleanVariable):
+                                confidenceLevel += 1
+
+                            # SIMILARITY DETECTION
+                            if self.similarityDetection(variableName):
+                                confidenceLevel += 2
+
+                            if confidenceLevel > 0:
+                                confidence = None
+                                if confidenceLevel == 1:
+                                    confidence = "Low"
+                                if confidenceLevel == 2:
+                                    confidence = "Medium"
+                                if confidenceLevel == 3:
+                                    confidence = "High"
+
+                                vuln = Vulnerable("Use of Hardcoded Credentials", 
+                                        "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
+                                        "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+                                vulnHandler.addVulnerable(vuln)
+
+                else:
+                    variableValue, variableLine, variableName = self.getDirectValueNode(node, sourceCode)
+
+                    if variableValue == None or len(variableValue) == 0:
+                        continue
+
+                    cleanVariable = self.apostropheCleaner(variableValue)
+                    confidenceLevel = 0
+
+                    # skip variable if found on whitelist
+                    if self.checkWhiteList(variableName, cleanVariable, codePath):
+                        continue
+
+                    # REGEX DETECTION
+                    if self.scanSecretVariable(cleanVariable):
+                        confidenceLevel += 1
+
+                    # SIMILARITY DETECTION
+                    if self.similarityDetection(variableName):
+                        confidenceLevel += 2
+
+                    if confidenceLevel > 0:
+                        confidence = None
+                        if confidenceLevel == 1:
+                            confidence = "Low"
+                        if confidenceLevel == 2:
+                            confidence = "Medium"
+                        if confidenceLevel == 3:
+                            confidence = "High"
+
+                        vuln = Vulnerable("Use of Hardcoded Credentials", 
+                            "contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
+                            "CWE-798", "High", confidence, {variableName: cleanVariable}, codePath, variableLine, datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+                        vulnHandler.addVulnerable(vuln)
+        
+        except Exception as e:
+            logger.error(f"Value detection error : {repr(e)}\n{traceback.format_exc()}\nVariableName: {variableName}, Line: {variableLine} {codePath}")
+            sys.exit(1)
 
 
     # Regex based detection
@@ -221,16 +260,19 @@ class SecretDetection:
         for pattern in regexPattern:
             sus +=1 if pattern.search(variableValue) else 0
 
+        # print(f"VariableValue: {variableValue}, sus: {sus}")
         return (sus > 2)
 
     def similarityDetection(self, variableName):
         threshold = 0.7
 
-        similarities = [(word, difflib.SequenceMatcher(None, variableName, word).ratio()) for word in self.getSecretWordList()]
+        similarities = [(word, difflib.SequenceMatcher(None, variableName.lower(), word).ratio()) for word in self.getSecretWordList()]
         maxSimilarity = max(similarities, key=lambda x: x[1])
 
         # if maxSimilarity[1] >= threshold:
         #     print(variableName, maxSimilarity[0], maxSimilarity[1])
+
+        # print(f"variableName: {variableName}, similar: {maxSimilarity[1]}")
 
         
         return maxSimilarity[1] >= threshold

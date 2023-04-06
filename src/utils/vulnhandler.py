@@ -1,3 +1,4 @@
+from utils.log import logger
 from datetime import date
 import json
 import os
@@ -59,11 +60,16 @@ class VulnerableHandler:
         self.vulnerableList.append(vuln)
 
     def dumpVulnerabilities(self, filename):
+        logger.info("Dumping vulnerabilities...")
+
         vulnerableList = [x.getVulnerable() for x in self.getVulnerable()]
+        logger.info(f"Found {len(vulnerableList)} vulnerabilities")
         
         if not os.path.exists("reports"):
             os.makedirs("reports")
 
-        with open(f"reports/{str(date.today())}-{filename}.json", "w") as fileRes:
+        finalName = f"{str(date.today())}-{filename}"
+        with open(f"reports/{finalName}.json", "w") as fileRes:
             fileRes.write(json.dumps(vulnerableList, indent=4))
 
+        logger.info(f"Successfully dump, with filename {finalName}")

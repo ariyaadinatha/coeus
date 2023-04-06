@@ -2,7 +2,7 @@ from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.secret.secrethandler import SecretDetection
 from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
-from utils.codehandler import Code
+from utils.codehandler import CodeProcessor
 from utils.log import logger
 from utils.intermediate_representation.converter import IRConverter
 import time
@@ -16,6 +16,9 @@ def cli():
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def dependency(path, output):
+    logger.info("=============== Starting dependency detection ===============")
+    startTime = time.time()
+
     try:
         fh = FileHandler()
         dh = DependencyHandler()
@@ -26,16 +29,25 @@ def dependency(path, output):
         dh.dumpVulnerabilities()
     except Exception as e:
         logger.error(f"Error : {repr(e)}")
+
+    logger.info(f"Execution time: {(time.time() - startTime)}")
+    logger.info("=============== Finished dependency detection ===============")
+
 cli.add_command(dependency)
 
 @click.command(short_help='Scan code for hardcoded secret')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def secret(path, output):
+    logger.info("=============== Starting secret detection ===============")
+    startTime = time.time()
+
     fh = FileHandler()
     fh.getAllFilesFromRepository(path)
     sc = SecretDetection()
     vh = VulnerableHandler()
+
+    logger.info("Scanning secret...")
     for codePath in fh.getCodeFilesPath():
         codeExtension = codePath.split(".")[-1]
         extensionAlias = {
@@ -43,13 +55,16 @@ def secret(path, output):
             "java": "java",
             "js": "javascript",
             "php": "php",
-            # "ts": "typescript"
         }
         try:
             sourceCode = fh.readFile(codePath)
-            code = Code(extensionAlias[codeExtension], sourceCode)
         except Exception as e:
-            logger.error(f"Error : {repr(e)}")
+            logger.error(f"Readfile error : {repr(e)}, param: {codePath}")
+
+        try:
+            code = CodeProcessor(extensionAlias[codeExtension], sourceCode)
+        except Exception as e:
+            logger.error(f"Code processing error : {repr(e)}")
 
         try:
             if codeExtension == "py":
@@ -81,10 +96,13 @@ def secret(path, output):
             sc.valueDetection(code.getSourceCode(), vh, codePath)
             sc.clearAssignmentList()
         except Exception as e:
-            logger.error(f"Error : {repr(e)}")
+            logger.error(f"Error: {repr(e)}, parameter: {codePath}")
 
     fileNameOutput = path.split("/")[-1]
     vh.dumpVulnerabilities(fileNameOutput)
+
+    logger.info(f"Execution time: {(time.time() - startTime)}")
+    logger.info("=============== Finished secret detection ===============")
 
 cli.add_command(secret)
 
@@ -92,11 +110,14 @@ cli.add_command(secret)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def injection(path, output):
+    logger.info("=============== Starting injection detection ===============")
+    startTime = time.time()
+
     fh = FileHandler()
     fh.getAllFilesFromRepository("./testcase/python")
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
-        code = Code("python", sourceCode)
+        code = CodeProcessor("python", sourceCode)
 
         root = code.getRootNode()
         parsed = code.parseLanguage()
@@ -115,18 +136,24 @@ def injection(path, output):
         print("tree")
         converter.printTree(astRoot)     
         converter.exportAstToCsv(astRoot)
+
+    logger.info(f"Execution time: {(time.time() - startTime)}")
+    logger.info("=============== Finished injection detection ===============")
+
 cli.add_command(injection)
 
 @click.command(short_help='Scan code for broken access control')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 def access():
-    pass
+    logger.info("=============== Starting broken access detection ===============")
+    startTime = time.time()
+
+    # code here
+
+    logger.info(f"Execution time: {(time.time() - startTime)}")
+    logger.info("=============== Finished broken access detection ===============")
 cli.add_command(access)
 
 if __name__ == "__main__":
-    logger.info("=============== Starting coeus ===============")
-    startTime = time.time()
     cli()
-    logger.info(f"Execution time: {(time.time() - startTime)}")
-    logger.info("=============== Successfully running coeus ===============")

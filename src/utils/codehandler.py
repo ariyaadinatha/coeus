@@ -7,6 +7,8 @@ from tree_sitter import Language, Parser, Node
 from typing import Callable
 import csv
 import uuid
+import xmltodict
+
 
 class FileHandler:
     def __init__(self):
@@ -60,10 +62,13 @@ class FileHandler:
         return (name in validDependency)
     
     def readFile(self, filePath):
-        with open(filePath) as file:
-            sourceFile = file.read()
+        try:
+            with open(filePath) as file:
+                sourceFile = file.read()
         
-        return sourceFile
+            return sourceFile
+        except:
+            logger.error(f"Readfile error : {repr(e)}, param: {codePath}")
 
     # get all dependencies from files
     def getDependencies(self, dependencyHandler):
@@ -81,6 +86,8 @@ class FileHandler:
                 ecosystem = rules["ecosystem"]
                 pattern= rules["pattern"]
                 patternType = rules["pattern"]["type"]
+
+
                 if patternType == "regex":
                     logger.info(f"Matching {patternType} pattern...")
                     for expression in rules["pattern"]["expression"]:
@@ -90,14 +97,43 @@ class FileHandler:
 
                 if patternType == "json":
                     logger.info(f"Matching {patternType} pattern...")
-                    dependencyDict = json.loads(content)
-                    self.dependencyParser(dependencyDict[rules["pattern"]["expression"][0]], pattern, dependencyHandler, filePath, ecosystem)
+                    try:
+                        if fileName == "pom.xml":
+                            pomDict = xmltodict.parse(content)["project"]
+                            javaDependencyDict = pomDict["dependencyManagement"]["dependencies"]["dependency"]
+                            dependencyDict = {"dependencies": []}
+
+                            for dependency in javaDependencyDict:
+                                # print(len(javaDependencyDict))
+                                dependencyPOMName = f'{dependency["groupId"]}:{dependency["artifactId"]}'
+                                versionPOM = dependency["version"]
+                                if versionPOM[0] == "$":
+                                    getVersionName = f'{dependency["artifactId"]}.version'
+                                    versionPOM = pomDict["properties"][getVersionName]
+                                    # print(versionPOM)
+
+                                betterDict = {
+                                    "name": dependencyPOMName,
+                                    "version": versionPOM
+                                }
+
+                                dependencyDict["dependencies"].append(betterDict)
+                            print(dependencyDict)
+                    except Exception as e:
+                        logger.error(f"Error: {repr(e)}")
+
+                    else:
+                        dependencyDict = json.loads(content)
+                    
+                    dependencyList = (dependencyDict[rules["pattern"]["expression"][0]])
+                    self.dependencyParser(dependencyList, pattern, dependencyHandler, filePath, ecosystem)
                     logger.info(f"Completed pattern matching for {fileName}")
                     
             except Exception as e:
                 logger.error(f"Error : {repr(e)}")
 
     def dependencyParser(self, dependencyList, pattern, dependencyHandler, filePath, ecosystem):
+        logger.info("Parsing dependencies...")
         try:
             patternType = pattern["type"]
             if patternType == "regex":
@@ -123,7 +159,7 @@ class FileHandler:
 
 
 
-class Code:
+class CodeProcessor:
     def __init__(self, language, sourceCode):
         Language.build_library(
           # Store the library in the `build` directory
@@ -221,10 +257,13 @@ class Code:
                 writer.writerow(row)
 
     def searchTree(self, node, keyword, result):
-        if node.type == keyword:
-            result.append(node)
-        for child in node.children:
-            self.searchTree(child, keyword, result)
+        try:
+            if node.type == keyword:
+                result.append(node)
+            for child in node.children:
+                self.searchTree(child, keyword, result)
+        except Exception as e:
+            logger.error(f"Search tree error : {repr(e)}, param: {keyword, node}")
 
     def getNodes(self, node, keyword, result):
         if node.type == keyword:
