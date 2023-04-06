@@ -107,9 +107,7 @@ def injection(path, output):
 
         # ***: convert node to IR
         converter = IRConverter()
-        astRoot = converter.createAstTree(root)
-        converter.createCfgTree(astRoot)
-        converter.createDfgTree(astRoot)
+        astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")
         converter.printTree(astRoot)     
