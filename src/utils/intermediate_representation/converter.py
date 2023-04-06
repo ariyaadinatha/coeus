@@ -8,11 +8,11 @@ class IRConverter():
     def __init__(self) -> None:
         pass
 
-    def createAstTree(self, root: Node) -> ASTNode:
+    def createAstTree(self, root: Node, filename: str) -> ASTNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
 
-        astRoot = ASTNode(root)
+        astRoot = ASTNode(root, filename=filename)
 
         queue: list[tuple(ASTNode, Union[ASTNode, None])] = [(root, None)]
 
@@ -22,7 +22,7 @@ class IRConverter():
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = ASTNode(node, parent)
+            convertedNode = ASTNode(node, filename, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -36,8 +36,7 @@ class IRConverter():
 
         return astRoot
 
-    # TODO: integrate with createAst if alr working
-    def createCfgTree(self, root: ASTNode) -> ASTNode:
+    def addControlFlowProps(self, root: ASTNode) -> ASTNode:
         queue = [(root, 0)]
 
         while len(queue) != 0:
@@ -47,6 +46,9 @@ class IRConverter():
                 currNode.createCfgNode(statementOrder)
             
             statementOrder = 0
+            # this handles the next statement relationship
+            # only works for straight up line-by-line control flow
+            # TODO: handle for, while, try, catch, etc. control
             for child in currNode.astChildren:
                 if "statement" in child.type:
                     statementOrder += 1
@@ -98,25 +100,46 @@ class IRConverter():
 
         return symbolTable
     
-    def createDfgTree(self, root: ASTNode):
-        symbolTable = self.createSymbolTable(root)
+    def addScope(self, root: ASTNode):
+        queue = [(root, root.dataFlowProps.scope)]
+        symbolTable = {}
+        scopeIdentifiers = ("class_definition", "function_definition")
 
+        while len(queue) != 0:
+            currNode, scope = queue.pop(0)
+
+            isSource = self.isSource(currNode)
+            isSink = self.isSink(currNode)
+            currNode.createDfgNode(scope, isSource, isSink, None)
+
+            # add additional scope for children if this node is class, function, module
+            if currNode.type in scopeIdentifiers:
+                for child in currNode.astChildren:
+                    if child.type == "identifier":
+                        currentIdentifier = child.content
+                scope += f"\{currentIdentifier}"
+            
+            for child in currNode.astChildren:
+                queue.append((child, scope))
+    
+    def addDataFlowEdges(self, root: ASTNode):
+        # only iterate through source node
         queue = [root]
 
         while len(queue) != 0:
-            currNode = queue.pop(0)
+            pass
 
-            if currNode.id in symbolTable:
-                dataProps = symbolTable[currNode.id]
-                currNode.createDfgNode(dataProps["parent"], True, dataProps["type"], dataProps["scope"])
-                
-            for child in currNode.astChildren:
-                queue.append(child)
+    def createCompleteTree(self, root: Node, filename: str) -> ASTNode:
+        astRoot = self.createAstTree(root, filename)
+        self.addControlFlowProps(astRoot)
+        self.addScope(astRoot)
+
+        return astRoot
 
     def printTree(self, node: ASTNode, depth=0):
         indent = ' ' * depth
 
-        print(f'{indent}[{node.id}] {node.type} control?{node.controlFlowProps != None} : {node.content}')
+        print(f'{indent}{node}')
 
         for child in node.astChildren:
             self.printTree(child, depth + 2)
@@ -155,7 +178,41 @@ class IRConverter():
                 writer.writerow(row)
 
                 for child in node.astChildren:
-                    queue.append(child)            
+                    queue.append(child)      
+
+    def getSources(self, root: ASTNode):
+        # 1. check node is source
+        # 2. get node scope and identifier and store it
+
+        queue = [root]
+
+        while len(queue) != 0:
+            currNode = queue.pop(0)
+
+            if self.isSource(currNode):
+                currNode.createDfgNode(None, None, None, None)
+                currNode.dataFlowProps.isSource = True
+                
+            for child in currNode.astChildren:
+                queue.append(child)
+
+    def isSource(self, node: ASTNode) -> bool:
+        # TODO: handle different languages and keywords
+        keywords = set("input()")
+
+        if node.content in keywords:
+            return True
+        
+        return False
+    
+    def isSink(self, node: ASTNode) -> bool:
+        # TODO: handle different languages and keywords
+        keywords = set("cursor.execute")
+        
+        if node.content in keywords:
+            return True
+        
+        return False
 
     def isIgnoredType(self, node: Node) -> bool:
         ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
