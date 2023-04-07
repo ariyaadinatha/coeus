@@ -1,29 +1,19 @@
-from flask import Blueprint
-from flask import flash
-from flask import g
-from flask import redirect
-from flask import render_template
-from flask import request
-from flask import url_for
+from django.conf.urls import url
+from django.db import connection
 
-def create():
-    if request.method == "POST":
-        
-        title = request.form["title"]
-        body = request.form["body"]
-        error = None
 
-        if error is not None:
-            flash(error)
-        else:
-            db = get_db()
-            # SQL injection vuln
-            db.execute(
-                "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
-                (title, body, g.user["id"]),
-            )
+def show_user(request, username):
+    with connection.cursor() as cursor:
+        # BAD -- Using string formatting
+        cursor.execute("SELECT * FROM users WHERE username = '%s'" % username)
+        user = cursor.fetchone()
 
-            db.commit()
-            return redirect(url_for("blog.index"))
+        # GOOD -- Using parameters
+        cursor.execute("SELECT * FROM users WHERE username = %s", username)
+        user = cursor.fetchone()
 
-    return render_template("blog/create.html")
+        # BAD -- Manually quoting placeholder (%s)
+        cursor.execute("SELECT * FROM users WHERE username = '%s'", username)
+        user = cursor.fetchone()
+
+urlpatterns = [url(r'^users/(?P<username>[^/]+)$', show_user)]
