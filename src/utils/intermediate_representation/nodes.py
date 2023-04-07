@@ -27,7 +27,7 @@ class ASTNode:
           self.astChildren: list[ASTNode] = []
     
     def __str__(self) -> str:
-      return f'[{self.id}] ({self.dataFlowProps.scope}) {self.type} : {self.content}'
+      return f'[{self.id}] ({self.dataFlowProps.scope}) - ({self.dataFlowProps.dataType}) {self.type} : {self.content}'
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
@@ -51,7 +51,7 @@ class ASTNode:
         if self.parent.parent is not None and self.parent.parent.scope != self.parent.scope:
             scope += f"\${self.parent.scope}"
         
-      self.scope = scope
+      # self.scope = scope
     
     def createCfgNode(self, statementOrder: int):
       if self.controlFlowProps is None:
@@ -76,3 +76,4 @@ class DataFlowProps:
       self.isSource = isSource
       self.isSink = isSink
       self.isTainted = None
+      self.dataType = None

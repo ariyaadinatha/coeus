@@ -71,10 +71,6 @@ class IRConverter():
         while len(queue) != 0:
             currNode = queue.pop(0)
 
-            # print("children assignment")
-            # print(currNode.content)
-            # print(currNode.node.children_by_field_name("assignment"))
-
             if currNode.parent is not None and currNode.parent.type == "assignment":
                 # check variable declaration or not
                 if currNode.type == "identifier":
@@ -102,6 +98,7 @@ class IRConverter():
     
     def addScope(self, root: ASTNode):
         queue = [(root, root.dataFlowProps.scope)]
+        # TODO: create symbol table while initializing scope
         symbolTable = {}
         scopeIdentifiers = ("class_definition", "function_definition")
 
@@ -112,13 +109,39 @@ class IRConverter():
             isSink = self.isSink(currNode)
             currNode.createDfgNode(scope, isSource, isSink, None)
 
-            # add additional scope for children if this node is class, function, module
+            # add new scope for children if this node is class, function, module
             if currNode.type in scopeIdentifiers:
                 for child in currNode.astChildren:
+                    # get the class, function, or module name
                     if child.type == "identifier":
+                        # store name to pass down to the children
                         currentIdentifier = child.content
                 scope += f"\{currentIdentifier}"
             
+            # handle variable assignment and reassignment
+            if currNode.type == "identifier" and currNode.parent.type == "assignment":
+                key = (currNode.content, currNode.dataFlowProps.scope)
+                if currNode.node.prev_sibling is None:
+                    if key in symbolTable:
+                        currNode.dataFlowProps.dataType = "reassignment"
+                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        symbolTable[key].append(currNode.id)
+                    else:
+                        currNode.dataFlowProps.dataType = "assignment"
+                        symbolTable[key] = [currNode.id]
+                else:
+                    currNode.dataFlowProps.dataType = "referenced"
+                    if key in symbolTable:
+                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+            # handle value of an assignment but is not identifier
+            elif currNode.parent is not None and currNode.parent.type == "assignment":
+                if currNode.node.prev_sibling is not None and currNode.node.prev_sibling.type == "=" and currNode.node.prev_sibling.prev_sibling.type == "identifier":
+                    identifier = currNode.node.prev_sibling.prev_sibling.text.decode("UTF-8")
+                    key = (identifier, currNode.dataFlowProps.scope)
+                    if key in symbolTable:
+                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        currNode.dataFlowProps.dataType = "value"
+
             for child in currNode.astChildren:
                 queue.append((child, scope))
     
@@ -144,8 +167,9 @@ class IRConverter():
         for child in node.astChildren:
             self.printTree(child, depth + 2)
 
+    # might need to separate ast, cfg and dfg export to three separate csv files
     def exportAstToCsv(self, root: ASTNode):
-        header = ['id', 'tree_sitter_id', 'type', 'content', 'parent_id', 'statement_order', 'dfg_parent_id']
+        header = ['id', 'type', 'content', 'parent_id', 'statement_order', 'dfg_parent_id', 'scope', 'data_type', 'is_source']
         with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
@@ -157,7 +181,7 @@ class IRConverter():
 
                 statementOrder = node.controlFlowProps.statementOrder if node.controlFlowProps is not None else -1
                 dfgParentId = node.dataFlowProps.dfgParentId if node.dataFlowProps is not None else -1
-                row = [node.id, node.treeSitterId, node.type, node.content, node.parentId, statementOrder, dfgParentId]
+                row = [node.id, node.type, node.content, node.parentId, statementOrder, dfgParentId, node.dataFlowProps.scope, node.dataFlowProps.dataType, node.dataFlowProps.isSource]
                 writer.writerow(row)
 
                 for child in node.astChildren:
