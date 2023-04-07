@@ -1,4 +1,4 @@
-test = "hahahah"
+test = input()
 
 another_test = test
 

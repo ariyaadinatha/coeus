@@ -114,14 +114,12 @@ def injection(path, output):
     startTime = time.time()
 
     fh = FileHandler()
-    fh.getAllFilesFromRepository("./testcase/python")
+    fh.getAllFilesFromRepository("./testcase/graph")
     for codePath in fh.getCodeFilesPath():
         sourceCode = fh.readFile(codePath)
         code = CodeProcessor("python", sourceCode)
 
         root = code.getRootNode()
-        parsed = code.parseLanguage()
-        tree = code.getTree()
 
         # ***: export tree to CSV
         # code.traverseTree(root, [])
@@ -130,8 +128,7 @@ def injection(path, output):
 
         # ***: convert node to IR
         converter = IRConverter()
-        astRoot = converter.createAstTree(root)
-        converter.createCfgTree(astRoot)
+        astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")
         converter.printTree(astRoot)     
