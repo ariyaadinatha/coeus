@@ -2,6 +2,7 @@ from tree_sitter import Node
 from typing import Union
 from utils.intermediate_representation.nodes import ASTNode
 from uuid import uuid4
+from pathlib import Path
 import csv
 
 class IRConverter():
@@ -96,18 +97,22 @@ class IRConverter():
 
         return symbolTable
     
-    def addScope(self, root: ASTNode):
-        queue = [(root, root.dataFlowProps.scope)]
-        # TODO: create symbol table while initializing scope
+    def addDataFlowEdges(self, root: ASTNode):
+        queue = [(root, root.scope)]
+        # symbol table to store variables as key and their node ids as value
+        # key: (identifier, scope)
+        # value: [ids]
+        # scope to differentiate duplicate identifiers
         symbolTable = {}
         scopeIdentifiers = ("class_definition", "function_definition")
 
         while len(queue) != 0:
             currNode, scope = queue.pop(0)
 
-            isSource = self.isSource(currNode)
-            isSink = self.isSink(currNode)
-            currNode.createDfgNode(scope, isSource, isSink, None)
+            # set data flow properties
+            currNode.isSource = self.isSource(currNode)
+            currNode.isSink = self.isSink(currNode)
+            currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
             if currNode.type in scopeIdentifiers:
@@ -120,42 +125,43 @@ class IRConverter():
             
             # handle variable assignment and reassignment
             if currNode.type == "identifier" and currNode.parent.type == "assignment":
-                key = (currNode.content, currNode.dataFlowProps.scope)
+                key = (currNode.content, currNode.scope)
                 if currNode.node.prev_sibling is None:
+                    # reassignment of an existing variable
                     if key in symbolTable:
-                        currNode.dataFlowProps.dataType = "reassignment"
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        dataType = "reassignment"
+                        dfgParentId = symbolTable[key][-1]
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
+                        # register node id to symbol table
                         symbolTable[key].append(currNode.id)
+                    # assignment of a new variable
                     else:
-                        currNode.dataFlowProps.dataType = "assignment"
+                        dataType = "assignment"
+                        currNode.addDataFlowEdge(dataType, None)
                         symbolTable[key] = [currNode.id]
                 else:
-                    currNode.dataFlowProps.dataType = "referenced"
+                    # reference of an existing variable as value of another variable
+                    dataType = "referenced"
                     if key in symbolTable:
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        dfgParentId = symbolTable[key][-1]
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
             # handle value of an assignment but is not identifier
-            elif currNode.parent is not None and currNode.parent.type == "assignment":
+            if currNode.parent is not None and currNode.parent.type == "assignment":
                 if currNode.node.prev_sibling is not None and currNode.node.prev_sibling.type == "=" and currNode.node.prev_sibling.prev_sibling.type == "identifier":
                     identifier = currNode.node.prev_sibling.prev_sibling.text.decode("UTF-8")
-                    key = (identifier, currNode.dataFlowProps.scope)
+                    key = (identifier, currNode.scope)
                     if key in symbolTable:
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
-                        currNode.dataFlowProps.dataType = "value"
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
 
             for child in currNode.astChildren:
                 queue.append((child, scope))
-    
-    def addDataFlowEdges(self, root: ASTNode):
-        # only iterate through source node
-        queue = [root]
-
-        while len(queue) != 0:
-            pass
 
     def createCompleteTree(self, root: Node, filename: str) -> ASTNode:
         astRoot = self.createAstTree(root, filename)
         self.addControlFlowProps(astRoot)
-        self.addScope(astRoot)
+        self.addDataFlowEdges(astRoot)
 
         return astRoot
 
@@ -168,9 +174,16 @@ class IRConverter():
             self.printTree(child, depth + 2)
 
     # might need to separate ast, cfg and dfg export to three separate csv files
-    def exportAstToCsv(self, root: ASTNode):
-        header = ['id', 'type', 'content', 'parent_id', 'statement_order', 'dfg_parent_id', 'scope', 'data_type', 'is_source']
-        with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
+    def exportAstNodesToCsv(self, root: ASTNode):
+        header = ['id', 'type', 'content', 'parent_id', 'statement_order', 'scope', 'is_source']
+        
+        # setup file and folder
+        basename = root.scope.split(".")[1].replace("/", "-").replace("\\", "-")
+        if basename[0] == "-":
+            basename = basename[1:]
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
+
+        with open(f'./csv/{basename}/{basename}_nodes.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -179,10 +192,34 @@ class IRConverter():
             while queue:
                 node = queue.pop(0)
 
-                statementOrder = node.controlFlowProps.statementOrder if node.controlFlowProps is not None else -1
-                dfgParentId = node.dataFlowProps.dfgParentId if node.dataFlowProps is not None else -1
-                row = [node.id, node.type, node.content, node.parentId, statementOrder, dfgParentId, node.dataFlowProps.scope, node.dataFlowProps.dataType, node.dataFlowProps.isSource]
+                statementOrder = node.controlFlowEdges.statementOrder if node.controlFlowEdges is not None else -1
+                row = [node.id, node.type, node.content, node.parentId, statementOrder, node.scope, node.isSource]
                 writer.writerow(row)
+
+                for child in node.astChildren:
+                    queue.append(child)
+
+    def exportDfgEdgesToCsv(self, root: ASTNode):
+        header = ['id', 'dfg_parent_id', 'data_type']
+
+        # setup file and folder
+        basename = root.scope.split(".")[1].replace("/", "-").replace("\\", "-")
+        if basename[0] == "-":
+            basename = basename[1:]
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
+
+        with open(f'./csv/{basename}/{basename}_edges.csv', 'w+') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
+
+            queue: list[ASTNode] = [root]
+
+            while queue:
+                node = queue.pop(0)
+
+                for edge in node.dataFlowEdges:
+                    row = [node.id, edge.dfgParentId, edge.dataType]
+                    writer.writerow(row)
 
                 for child in node.astChildren:
                     queue.append(child)
@@ -198,7 +235,7 @@ class IRConverter():
             while queue:
                 node = queue.pop(0)
 
-                row = [node.id, node.controlFlowProps.statementOrder]
+                row = [node.id, node.controlFlowEdges.statementOrder]
                 writer.writerow(row)
 
                 for child in node.astChildren:
@@ -214,8 +251,8 @@ class IRConverter():
             currNode = queue.pop(0)
 
             if self.isSource(currNode):
-                currNode.createDfgNode(None, None, None, None)
-                currNode.dataFlowProps.isSource = True
+                currNode.addDataFlowEdge(None, None, None, None)
+                currNode.dataFlowEdges.isSource = True
                 
             for child in currNode.astChildren:
                 queue.append(child)

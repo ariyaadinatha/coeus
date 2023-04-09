@@ -1,5 +1,6 @@
 from tree_sitter import Node
 import uuid
+from typing import Union
 
 test = "huhuhuhu"
 
@@ -11,23 +12,38 @@ class ASTNode:
           return
         else:
           self.id = uuid.uuid4().hex
-          self.controlFlowProps = None
-          self.dataFlowProps = None
+          self.controlFlowEdges = None
+          self.dataFlowEdges: list[DataFlowEdge] = []
+
+          # get info from tree-sitter node
+          self.treeSitterId = node.id
+          self.content = node.text.decode("utf-8")
+          self.type = node.type
+          self.node = node
+          self.astChildren: list[ASTNode] = []
+
+          # data flow props
+          self.scope = None
+          self.isSource = None
+          self.isSink = None
+          self.isTainted = None
+
+          # control flow props
+
+          # if root
           if type(parent) is ASTNode:
             self.parent = parent
             self.parentId = parent.id
           else:
             self.parent = None
             self.parentId = None
-            self.createDfgNode(filename, False, False, None)
-          self.treeSitterId = node.id
-          self.content = node.text.decode("utf-8")
-          self.type = node.type
-          self.node = node
-          self.astChildren: list[ASTNode] = []
+            self.scope = filename
+            self.isSource = False
+            self.isSink = False
+            self.isTainted = False
     
     def __str__(self) -> str:
-      return f'[{self.id}] ({self.dataFlowProps.scope}) - ({self.dataFlowProps.dataType}) {self.type} : {self.content}'
+      return f'[{self.id}] ({self.scope}) {self.type} : {self.content}'
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
@@ -54,11 +70,12 @@ class ASTNode:
       # self.scope = scope
     
     def createCfgNode(self, statementOrder: int):
-      if self.controlFlowProps is None:
-        self.controlFlowProps = ControlFlowProps(statementOrder)
+      if self.controlFlowEdges is None:
+        self.controlFlowEdges = ControlFlowProps(statementOrder)
 
-    def createDfgNode(self, scope: str, isSource: bool, isSink: bool, dfgParentId):
-        self.dataFlowProps = DataFlowProps(scope, isSource, isSink, dfgParentId)
+    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
+        edge = DataFlowEdge(dataType, dfgParentId)
+        self.dataFlowEdges.append(edge)
 
 # class to store all control flow related actions
 class ControlFlowProps:
@@ -67,13 +84,9 @@ class ControlFlowProps:
         self.statementOrder = statementOrder
 
 # clas to store all variables and their values
-class DataFlowProps:
-    def __init__(self, scope: str, isSource: bool, isSink: bool, dfgParentId=None) -> None:
+class DataFlowEdge:
+    def __init__(self, dataType: str, dfgParentId:  Union[str, None]) -> None:
       # determine whether node is a variable or variable value
       self.dfgId = uuid.uuid4().hex
       self.dfgParentId = dfgParentId
-      self.scope = scope
-      self.isSource = isSource
-      self.isSink = isSink
-      self.isTainted = None
-      self.dataType = None
+      self.dataType = dataType

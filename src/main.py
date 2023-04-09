@@ -132,7 +132,8 @@ def injection(path, output):
 
         print("tree")
         converter.printTree(astRoot)     
-        converter.exportAstToCsv(astRoot)
+        converter.exportAstNodesToCsv(astRoot)
+        converter.exportDfgEdgesToCsv(astRoot)
 
     logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished injection detection ===============")
