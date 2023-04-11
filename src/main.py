@@ -25,7 +25,6 @@ def dependency(path, output):
         fh.getAllFilesFromRepository(path)
         fh.getDependencies(dh)
         dh.scanDependencies()
-        ### TO DO ADD ANOTHER OPTIONS OF OUTPUT
         dh.dumpVulnerabilities()
     except Exception as e:
         logger.error(f"Error : {repr(e)}")

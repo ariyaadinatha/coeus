@@ -33,85 +33,27 @@ class SecretDetection:
         variableName = sourceCode[varNameNode.start_byte:varNameNode.end_byte]
         
         return variableName, varNameNode.start_point[0]+1
-        
-    def getNodeValue(self, node, sourceCode):
-        # PYTHON
-
-        if (node.type == "assignment"):
-            varValueNode = node.children[-1]
-            variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
-
-            varNameNode = node.children[0]
-            variableName = sourceCode[varNameNode.start_byte:varNameNode.end_byte]
-
-            # print(variableValue)
-            return variableValue.replace("'", "").replace('"', ''), varValueNode.start_point[0]+1, variableName
-
-        if (node.type == "argument_list"):
-            ignoreValue = ["(", ")", ","]
-            valueList = []
-
-            # DEBUG
-            functionName = None
-            parentNode = node.parent.parent.children[0]
-            if (parentNode.type == "call"):
-                parentChild = parentNode.children[0]
-                functionName = sourceCode[parentChild.start_byte:parentChild.end_byte]
-            for i in range(len(node.children)):
-                varValueNode = node.children[i]
-                variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
-                if variableValue not in ignoreValue:
-                    valueList.append(variableValue)
-
-            # print(variableValue)
-            parsedValueList = [x.replace("'", '"').replace('"', '') for x in valueList]
-            return parsedValueList, varValueNode.start_point[0]+1, functionName
-
-    def getNode(self, node, sourceCode):
-        assigntmentNodeType = ["assignment", ""]
-        listNodeType = ["argument_list"]
-        # ASSIGNMENT NODE
-        
-        # ARRAY NODE
 
     def getDirectValueNode(self, node, sourceCode):
         varValueNode = node.children[-1]
-        # variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
         variableValue = varValueNode.text.decode('utf-8')
-        
-
         varNameNode = node.children[0]
-        # variableName = sourceCode[varNameNode.start_byte:varNameNode.end_byte]
         variableName = varNameNode.text.decode('utf-8')
         
-        # print(variableName, variableValue)
         return variableValue, varValueNode.start_point[0]+1, variableName
-
-    def getNestedValueNode(self, node, sourceCode):
-        # ignoreValue = ["(", ")", ","]
-        ignoreValue = []
-        valueList = []
-
-        for i in range(len(node.children)):
-            varValueNode = node.children[i]
-            variableValue = sourceCode[varValueNode.start_byte:varValueNode.end_byte]
-            if variableValue not in ignoreValue:
-                valueList.append(variableValue)
-
-        return valueList, varValueNode.start_point[0]+1, functionName
 
     def checkWhiteList(self, variableName, variableValue, codePath):
         with open("rules/secret-whitelist.json", 'r') as file:
             whiteList = json.load(file)["whitelist"]
 
         if codePath not in whiteList:
-            return 0
+            return 2
 
         if variableName not in whiteList[codePath]:
-            return 0
+            return 3
 
         if variableValue not in whiteList[codePath][variableName]:
-            return 0
+            return 4
 
         return 1
 
@@ -122,6 +64,7 @@ class SecretDetection:
             logger.error(f"Aposthrophe cleaner error: {repr(e)}\n{traceback.format_exc()}\nVariableValue: {variableValue}")
 
     ### START OF SECRET DETECTION ALGORITHM ###
+    # LEGACY NOT USED
     def wordlistDetection(self, sourceCode, vulnHandler, codePath):
         for node in self.getAssignmentList():
             variableName, variableLine = self.getNodeVariable(node, sourceCode)
@@ -134,10 +77,7 @@ class SecretDetection:
 
     # secret detection algorithm
     def valueDetection(self, sourceCode, vulnHandler, codePath):
-        # valueNode = ["assignment", "variable_declarator", "assignment_expression"]
-        # functionNode = ["call", "method_invocation", "call_expression", "function_call_expression"]
         try:
-
             multipleNode = ["argument_list", "array", "arguments", "array_creation_expression", "list", "method_invocation"]
             for node in self.getAssignmentList():
                 excludedContent = ["[", "]", "(", ")", ","]
@@ -146,35 +86,16 @@ class SecretDetection:
 
                 if (node.children[-1].type in multipleNode):
                     variableNameNode = node.children[0]
-                    
-                    # BRUHHHHHHH
-                    # variableName = sourceCode[variableNameNode.start_byte:variableNameNode.end_byte]
                     variableName = node.children[0].text.decode('utf-8')
-
-
                     variableType = node.children[-1].type
-                    
-                    # print(f"variableName: {variableName}")
-                    # print(f"variableType: {variableType}")
 
                     for i in range (len(node.children[-1].children)):
                         variableValueNode = node.children[-1].children[i]
-                        
-                        # BRUUUHHHHH
-                        # variableValue = sourceCode[variableValueNode.start_byte:variableValueNode.end_byte]
                         variableValue = variableValueNode.text.decode('utf-8')
-
-
                         variableLine = variableValueNode.start_point[0]+1
-
-                        # print(f"variableValue: {variableValue}")
-                        # print(f"\nNode: {node.children[0].text.decode('utf-8')}\nValue Node: {variableValueNode.text.decode('utf-8')}")
-
-
 
                         if variableValue not in excludedContent:
                             confidenceLevel = 0
-                            # print(variableValue)
                             if variableValue == None or len(variableValue) == 0:
                                 continue
                             cleanVariable = self.apostropheCleaner(variableValue)
@@ -240,13 +161,14 @@ class SecretDetection:
         
         except Exception as e:
             logger.error(f"Value detection error : {repr(e)}\n{traceback.format_exc()}\nVariableName: {variableName}, Line: {variableLine} {codePath}")
-            sys.exit(1)
-
 
     # Regex based detection
     def scanSecretVariable(self, variableValue):
         with open("rules/secret-regex.json", 'r') as file:
             regex = json.load(file)
+
+        with open("config/secret.json", 'r') as file:
+            suspiciousThreshold = json.load(file)["suspiciousPattern"]
 
         regexPattern = [re.compile(x) for x in regex["pattern"]]
         excludedPattern = [re.compile(x) for x in regex["exclussion"]]
@@ -260,19 +182,13 @@ class SecretDetection:
         for pattern in regexPattern:
             sus +=1 if pattern.search(variableValue) else 0
 
-        # print(f"VariableValue: {variableValue}, sus: {sus}")
-        return (sus > 2)
+        return (sus > suspiciousThreshold)
 
     def similarityDetection(self, variableName):
-        threshold = 0.7
+        with open("config/secret.json", 'r') as file:
+            similarityThreshold = json.load(file)["similarityThreshold"]
 
         similarities = [(word, difflib.SequenceMatcher(None, variableName.lower(), word).ratio()) for word in self.getSecretWordList()]
         maxSimilarity = max(similarities, key=lambda x: x[1])
-
-        # if maxSimilarity[1] >= threshold:
-        #     print(variableName, maxSimilarity[0], maxSimilarity[1])
-
-        # print(f"variableName: {variableName}, similar: {maxSimilarity[1]}")
-
         
-        return maxSimilarity[1] >= threshold
+        return maxSimilarity[1] >= similarityThreshold

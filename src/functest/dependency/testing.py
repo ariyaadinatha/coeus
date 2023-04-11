@@ -106,10 +106,12 @@ class TestDependencyHandler(unittest.TestCase):
             "/home/caffeine/Documents/Code/vulnerable-app/NodeGoat/package-lock.json",
             "An issue was discovered in ajv.validate() in Ajv (aka Another JSON Schema Validator) 6.12.2. A carefully crafted JSON schema could be provided that allows execution of other code by prototype pollution. (While untrusted schemas are recommended against, the worst case of an untrusted schema should be a denial of service, not execution of code.)",
             ["CVE-2020-15366"],
-            [{
+            [
+                {
                 "type": "CVSS_V3",
                 "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:L/I:L/A:L"
-            }],
+                }
+            ],
             [{
                 "type": "SEMVER",
                 "events": [
@@ -166,18 +168,17 @@ class TestDependencyHandler(unittest.TestCase):
         self.assertEqual(self.dependencyHandler.getDependencies()[1], self.dependency2)
 
     def test_dependency_handler_scan_dependency(self):
-        pass
-        # self.assertEqual(self.dependencyHandler.scanDependency(self.dependency1)["vulns"], self.vulnerableDependency1)
-        # self.assertEqual(len(self.dependencyHandler.getVulnerableDependencies()), 1)
-        # self.assertEqual(self.dependencyHandler.getVulnerableDependencies(), self.vulnerableDependency1)
-
-    def test_dependency_handler_multiple_scan_dependency(self):
-        pass
-        self.dependencyHandler.addDependency(self.dependency4)
-        # self.dependencyHandler.addDependency(self.dependency4)
+        self.dependencyHandler.addDependency(self.dependency1)
         self.dependencyHandler.scanDependencies()
         self.assertEqual(len(self.dependencyHandler.getVulnerableDependencies()), 1)
-        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0], self.vulnerableDependency2)
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getName(), self.vulnerableDependency1.getName())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getVersion(), self.vulnerableDependency1.getVersion())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getEcosystem(), self.vulnerableDependency1.getEcosystem())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getFileLocation(), self.vulnerableDependency1.getFileLocation())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getDetails(), self.vulnerableDependency1.getDetails())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getAliases(), self.vulnerableDependency1.getAliases())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getSeverity(), self.vulnerableDependency1.getSeverity())
+        self.assertEqual(self.dependencyHandler.getVulnerableDependencies()[0].getAffected(), self.vulnerableDependency1.getAffected())
 
 if __name__ == '__main__':
     unittest.main()
