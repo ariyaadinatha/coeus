@@ -1,185 +1,38 @@
-[2023-04-10 05:47:15,554-INFO-dependency-19]: =============== Starting dependency detection ===============
-[2023-04-10 05:47:15,554-INFO-getAllFilesFromRepository-43]: Searching all relevant files
-[2023-04-10 05:47:15,554-INFO-getDependencies-75]: Searching dependencies...
-[2023-04-10 05:47:15,554-INFO-getDependencies-83]: Found composer.lock
-[2023-04-10 05:47:15,555-INFO-getDependencies-99]: Matching json pattern...
-[2023-04-10 05:47:15,557-INFO-dependencyParser-136]: Parsing dependencies...
-[2023-04-10 05:47:15,557-INFO-getDependencies-130]: Completed pattern matching for composer.lock
-[2023-04-10 05:47:15,558-INFO-scanDependencies-88]: Total dependencies: 60
-[2023-04-10 05:47:15,558-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 05:47:50,322-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 05:47:50,322-INFO-scanDependencies-109]: Vulnerabilities found: 13
-[2023-04-10 05:47:50,323-INFO-dependency-33]: Execution time: 34.76949429512024
-[2023-04-10 05:47:50,323-INFO-dependency-34]: =============== Finished dependency detection ===============
-[2023-04-10 06:42:08,007-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 06:42:08,007-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:42:09,150-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:42:09,151-INFO-scanDependencies-109]: Vulnerabilities found: 2
-[2023-04-10 06:43:41,084-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 06:43:41,085-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:43:42,132-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:43:42,132-INFO-scanDependencies-109]: Vulnerabilities found: 2
-[2023-04-10 06:44:29,438-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 06:44:29,438-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:44:30,977-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:44:30,977-INFO-scanDependencies-109]: Vulnerabilities found: 2
-[2023-04-10 06:45:13,990-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 06:45:13,990-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:45:15,113-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:45:15,113-INFO-scanDependencies-109]: Vulnerabilities found: 2
-[2023-04-10 06:45:47,996-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 06:45:47,996-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:45:49,010-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:45:49,010-INFO-scanDependencies-109]: Vulnerabilities found: 2
-[2023-04-10 06:46:10,276-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:46:10,277-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:46:10,819-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:46:10,820-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:46:27,664-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:46:27,664-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:46:28,126-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:46:28,126-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:48:10,352-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:48:10,352-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:48:11,040-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:48:11,041-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:50:44,922-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:50:44,922-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:50:45,564-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:50:45,564-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:51:03,744-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:51:03,744-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:51:04,303-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:51:04,304-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:52:01,284-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:52:01,284-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:52:01,955-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:52:01,956-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:52:15,148-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:52:15,148-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:52:15,882-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:52:15,882-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:52:29,239-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:52:29,239-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:52:30,002-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:52:30,002-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:53:16,147-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:53:16,147-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:53:16,710-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:53:16,710-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:54:05,052-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:54:05,053-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:54:05,554-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:54:05,554-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:54:17,911-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:54:17,912-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:54:18,457-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:54:18,457-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:55:47,553-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:55:47,553-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:55:48,471-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:55:48,471-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 06:56:23,418-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 06:56:23,418-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 06:56:24,207-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 06:56:24,207-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 17:05:56,730-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 17:05:56,740-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:05:57,530-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:05:57,530-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 17:06:18,449-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 17:06:18,449-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:06:18,939-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:06:18,939-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 17:11:51,550-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 17:11:51,550-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:11:52,147-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:11:52,147-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 17:12:47,732-INFO-scanDependencies-88]: Total dependencies: 2
-[2023-04-10 17:12:47,732-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:12:49,406-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:12:49,407-INFO-scanDependencies-109]: Vulnerabilities found: 37
-[2023-04-10 17:13:27,060-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 17:13:27,060-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:13:27,898-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:13:27,898-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 17:13:34,469-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 17:13:34,470-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 17:13:35,061-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 17:13:35,061-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:01:09,836-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:01:09,836-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:01:10,499-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:01:10,499-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:01:34,926-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:01:34,927-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:01:35,516-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:01:35,516-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:02:08,797-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:02:08,797-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:02:09,309-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:02:09,309-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:03:23,745-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:03:23,745-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:03:24,905-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:03:24,906-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:05:05,433-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:05:05,434-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:05:06,174-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:05:06,174-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:06:03,788-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:06:03,788-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:06:05,667-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:06:05,667-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:07:24,367-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:07:24,367-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:07:25,014-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:07:25,014-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:08:14,069-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:08:14,069-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:08:14,573-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:08:14,573-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:11:10,464-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:11:10,464-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:11:11,015-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:11:11,015-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:11:29,106-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:11:29,106-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:11:29,649-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:11:29,649-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 18:12:04,433-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 18:12:04,433-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 18:12:05,084-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 18:12:05,084-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:39:18,029-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:39:18,029-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:39:18,603-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:39:18,604-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:39:42,099-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:39:42,099-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:39:42,693-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:39:42,693-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:40:06,297-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:40:06,297-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:40:07,476-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:40:07,476-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:40:29,658-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:40:29,658-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:40:30,117-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:40:30,117-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:41:16,022-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:41:16,022-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:41:16,496-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:41:16,497-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:42:08,760-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:42:08,760-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:42:09,334-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:42:09,334-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:42:33,220-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:42:33,220-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:42:33,809-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:42:33,810-INFO-scanDependencies-109]: Vulnerabilities found: 1
-[2023-04-10 19:43:02,148-INFO-scanDependencies-88]: Total dependencies: 1
-[2023-04-10 19:43:02,148-INFO-scanDependencies-89]: Scanning dependency vulnerabilities...
-[2023-04-10 19:43:02,685-INFO-scanDependencies-108]: Completed scanning dependency vulnerabilities
-[2023-04-10 19:43:02,685-INFO-scanDependencies-109]: Vulnerabilities found: 1
+[2023-04-11 11:55:42,435-INFO-dependency-19]: =============== Starting dependency detection ===============
+[2023-04-11 11:55:42,435-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-11 11:55:42,441-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-11 11:55:42,441-INFO-getDependencies-83]: Found composer.lock
+[2023-04-11 11:55:42,442-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,443-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,443-INFO-getDependencies-130]: Completed pattern matching for composer.lock
+[2023-04-11 11:55:42,443-INFO-getDependencies-83]: Found composer.lock
+[2023-04-11 11:55:42,445-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,447-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,447-INFO-getDependencies-130]: Completed pattern matching for composer.lock
+[2023-04-11 11:55:42,447-INFO-getDependencies-83]: Found package-lock.json
+[2023-04-11 11:55:42,449-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,452-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,453-INFO-getDependencies-130]: Completed pattern matching for package-lock.json
+[2023-04-11 11:55:42,453-INFO-getDependencies-83]: Found requirements.txt
+[2023-04-11 11:55:42,453-INFO-getDependencies-92]: Matching regex pattern...
+[2023-04-11 11:55:42,454-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,454-INFO-getDependencies-96]: Completed pattern matching for requirements.txt
+[2023-04-11 11:55:42,454-INFO-getDependencies-83]: Found pom.xml
+[2023-04-11 11:55:42,454-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,458-ERROR-getDependencies-123]: Error: KeyError('cglib-nodep.version')
+[2023-04-11 11:55:42,458-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,458-INFO-getDependencies-130]: Completed pattern matching for pom.xml
+[2023-04-11 11:55:42,458-INFO-getDependencies-83]: Found composer.lock
+[2023-04-11 11:55:42,459-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,461-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-11 11:55:42,461-INFO-getDependencies-130]: Completed pattern matching for composer.lock
+[2023-04-11 11:55:42,461-INFO-getDependencies-83]: Found pom.xml
+[2023-04-11 11:55:42,461-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-11 11:55:42,462-ERROR-getDependencies-123]: Error: KeyError('dependencyManagement')
+[2023-04-11 11:55:42,462-ERROR-getDependencies-133]: Error : KeyError('dependencies')
+[2023-04-11 11:55:42,478-INFO-scanDependencies-99]: Total dependencies: 1124
+[2023-04-11 11:55:42,478-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-04-11 12:04:59,949-INFO-scanDependencies-120]: Completed scanning dependency vulnerabilities
+[2023-04-11 12:04:59,950-INFO-scanDependencies-121]: Vulnerabilities found: 124
+[2023-04-11 12:04:59,955-INFO-dependency-40]: Execution time: 557.5202050209045
+[2023-04-11 12:04:59,955-INFO-dependency-41]: =============== Finished dependency detection ===============
