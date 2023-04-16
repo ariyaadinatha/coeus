@@ -40,14 +40,14 @@ class IRConverter():
 
         return astRoot
 
-    def addControlFlowProps(self, root: ASTNode) -> ASTNode:
+    def addControlFlowEdges(self, root: ASTNode) -> ASTNode:
         queue = [(root, 0)]
 
         while len(queue) != 0:
             currNode, statementOrder = queue.pop(0)
 
             if statementOrder != 0:
-                currNode.createCfgNode(statementOrder)
+                currNode.addControlFlowEdge(statementOrder)
             
             statementOrder = 0
             # this handles the next statement relationship
@@ -61,44 +61,6 @@ class IRConverter():
                     queue.append((child, 0))
 
         return root
-
-    def createSymbolTable(self, root: ASTNode) -> dict:
-        # 1. check node with type assignment
-        # 2. store left node as variable
-        # 3. store right node as value
-        # 4. store right node as variable if reassignment
-
-        symbolTable = {}
-
-        queue = [root]
-
-        while len(queue) != 0:
-            currNode = queue.pop(0)
-
-            if currNode.parent is not None and currNode.parent.type == "assignment":
-                # check variable declaration or not
-                if currNode.type == "identifier":
-                    if currNode.node.next_sibling is None:
-                        symbolTable[currNode.id] = {
-                                                    "parent": currNode.node.prev_sibling.id,
-                                                    "scope": currNode.parent,
-                                                    "type": "variable",
-                                                    "is_reference": True,
-                                                    "identifier": currNode.content
-                                                    }
-                    else:
-                        symbolTable[currNode.id] = {
-                                                    "parent": None,
-                                                    "scope": currNode.parent,
-                                                    "type": "reference",
-                                                    "is_assignment": True,
-                                                    "identifier": currNode.content
-                                                    }
-                
-            for child in currNode.astChildren:
-                queue.append(child)
-
-        return symbolTable
     
     def addDataFlowEdges(self, root: ASTNode):
         queue = [(root, root.scope)]
@@ -163,7 +125,7 @@ class IRConverter():
 
     def createCompleteTree(self, root: Node, filename: str) -> ASTNode:
         astRoot = self.createAstTree(root, filename)
-        self.addControlFlowProps(astRoot)
+        self.addControlFlowEdges(astRoot)
         self.addDataFlowEdges(astRoot)
 
         return astRoot
@@ -261,22 +223,6 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)      
 
-    def getSources(self, root: ASTNode):
-        # 1. check node is source
-        # 2. get node scope and identifier and store it
-
-        queue = [root]
-
-        while len(queue) != 0:
-            currNode = queue.pop(0)
-
-            if self.isSource(currNode):
-                currNode.addDataFlowEdge(None, None, None, None)
-                currNode.dataFlowEdges.isSource = True
-                
-            for child in currNode.astChildren:
-                queue.append(child)
-
     def getExportBasename(self, filename: str) -> str:
         basename = filename.split(".")[1].replace("/", "-").replace("\\", "-")
         if basename[0] == "-":
@@ -285,15 +231,15 @@ class IRConverter():
         return basename
 
     def isSource(self, node: ASTNode) -> bool:
-        # TODO: handle different languages and keywords
-        if node.content in self.sources:
-            return True
+        for source in self.sources:
+            if source in node.content.lower():
+                return True
         return False
     
     def isSink(self, node: ASTNode) -> bool:
-        # TODO: handle different languages and keywords
-        if node.content in self.sinks:
-            return True
+        for sink in self.sinks:
+            if sink in node.content.lower():
+                return True
         return False
 
     def isIgnoredType(self, node: Node) -> bool:

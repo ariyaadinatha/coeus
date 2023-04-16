@@ -12,7 +12,7 @@ class ASTNode:
           return
         else:
           self.id = uuid.uuid4().hex
-          self.controlFlowEdges = None
+          self.controlFlowEdges: list[ControlFlowEdge] = []
           self.dataFlowEdges: list[DataFlowEdge] = []
 
           # get info from tree-sitter node
@@ -24,9 +24,9 @@ class ASTNode:
 
           # data flow props
           self.scope = None
-          self.isSource = None
-          self.isSink = None
-          self.isTainted = None
+          self.isSource = False
+          self.isSink = False
+          self.isTainted = False
 
           # control flow props
 
@@ -53,35 +53,20 @@ class ASTNode:
       
       return False
     
-    def setScope(self, node: Node, parent=None, filename=None):
-      # TODO: handle based on language
-      # TODO: handle self
-      # TODO: handle import
-      if parent is None:
-          scope = filename
-      else:
-        # TODO: handle class scope
-        # TODO: handle function scope
-        # TODO: handle module scope
-        scope = self.parent.scope
-        if self.parent.parent is not None and self.parent.parent.scope != self.parent.scope:
-            scope += f"\${self.parent.scope}"
-        
-      # self.scope = scope
-    
-    def createCfgNode(self, statementOrder: int):
-      if self.controlFlowEdges is None:
-        self.controlFlowEdges = ControlFlowProps(statementOrder)
+    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
+      edge = ControlFlowEdge(statementOrder, cfgParentId)
+      self.controlFlowEdges.append(edge)
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
         edge = DataFlowEdge(dataType, dfgParentId)
         self.dataFlowEdges.append(edge)
 
 # class to store all control flow related actions
-class ControlFlowProps:
-    def __init__(self, statementOrder: int) -> None:
+class ControlFlowEdge:
+    def __init__(self, statementOrder: int, cfgParentId: str) -> None:
         self.cfgId = uuid.uuid4().hex
         self.statementOrder = statementOrder
+        self.cfgParentId = cfgParentId
 
 # clas to store all variables and their values
 class DataFlowEdge:
