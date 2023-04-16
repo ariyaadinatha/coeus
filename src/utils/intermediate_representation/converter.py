@@ -6,8 +6,11 @@ from pathlib import Path
 import csv
 
 class IRConverter():
-    def __init__(self) -> None:
-        pass
+    def __init__(self, sources, sinks, sanitizers, language: str) -> None:
+        self.sources = sources
+        self.sinks = sinks
+        self.sanitizers = sanitizers
+        self.language = language
 
     def createAstTree(self, root: Node, filename: str) -> ASTNode:
         # iterate through root until the end using BFS
@@ -174,13 +177,22 @@ class IRConverter():
             self.printTree(child, depth + 2)
 
     # might need to separate ast, cfg and dfg export to three separate csv files
+    # TODO: export cfg edges using separate function and csv file (see dfg for reference)
     def exportAstNodesToCsv(self, root: ASTNode):
-        header = ['id', 'type', 'content', 'parent_id', 'statement_order', 'scope', 'is_source']
+        header = [
+                'id', 
+                'type', 
+                'content', 
+                'parent_id', 
+                'statement_order', 
+                'scope', 
+                'is_source', 
+                'is_sink', 
+                'is_tainted'
+                ]
         
         # setup file and folder
-        basename = root.scope.split(".")[1].replace("/", "-").replace("\\", "-")
-        if basename[0] == "-":
-            basename = basename[1:]
+        basename = self.getExportBasename(root.scope)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
         with open(f'./csv/{basename}/{basename}_nodes.csv', 'w+') as f:
@@ -193,7 +205,17 @@ class IRConverter():
                 node = queue.pop(0)
 
                 statementOrder = node.controlFlowEdges.statementOrder if node.controlFlowEdges is not None else -1
-                row = [node.id, node.type, node.content, node.parentId, statementOrder, node.scope, node.isSource]
+                row = [
+                    node.id, 
+                    node.type, 
+                    node.content, 
+                    node.parentId, 
+                    statementOrder, 
+                    node.scope, 
+                    node.isSource,
+                    node.isSink,
+                    node.isTainted,
+                    ]
                 writer.writerow(row)
 
                 for child in node.astChildren:
@@ -203,9 +225,7 @@ class IRConverter():
         header = ['id', 'dfg_parent_id', 'data_type']
 
         # setup file and folder
-        basename = root.scope.split(".")[1].replace("/", "-").replace("\\", "-")
-        if basename[0] == "-":
-            basename = basename[1:]
+        basename = self.getExportBasename(root.scope)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
         with open(f'./csv/{basename}/{basename}_edges.csv', 'w+') as f:
@@ -257,22 +277,23 @@ class IRConverter():
             for child in currNode.astChildren:
                 queue.append(child)
 
+    def getExportBasename(self, filename: str) -> str:
+        basename = filename.split(".")[1].replace("/", "-").replace("\\", "-")
+        if basename[0] == "-":
+            basename = basename[1:]
+        
+        return basename
+
     def isSource(self, node: ASTNode) -> bool:
         # TODO: handle different languages and keywords
-        keywords = set("input()")
-
-        if node.content in keywords:
+        if node.content in self.sources:
             return True
-        
         return False
     
     def isSink(self, node: ASTNode) -> bool:
         # TODO: handle different languages and keywords
-        keywords = set("cursor.execute")
-        
-        if node.content in keywords:
+        if node.content in self.sinks:
             return True
-        
         return False
 
     def isIgnoredType(self, node: Node) -> bool:

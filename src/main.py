@@ -127,7 +127,7 @@ def injection(path, output):
         # code.exportToCSV()
 
         # ***: convert node to IR
-        converter = IRConverter()
+        converter = IRConverter(None, None, None, "python")
         astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")

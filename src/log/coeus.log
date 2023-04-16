@@ -341,3 +341,31 @@
 [2023-03-30 22:03:44,873-INFO-getAllFilesFromRepository-41]: Searching all relevant files
 [2023-03-30 22:06:39,947-INFO-getAllFilesFromRepository-41]: Searching all relevant files
 [2023-03-30 22:06:58,273-INFO-getAllFilesFromRepository-41]: Searching all relevant files
+[2023-04-09 13:50:29,432-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:50:29,433-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:52:27,922-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:52:27,923-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:52:38,399-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:52:38,400-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:52:38,480-INFO-injection-138]: Execution time: 0.0800023078918457
+[2023-04-09 13:52:38,480-INFO-injection-139]: =============== Finished injection detection ===============
+[2023-04-09 13:53:37,958-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:53:37,958-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:54:02,991-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:54:02,992-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:58:20,295-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:58:20,296-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 13:59:48,614-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 13:59:48,615-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 14:00:46,253-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 14:00:46,253-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 14:01:13,393-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 14:01:13,394-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 14:02:16,394-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 14:02:16,395-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 14:02:16,480-INFO-injection-138]: Execution time: 0.0860297679901123
+[2023-04-09 14:02:16,480-INFO-injection-139]: =============== Finished injection detection ===============
+[2023-04-09 14:02:35,764-INFO-injection-113]: =============== Starting injection detection ===============
+[2023-04-09 14:02:35,765-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-09 14:02:35,849-INFO-injection-138]: Execution time: 0.08456969261169434
+[2023-04-09 14:02:35,849-INFO-injection-139]: =============== Finished injection detection ===============
