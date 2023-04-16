@@ -5,11 +5,11 @@ from flask import redirect
 from flask import render_template
 from flask import request
 from flask import url_for
+from flaskr.db import get_db
 from flask import session
 from flask import url_for
 from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
-from flaskr.db import get_db
 
 bp = Blueprint("blog", __name__)
 
@@ -21,16 +21,9 @@ def login():
         password = request.form["password"]
         db = get_db()
         error = None
-
-        # SQL injection vuln
-        # input example: ' OR 'a'='a';--
         user = db.execute(
-            "SELECT * FROM user WHERE username = \'%s\'" % (username)
+            "SELECT * FROM user WHERE username = ?", (username,)
         ).fetchone()
-
-        if user is not None:
-            for row in user:
-                print(row)
 
         if user is None:
             error = "Incorrect username."
