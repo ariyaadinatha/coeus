@@ -1,5 +1,5 @@
 from tree_sitter import Node
-from typing import Union
+from typing import Union, Callable
 from utils.intermediate_representation.nodes import ASTNode
 from uuid import uuid4
 from pathlib import Path
@@ -41,24 +41,38 @@ class IRConverter():
         return astRoot
 
     def addControlFlowEdges(self, root: ASTNode) -> ASTNode:
-        queue = [(root, 0)]
+        queue: list[tuple(ASTNode, int, ASTNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder = queue.pop(0)
+            currNode, statementOrder, cfgParentId = queue.pop(0)
 
             if statementOrder != 0:
-                currNode.addControlFlowEdge(statementOrder)
+                currNode.addControlFlowEdge(statementOrder, cfgParentId)
+
+            # handle if statement
+            if currNode.type == "if_statement" or currNode.type == "else_clause":
+                for child in currNode.astChildren:
+                    if child.type == "block":
+                        blockNode = child
+                        if len(blockNode.astChildren) != 0:
+                            # connect if true statements with if statement
+                            if currNode.type == "if_statement":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
+                            # connect else statements with if statement
+                            elif currNode.type == "else_clause":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
             
             statementOrder = 0
-            # this handles the next statement relationship
-            # only works for straight up line-by-line control flow
+            # handles the next statement relationship
             # TODO: handle for, while, try, catch, etc. control
             for child in currNode.astChildren:
+                currCfgParent = None if currNode.type != "module" else currNode.id
                 if "statement" in child.type:
                     statementOrder += 1
-                    queue.append((child, statementOrder))
+                    queue.append((child, statementOrder, currCfgParent))
+                    currCfgParent = child.id
                 else:
-                    queue.append((child, 0))
+                    queue.append((child, 0, None))
 
         return root
     
@@ -130,13 +144,18 @@ class IRConverter():
 
         return astRoot
 
-    def printTree(self, node: ASTNode, depth=0):
+    def printTree(self, node: ASTNode, filter: Callable[[ASTNode], bool], depth=0):
         indent = ' ' * depth
 
-        print(f'{indent}{node}')
+        if filter(node):
+            print(f'{indent}{node}')
+            for control in node.controlFlowEdges:
+                print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
+            for data in node.dataFlowEdges:
+                print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
 
         for child in node.astChildren:
-            self.printTree(child, depth + 2)
+            self.printTree(child, filter, depth + 2)
 
     # might need to separate ast, cfg and dfg export to three separate csv files
     # TODO: export cfg edges using separate function and csv file (see dfg for reference)

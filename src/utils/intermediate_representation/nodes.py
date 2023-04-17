@@ -42,6 +42,7 @@ class ASTNode:
             self.isSink = False
             self.isTainted = False
     
+    # print shortcut
     def __str__(self) -> str:
       return f'[{self.id}] ({self.scope}) {self.type} : {self.content}'
 
