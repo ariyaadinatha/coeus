@@ -65,8 +65,8 @@ class IRConverter():
             statementOrder = 0
             # handles the next statement relationship
             # TODO: handle for, while, try, catch, etc. control
+            currCfgParent = None if currNode.type != "module" else currNode.id
             for child in currNode.astChildren:
-                currCfgParent = None if currNode.type != "module" else currNode.id
                 if "statement" in child.type:
                     statementOrder += 1
                     queue.append((child, statementOrder, currCfgParent))
