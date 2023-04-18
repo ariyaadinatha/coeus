@@ -165,7 +165,6 @@ class IRConverter():
                 'type', 
                 'content', 
                 'parent_id', 
-                'statement_order', 
                 'scope', 
                 'is_source', 
                 'is_sink', 
@@ -185,13 +184,11 @@ class IRConverter():
             while queue:
                 node = queue.pop(0)
 
-                statementOrder = node.controlFlowEdges.statementOrder if node.controlFlowEdges is not None else -1
                 row = [
                     node.id, 
                     node.type, 
                     node.content, 
                     node.parentId, 
-                    statementOrder, 
                     node.scope, 
                     node.isSource,
                     node.isSink,
@@ -209,7 +206,7 @@ class IRConverter():
         basename = self.getExportBasename(root.scope)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
-        with open(f'./csv/{basename}/{basename}_edges.csv', 'w+') as f:
+        with open(f'./csv/{basename}/{basename}_dfg_edges.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -225,22 +222,33 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)
     
-    def exportCfgToCsv(self, root: ASTNode):
-        header = ['id', 'statement_order']
-        with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
+    def exportCfgEdgesToCsv(self, root: ASTNode):
+        header = ['id', 'cfg_parent_id', 'statement_order']
+
+        # setup file and folder
+        basename = self.getExportBasename(root.scope)
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
+
+        with open(f'./csv/{basename}/{basename}_cfg_edges.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue = [root]
+            queue: list[ASTNode] = [root]
 
             while queue:
                 node = queue.pop(0)
 
-                row = [node.id, node.controlFlowEdges.statementOrder]
-                writer.writerow(row)
+                for edge in node.controlFlowEdges:
+                    row = [node.id, edge.cfgParentId, edge.statementOrder]
+                    writer.writerow(row)
 
                 for child in node.astChildren:
-                    queue.append(child)      
+                    queue.append(child)     
+    
+    def exportTreeToCsvFiles(self, root: ASTNode):
+        self.exportAstNodesToCsv(root)
+        self.exportDfgEdgesToCsv(root)
+        self.exportCfgEdgesToCsv(root)
 
     def getExportBasename(self, filename: str) -> str:
         basename = filename.split(".")[1].replace("/", "-").replace("\\", "-")
