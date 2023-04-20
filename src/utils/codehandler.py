@@ -193,7 +193,7 @@ class CodeProcessor:
     def getTreeList(self):
         if self.treeList == []:
             self.createTreeListWithId(self.getRootNode, self.treeList, 'root')
-            
+
         return self.treeList
 
     def parseLanguage(self):

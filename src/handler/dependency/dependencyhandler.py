@@ -77,8 +77,19 @@ class DependencyHandler:
                 }
             }
 
+
+            if dependency.getVersion() == "-":
+                obj = {
+                "package": {
+                    "name": dependency.getName(),
+                    "ecosystem": dependency.getEcosystem()
+                }
+            }
+
             result = requests.post(url, json=obj)
-            return result.json()
+            vulnDependency = result.json()
+
+            return vulnDependency
         except Exception as e:
             logger.error(f"Error : {repr(e)}")
 
@@ -90,6 +101,7 @@ class DependencyHandler:
             for dependency in self.getDependencies():
                 result = self.scanDependency(dependency)
                 if result:
+                    # print(result.__dict__)
                     for vuln in result["vulns"]:
                         parsedRes = self.parseDependencyResult(vuln)
                         depObj = dependency.getDependency()
@@ -133,6 +145,9 @@ class DependencyHandler:
     # legacy, not used
     def scanDependenciesUsingRegex(self, filePath):
         fileExtension = filePath.split(".")[-1]
+        if fileExtension != "py":
+            return
+
         importList = []
         regexPattern = {
                 "py": [ # python extension
@@ -153,7 +168,10 @@ class DependencyHandler:
                             importList.append(dependencyName)
             
             # remove duplicate item
-            return list(set(importList))
+            newImportList = list(set(importList))
+            for item in newImportList:
+                dep = Dependency(item, "-", "PyPI", filePath)
+                self.addDependency(dep)
 
         except Exception as e:
             logger.error(f"Error : {repr(e)}")

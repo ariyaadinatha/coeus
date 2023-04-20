@@ -25,9 +25,16 @@ def dependency(path, output):
         dh = DependencyHandler()
         fh.getAllFilesFromRepository(path)
         fh.getDependencies(dh)
+
+        # get all path
+        for code in fh.getCodeFilesPath():
+            dh.scanDependenciesUsingRegex(code)
+        
         dh.scanDependencies()
-        ### TO DO ADD ANOTHER OPTIONS OF OUTPUT
         dh.dumpVulnerabilities()
+
+
+
     except Exception as e:
         logger.error(f"Error : {repr(e)}")
 
