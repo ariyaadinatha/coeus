@@ -2,8 +2,6 @@ from tree_sitter import Node
 import uuid
 from typing import Union
 
-test = "huhuhuhu"
-
 # all node from tree-sitter parse result
 class ASTNode:
     def __init__(self, node: Node, filename: str, parent=None) -> None:
@@ -44,7 +42,7 @@ class ASTNode:
     
     # print shortcut
     def __str__(self) -> str:
-      return f'[{self.id}] ({self.scope}) {self.type} : {self.content}'
+      return f'[{self.id}] {self.type} : {self.content}'
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
