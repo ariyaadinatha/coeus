@@ -5,6 +5,7 @@ from utils.codehandler import FileHandler
 from utils.codehandler import CodeProcessor
 from utils.log import logger
 from utils.intermediate_representation.converter import IRConverter
+import json
 import time
 import click
 
@@ -120,26 +121,31 @@ def injection(path, output):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
+    # load source and sinks
+    with open("./rules/injection/source-python-wordlist.json", 'r') as file:
+        sources = json.load(file)["wordlist"]
+    with open("./rules/injection/sink-python-wordlist.json", 'r') as file:
+        sinks = json.load(file)["wordlist"]
+
     fh = FileHandler()
+    # fh.getAllFilesFromRepository("./testcase/injection/sql")
+    # fh.getAllFilesFromRepository("./testcase/injection/taint_analysis")
     fh.getAllFilesFromRepository("./testcase/graph")
     for codePath in fh.getCodeFilesPath():
+        if codePath.split('.')[-1] != "py":
+            continue
         sourceCode = fh.readFile(codePath)
         code = CodeProcessor("python", sourceCode)
 
         root = code.getRootNode()
 
-        # ***: export tree to CSV
-        # code.traverseTree(root, [])
-        # code.createTreeListWithId(root, code.treeList, "parent")
-        # code.exportToCSV()
-
         # ***: convert node to IR
-        converter = IRConverter()
+        converter = IRConverter(sources, sinks, None, "python")
         astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")
-        converter.printTree(astRoot)     
-        converter.exportAstToCsv(astRoot)
+        converter.printTree(astRoot, lambda node: True)
+        converter.exportTreeToCsvFiles(astRoot)
 
     logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished injection detection ===============")

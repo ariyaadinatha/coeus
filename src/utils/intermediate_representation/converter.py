@@ -1,12 +1,16 @@
 from tree_sitter import Node
-from typing import Union
+from typing import Union, Callable
 from utils.intermediate_representation.nodes import ASTNode
 from uuid import uuid4
+from pathlib import Path
 import csv
 
 class IRConverter():
-    def __init__(self) -> None:
-        pass
+    def __init__(self, sources, sinks, sanitizers, language: str) -> None:
+        self.sources = sources
+        self.sinks = sinks
+        self.sanitizers = sanitizers
+        self.language = language
 
     def createAstTree(self, root: Node, filename: str) -> ASTNode:
         # iterate through root until the end using BFS
@@ -36,78 +40,59 @@ class IRConverter():
 
         return astRoot
 
-    def addControlFlowProps(self, root: ASTNode) -> ASTNode:
-        queue = [(root, 0)]
+    def addControlFlowEdges(self, root: ASTNode) -> ASTNode:
+        queue: list[tuple(ASTNode, int, ASTNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder = queue.pop(0)
+            currNode, statementOrder, cfgParentId = queue.pop(0)
 
             if statementOrder != 0:
-                currNode.createCfgNode(statementOrder)
+                currNode.addControlFlowEdge(statementOrder, cfgParentId)
+
+            # handle if statement
+            if currNode.type == "if_statement" or currNode.type == "else_clause":
+                for child in currNode.astChildren:
+                    if child.type == "block":
+                        blockNode = child
+                        if len(blockNode.astChildren) != 0:
+                            # connect if true statements with if statement
+                            if currNode.type == "if_statement":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
+                            # connect else statements with if statement
+                            elif currNode.type == "else_clause":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
             
             statementOrder = 0
-            # this handles the next statement relationship
-            # only works for straight up line-by-line control flow
+            # handles the next statement relationship
             # TODO: handle for, while, try, catch, etc. control
+            currCfgParent = None if currNode.type != "module" else currNode.id
             for child in currNode.astChildren:
                 if "statement" in child.type:
                     statementOrder += 1
-                    queue.append((child, statementOrder))
+                    queue.append((child, statementOrder, currCfgParent))
+                    currCfgParent = child.id
                 else:
-                    queue.append((child, 0))
+                    queue.append((child, 0, None))
 
         return root
-
-    def createSymbolTable(self, root: ASTNode) -> dict:
-        # 1. check node with type assignment
-        # 2. store left node as variable
-        # 3. store right node as value
-        # 4. store right node as variable if reassignment
-
-        symbolTable = {}
-
-        queue = [root]
-
-        while len(queue) != 0:
-            currNode = queue.pop(0)
-
-            if currNode.parent is not None and currNode.parent.type == "assignment":
-                # check variable declaration or not
-                if currNode.type == "identifier":
-                    if currNode.node.next_sibling is None:
-                        symbolTable[currNode.id] = {
-                                                    "parent": currNode.node.prev_sibling.id,
-                                                    "scope": currNode.parent,
-                                                    "type": "variable",
-                                                    "is_reference": True,
-                                                    "identifier": currNode.content
-                                                    }
-                    else:
-                        symbolTable[currNode.id] = {
-                                                    "parent": None,
-                                                    "scope": currNode.parent,
-                                                    "type": "reference",
-                                                    "is_assignment": True,
-                                                    "identifier": currNode.content
-                                                    }
-                
-            for child in currNode.astChildren:
-                queue.append(child)
-
-        return symbolTable
     
-    def addScope(self, root: ASTNode):
-        queue = [(root, root.dataFlowProps.scope)]
-        # TODO: create symbol table while initializing scope
+    def addDataFlowEdges(self, root: ASTNode):
+        queue = [(root, root.scope)]
+        # symbol table to store variables as key and their node ids as value
+        # key: (identifier, scope)
+        # value: [ids]
+        # scope to differentiate duplicate identifiers
         symbolTable = {}
         scopeIdentifiers = ("class_definition", "function_definition")
 
         while len(queue) != 0:
             currNode, scope = queue.pop(0)
 
-            isSource = self.isSource(currNode)
-            isSink = self.isSink(currNode)
-            currNode.createDfgNode(scope, isSource, isSink, None)
+            # set data flow properties
+            currNode.isSource = self.isSource(currNode)
+            currNode.isSink = self.isSink(currNode)
+            currNode.isTainted = self.isSource(currNode)
+            currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
             if currNode.type in scopeIdentifiers:
@@ -120,57 +105,94 @@ class IRConverter():
             
             # handle variable assignment and reassignment
             if currNode.type == "identifier" and currNode.parent.type == "assignment":
-                key = (currNode.content, currNode.dataFlowProps.scope)
+                key = (currNode.content, currNode.scope)
                 if currNode.node.prev_sibling is None:
+                    # reassignment of an existing variable
                     if key in symbolTable:
-                        currNode.dataFlowProps.dataType = "reassignment"
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        dataType = "reassignment"
+                        dfgParentId = symbolTable[key][-1]
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
+                        # register node id to symbol table
                         symbolTable[key].append(currNode.id)
+                    # assignment of a new variable
                     else:
-                        currNode.dataFlowProps.dataType = "assignment"
+                        dataType = "assignment"
+                        currNode.addDataFlowEdge(dataType, None)
                         symbolTable[key] = [currNode.id]
                 else:
-                    currNode.dataFlowProps.dataType = "referenced"
+                    # reference of an existing variable as value of another variable
+                    dataType = "referenced"
                     if key in symbolTable:
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
+                        dfgParentId = symbolTable[key][-1]
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
             # handle value of an assignment but is not identifier
-            elif currNode.parent is not None and currNode.parent.type == "assignment":
+            if currNode.parent is not None and currNode.parent.type == "assignment":
                 if currNode.node.prev_sibling is not None and currNode.node.prev_sibling.type == "=" and currNode.node.prev_sibling.prev_sibling.type == "identifier":
                     identifier = currNode.node.prev_sibling.prev_sibling.text.decode("UTF-8")
-                    key = (identifier, currNode.dataFlowProps.scope)
+                    key = (identifier, currNode.scope)
                     if key in symbolTable:
-                        currNode.dataFlowProps.dfgParentId = symbolTable[key][-1]
-                        currNode.dataFlowProps.dataType = "value"
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        currNode.addDataFlowEdge(dataType, dfgParentId)
 
+            # handle variable called as argument in function
+            if currNode.type == "identifier" and currNode.parent.type != "assignment":
+                key = (currNode.content, currNode.scope)
+                if key in symbolTable:
+                    dfgParentId = symbolTable[key][-1]
+                    dataType = "called"
+                    currNode.addDataFlowEdge(dataType, dfgParentId)
+            
             for child in currNode.astChildren:
                 queue.append((child, scope))
-    
-    def addDataFlowEdges(self, root: ASTNode):
-        # only iterate through source node
-        queue = [root]
-
-        while len(queue) != 0:
-            pass
 
     def createCompleteTree(self, root: Node, filename: str) -> ASTNode:
         astRoot = self.createAstTree(root, filename)
-        self.addControlFlowProps(astRoot)
-        self.addScope(astRoot)
+        self.addControlFlowEdges(astRoot)
+        self.addDataFlowEdges(astRoot)
 
         return astRoot
 
-    def printTree(self, node: ASTNode, depth=0):
+    def printTree(self, node: ASTNode, filter: Callable[[ASTNode], bool], depth=0):
         indent = ' ' * depth
 
-        print(f'{indent}{node}')
+        if filter(node):
+            print(f'{indent}{node}')
+            # control flow info
+            # for control in node.controlFlowEdges:
+            #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
+
+            # taint analysis info
+            print(f'{indent}sink {node.isSink}')
+            print(f'{indent}source {node.isSource}')
+            # print(f'{indent}sanitizer {node.isSanitizer}')
+
+            # data flow info
+            for data in node.dataFlowEdges:
+                print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
 
         for child in node.astChildren:
-            self.printTree(child, depth + 2)
+            self.printTree(child, filter, depth + 2)
 
     # might need to separate ast, cfg and dfg export to three separate csv files
-    def exportAstToCsv(self, root: ASTNode):
-        header = ['id', 'type', 'content', 'parent_id', 'statement_order', 'dfg_parent_id', 'scope', 'data_type', 'is_source']
-        with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
+    # TODO: export cfg edges using separate function and csv file (see dfg for reference)
+    def exportAstNodesToCsv(self, root: ASTNode):
+        header = [
+                'id', 
+                'type', 
+                'content', 
+                'parent_id', 
+                'scope', 
+                'is_source', 
+                'is_sink', 
+                'is_tainted'
+                ]
+        
+        # setup file and folder
+        basename = self.getExportBasename(root.scope)
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
+
+        with open(f'./csv/{basename}/{basename}_nodes.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -179,63 +201,89 @@ class IRConverter():
             while queue:
                 node = queue.pop(0)
 
-                statementOrder = node.controlFlowProps.statementOrder if node.controlFlowProps is not None else -1
-                dfgParentId = node.dataFlowProps.dfgParentId if node.dataFlowProps is not None else -1
-                row = [node.id, node.type, node.content, node.parentId, statementOrder, dfgParentId, node.dataFlowProps.scope, node.dataFlowProps.dataType, node.dataFlowProps.isSource]
+                row = [
+                    node.id, 
+                    node.type, 
+                    node.content, 
+                    node.parentId, 
+                    node.scope, 
+                    node.isSource,
+                    node.isSink,
+                    node.isTainted,
+                    ]
                 writer.writerow(row)
 
                 for child in node.astChildren:
                     queue.append(child)
-    
-    def exportCfgToCsv(self, root: ASTNode):
-        header = ['id', 'statement_order']
-        with open(f'./csv/{uuid4().hex}.csv', 'w+') as f:
+
+    def exportDfgEdgesToCsv(self, root: ASTNode):
+        header = ['id', 'dfg_parent_id', 'data_type']
+
+        # setup file and folder
+        basename = self.getExportBasename(root.scope)
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
+
+        with open(f'./csv/{basename}/{basename}_dfg_edges.csv', 'w+') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue = [root]
+            queue: list[ASTNode] = [root]
 
             while queue:
                 node = queue.pop(0)
 
-                row = [node.id, node.controlFlowProps.statementOrder]
-                writer.writerow(row)
+                for edge in node.dataFlowEdges:
+                    row = [node.id, edge.dfgParentId, edge.dataType]
+                    writer.writerow(row)
 
                 for child in node.astChildren:
-                    queue.append(child)      
+                    queue.append(child)
+    
+    def exportCfgEdgesToCsv(self, root: ASTNode):
+        header = ['id', 'cfg_parent_id', 'statement_order']
 
-    def getSources(self, root: ASTNode):
-        # 1. check node is source
-        # 2. get node scope and identifier and store it
+        # setup file and folder
+        basename = self.getExportBasename(root.scope)
+        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
-        queue = [root]
+        with open(f'./csv/{basename}/{basename}_cfg_edges.csv', 'w+') as f:
+            writer = csv.writer(f)
+            writer.writerow(header)
 
-        while len(queue) != 0:
-            currNode = queue.pop(0)
+            queue: list[ASTNode] = [root]
 
-            if self.isSource(currNode):
-                currNode.createDfgNode(None, None, None, None)
-                currNode.dataFlowProps.isSource = True
-                
-            for child in currNode.astChildren:
-                queue.append(child)
+            while queue:
+                node = queue.pop(0)
+
+                for edge in node.controlFlowEdges:
+                    row = [node.id, edge.cfgParentId, edge.statementOrder]
+                    writer.writerow(row)
+
+                for child in node.astChildren:
+                    queue.append(child)     
+    
+    def exportTreeToCsvFiles(self, root: ASTNode):
+        self.exportAstNodesToCsv(root)
+        self.exportDfgEdgesToCsv(root)
+        self.exportCfgEdgesToCsv(root)
+
+    def getExportBasename(self, filename: str) -> str:
+        basename = filename.split(".")[1].replace("/", "-").replace("\\", "-")
+        if basename[0] == "-":
+            basename = basename[1:]
+        
+        return basename
 
     def isSource(self, node: ASTNode) -> bool:
-        # TODO: handle different languages and keywords
-        keywords = set("input()")
-
-        if node.content in keywords:
-            return True
-        
+        for source in self.sources:
+            if source in node.content.lower():
+                return True
         return False
     
     def isSink(self, node: ASTNode) -> bool:
-        # TODO: handle different languages and keywords
-        keywords = set("cursor.execute")
-        
-        if node.content in keywords:
-            return True
-        
+        for sink in self.sinks:
+            if sink in node.content.lower():
+                return True
         return False
 
     def isIgnoredType(self, node: Node) -> bool:

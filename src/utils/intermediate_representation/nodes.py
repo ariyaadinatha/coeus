@@ -1,7 +1,6 @@
 from tree_sitter import Node
 import uuid
-
-test = "huhuhuhu"
+from typing import Union
 
 # all node from tree-sitter parse result
 class ASTNode:
@@ -11,23 +10,39 @@ class ASTNode:
           return
         else:
           self.id = uuid.uuid4().hex
-          self.controlFlowProps = None
-          self.dataFlowProps = None
+          self.controlFlowEdges: list[ControlFlowEdge] = []
+          self.dataFlowEdges: list[DataFlowEdge] = []
+
+          # get info from tree-sitter node
+          self.treeSitterId = node.id
+          self.content = node.text.decode("utf-8")
+          self.type = node.type
+          self.node = node
+          self.astChildren: list[ASTNode] = []
+
+          # data flow props
+          self.scope = None
+          self.isSource = False
+          self.isSink = False
+          self.isTainted = False
+
+          # control flow props
+
+          # if root
           if type(parent) is ASTNode:
             self.parent = parent
             self.parentId = parent.id
           else:
             self.parent = None
             self.parentId = None
-            self.createDfgNode(filename, False, False, None)
-          self.treeSitterId = node.id
-          self.content = node.text.decode("utf-8")
-          self.type = node.type
-          self.node = node
-          self.astChildren: list[ASTNode] = []
+            self.scope = filename
+            self.isSource = False
+            self.isSink = False
+            self.isTainted = False
     
+    # print shortcut
     def __str__(self) -> str:
-      return f'[{self.id}] ({self.dataFlowProps.scope}) - ({self.dataFlowProps.dataType}) {self.type} : {self.content}'
+      return f'[{self.id}] {self.type} : {self.content}'
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
@@ -37,43 +52,25 @@ class ASTNode:
       
       return False
     
-    def setScope(self, node: Node, parent=None, filename=None):
-      # TODO: handle based on language
-      # TODO: handle self
-      # TODO: handle import
-      if parent is None:
-          scope = filename
-      else:
-        # TODO: handle class scope
-        # TODO: handle function scope
-        # TODO: handle module scope
-        scope = self.parent.scope
-        if self.parent.parent is not None and self.parent.parent.scope != self.parent.scope:
-            scope += f"\${self.parent.scope}"
-        
-      # self.scope = scope
-    
-    def createCfgNode(self, statementOrder: int):
-      if self.controlFlowProps is None:
-        self.controlFlowProps = ControlFlowProps(statementOrder)
+    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
+      edge = ControlFlowEdge(statementOrder, cfgParentId)
+      self.controlFlowEdges.append(edge)
 
-    def createDfgNode(self, scope: str, isSource: bool, isSink: bool, dfgParentId):
-        self.dataFlowProps = DataFlowProps(scope, isSource, isSink, dfgParentId)
+    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
+        edge = DataFlowEdge(dataType, dfgParentId)
+        self.dataFlowEdges.append(edge)
 
 # class to store all control flow related actions
-class ControlFlowProps:
-    def __init__(self, statementOrder: int) -> None:
+class ControlFlowEdge:
+    def __init__(self, statementOrder: int, cfgParentId: str) -> None:
         self.cfgId = uuid.uuid4().hex
         self.statementOrder = statementOrder
+        self.cfgParentId = cfgParentId
 
 # clas to store all variables and their values
-class DataFlowProps:
-    def __init__(self, scope: str, isSource: bool, isSink: bool, dfgParentId=None) -> None:
+class DataFlowEdge:
+    def __init__(self, dataType: str, dfgParentId:  Union[str, None]) -> None:
       # determine whether node is a variable or variable value
       self.dfgId = uuid.uuid4().hex
       self.dfgParentId = dfgParentId
-      self.scope = scope
-      self.isSource = isSource
-      self.isSink = isSink
-      self.isTainted = None
-      self.dataType = None
+      self.dataType = dataType

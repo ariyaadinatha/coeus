@@ -1,0 +1,25 @@
+{
+  "type": "wordlist",
+  "wordlist": [
+      "db.execute",
+      "cursor.execute",
+      "eval",
+      "exec",
+      "input",
+      "render_template_string",
+      "render_template",
+      "Markup",
+      "_xxsubinterpreters.run_string",
+      "_testcapi.run_in_subinterp",
+      "get_type_hints",
+      "subprocess",
+      "os.system",
+      "os.popen",
+      "os.popen2",
+      "os.popen3",
+      "os.popen4",
+      "os.spawn",
+      "os.exec",
+      "asyncio.subprocess.create_subprocess_exec"
+  ]
+}
