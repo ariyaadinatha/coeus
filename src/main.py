@@ -116,11 +116,13 @@ def injection(path, output):
 
     # load source and sinks
     with open("./rules/injection/source-python-wordlist.json", 'r') as file:
-            sources = json.load(file)["wordlist"]
+        sources = json.load(file)["wordlist"]
     with open("./rules/injection/sink-python-wordlist.json", 'r') as file:
         sinks = json.load(file)["wordlist"]
 
     fh = FileHandler()
+    # fh.getAllFilesFromRepository("./testcase/injection/sql")
+    # fh.getAllFilesFromRepository("./testcase/injection/taint_analysis")
     fh.getAllFilesFromRepository("./testcase/graph")
     for codePath in fh.getCodeFilesPath():
         if codePath.split('.')[-1] != "py":
@@ -135,7 +137,7 @@ def injection(path, output):
         astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")
-        converter.printTree(astRoot, lambda node: "statement" in node.type)
+        converter.printTree(astRoot, lambda node: True)
         converter.exportTreeToCsvFiles(astRoot)
 
     logger.info(f"Execution time: {(time.time() - startTime)}")

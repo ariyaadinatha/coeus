@@ -91,6 +91,7 @@ class IRConverter():
             # set data flow properties
             currNode.isSource = self.isSource(currNode)
             currNode.isSink = self.isSink(currNode)
+            currNode.isTainted = self.isSource(currNode)
             currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
@@ -134,6 +135,14 @@ class IRConverter():
                         dataType = "value"
                         currNode.addDataFlowEdge(dataType, dfgParentId)
 
+            # handle variable called as argument in function
+            if currNode.type == "identifier" and currNode.parent.type != "assignment":
+                key = (currNode.content, currNode.scope)
+                if key in symbolTable:
+                    dfgParentId = symbolTable[key][-1]
+                    dataType = "called"
+                    currNode.addDataFlowEdge(dataType, dfgParentId)
+            
             for child in currNode.astChildren:
                 queue.append((child, scope))
 
@@ -149,8 +158,16 @@ class IRConverter():
 
         if filter(node):
             print(f'{indent}{node}')
-            for control in node.controlFlowEdges:
-                print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
+            # control flow info
+            # for control in node.controlFlowEdges:
+            #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
+
+            # taint analysis info
+            print(f'{indent}sink {node.isSink}')
+            print(f'{indent}source {node.isSource}')
+            # print(f'{indent}sanitizer {node.isSanitizer}')
+
+            # data flow info
             for data in node.dataFlowEdges:
                 print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
 
