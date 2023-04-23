@@ -126,11 +126,14 @@ def injection(path, output):
         sources = json.load(file)["wordlist"]
     with open("./rules/injection/sink-python-wordlist.json", 'r') as file:
         sinks = json.load(file)["wordlist"]
+    with open("./rules/injection/sanitizer-python-wordlist.json", 'r') as file:
+        sanitizers = json.load(file)["wordlist"]
 
     fh = FileHandler()
     # fh.getAllFilesFromRepository("./testcase/injection/sql")
     # fh.getAllFilesFromRepository("./testcase/injection/taint_analysis")
-    fh.getAllFilesFromRepository("./testcase/graph")
+    # fh.getAllFilesFromRepository("./testcase/graph")
+    fh.getAllFilesFromRepository("./testcase/injection/command")
     for codePath in fh.getCodeFilesPath():
         if codePath.split('.')[-1] != "py":
             continue
@@ -140,7 +143,7 @@ def injection(path, output):
         root = code.getRootNode()
 
         # ***: convert node to IR
-        converter = IRConverter(sources, sinks, None, "python")
+        converter = IRConverter(sources, sinks, sanitizers, "python")
         astRoot = converter.createCompleteTree(root, codePath)
 
         print("tree")
