@@ -18,6 +18,7 @@ class ASTNode:
           self.content = node.text.decode("utf-8")
           self.type = node.type
           self.node = node
+          self.location = [node.start_point, node.end_point]
           self.astChildren: list[ASTNode] = []
 
           # data flow props
@@ -25,6 +26,7 @@ class ASTNode:
           self.isSource = False
           self.isSink = False
           self.isTainted = False
+          self.isSanitizer = False
 
           # control flow props
 

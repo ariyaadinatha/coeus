@@ -90,8 +90,9 @@ class IRConverter():
 
             # set data flow properties
             currNode.isSource = self.isSource(currNode)
-            currNode.isSink = self.isSink(currNode)
             currNode.isTainted = self.isSource(currNode)
+            currNode.isSink = self.isSink(currNode)
+            currNode.isSanitizer = self.isSanitizer(currNode)
             currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
@@ -142,6 +143,9 @@ class IRConverter():
                     dfgParentId = symbolTable[key][-1]
                     dataType = "called"
                     currNode.addDataFlowEdge(dataType, dfgParentId)
+                    # handle variable in argument list in function
+                    if currNode.parent.parent.type == "call":
+                        currNode.parent.parent.addDataFlowEdge(dataType, currNode.id)
             
             for child in currNode.astChildren:
                 queue.append((child, scope))
@@ -165,7 +169,7 @@ class IRConverter():
             # taint analysis info
             print(f'{indent}sink {node.isSink}')
             print(f'{indent}source {node.isSource}')
-            # print(f'{indent}sanitizer {node.isSanitizer}')
+            print(f'{indent}sanitizer {node.isSanitizer}')
 
             # data flow info
             for data in node.dataFlowEdges:
@@ -174,8 +178,6 @@ class IRConverter():
         for child in node.astChildren:
             self.printTree(child, filter, depth + 2)
 
-    # might need to separate ast, cfg and dfg export to three separate csv files
-    # TODO: export cfg edges using separate function and csv file (see dfg for reference)
     def exportAstNodesToCsv(self, root: ASTNode):
         header = [
                 'id', 
@@ -183,9 +185,11 @@ class IRConverter():
                 'content', 
                 'parent_id', 
                 'scope', 
+                'location',
                 'is_source', 
                 'is_sink', 
-                'is_tainted'
+                'is_tainted',
+                'is_sanitizer',
                 ]
         
         # setup file and folder
@@ -207,9 +211,11 @@ class IRConverter():
                     node.content, 
                     node.parentId, 
                     node.scope, 
+                    node.location,
                     node.isSource,
                     node.isSink,
                     node.isTainted,
+                    node.isSanitizer,
                     ]
                 writer.writerow(row)
 
@@ -285,9 +291,15 @@ class IRConverter():
             if sink in node.content.lower():
                 return True
         return False
+    
+    def isSanitizer(self, node: ASTNode) -> bool:
+        for sanitizer in self.sanitizers:
+            if sanitizer in node.content.lower():
+                return True
+        return False
 
     def isIgnoredType(self, node: Node) -> bool:
-        ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
+        ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}', 'comment']
 
         if node.type in ignoredList:
             return True
