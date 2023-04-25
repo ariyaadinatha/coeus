@@ -1,11 +1,13 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.secret.secrethandler import SecretDetection
+from handler.injection.injectionhandler import InjectionHandler
 from utils.vulnhandler import VulnerableHandler
 from utils.codehandler import FileHandler
 from utils.codehandler import CodeProcessor
 from utils.log import logger
 from utils.intermediate_representation.converter import IRConverter
-import json
+from dotenv import load_dotenv
+import os
 import time
 import click
 
@@ -116,39 +118,17 @@ cli.add_command(secret)
 
 @click.command(short_help='Scan code for injection vulnerability')
 @click.option('--path', '-p', help='Path to source code')
+@click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def injection(path, output):
+def injection(path, language, output):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
-    # load source and sinks
-    with open("./rules/injection/source-python-wordlist.json", 'r') as file:
-        sources = json.load(file)["wordlist"]
-    with open("./rules/injection/sink-python-wordlist.json", 'r') as file:
-        sinks = json.load(file)["wordlist"]
-    with open("./rules/injection/sanitizer-python-wordlist.json", 'r') as file:
-        sanitizers = json.load(file)["wordlist"]
-
-    fh = FileHandler()
-    # fh.getAllFilesFromRepository("./testcase/injection/sql")
-    # fh.getAllFilesFromRepository("./testcase/injection/taint_analysis")
-    # fh.getAllFilesFromRepository("./testcase/graph")
-    fh.getAllFilesFromRepository("./testcase/injection/command")
-    for codePath in fh.getCodeFilesPath():
-        if codePath.split('.')[-1] != "py":
-            continue
-        sourceCode = fh.readFile(codePath)
-        code = CodeProcessor("python", sourceCode)
-
-        root = code.getRootNode()
-
-        # ***: convert node to IR
-        converter = IRConverter(sources, sinks, sanitizers, "python")
-        astRoot = converter.createCompleteTree(root, codePath)
-
-        print("tree")
-        converter.printTree(astRoot, lambda node: True)
-        converter.exportTreeToCsvFiles(astRoot)
+    try:
+        handler = InjectionHandler("./testcase/injection/command", language)
+        handler.taintAnalysis()
+    except Exception as e:
+        print("Failed to do taint analysis:", e)
 
     logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished injection detection ===============")
@@ -168,5 +148,6 @@ def access():
     logger.info("=============== Finished broken access detection ===============")
 cli.add_command(access)
 
+load_dotenv()
 if __name__ == "__main__":
     cli()

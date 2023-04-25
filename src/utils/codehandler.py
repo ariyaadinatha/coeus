@@ -41,6 +41,8 @@ class FileHandler:
     # get all relevant files from a project
     def getAllFilesFromRepository(self, repositoryPath):
         logger.info("Searching all relevant files")
+        print("Searching all relevant files")
+        print(repositoryPath)
         try:
             for path, subdirs, files in os.walk(repositoryPath):
                 for name in files:
@@ -63,7 +65,7 @@ class FileHandler:
     
     def readFile(self, filePath):
         try:
-            with open(filePath) as file:
+            with open(filePath, 'r', encoding="utf-8") as file:
                 sourceFile = file.read()
         
             return sourceFile
