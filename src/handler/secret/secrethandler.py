@@ -47,13 +47,13 @@ class SecretDetection:
             whiteList = json.load(file)["whitelist"]
 
         if codePath not in whiteList:
-            return 2
+            return 0
 
         if variableName not in whiteList[codePath]:
-            return 3
+            return 0
 
         if variableValue not in whiteList[codePath][variableName]:
-            return 4
+            return 0
 
         return 1
 
