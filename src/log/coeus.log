@@ -1,0 +1,81 @@
+[2023-04-25 18:29:50,123-INFO-secret-49]: =============== Starting secret detection ===============
+[2023-04-25 18:29:50,123-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 18:29:50,126-INFO-secret-57]: Scanning secret...
+[2023-04-25 18:30:01,824-INFO-dumpVulnerabilities-63]: Dumping vulnerabilities...
+[2023-04-25 18:30:01,824-INFO-dumpVulnerabilities-66]: Found 112 vulnerabilities
+[2023-04-25 18:30:01,826-INFO-dumpVulnerabilities-75]: Successfully dump, with filename 2023-04-25-DVWA
+[2023-04-25 18:30:01,826-INFO-secret-111]: Execution time: 11.702774286270142
+[2023-04-25 18:30:01,826-INFO-secret-112]: =============== Finished secret detection ===============
+[2023-04-25 18:30:32,530-INFO-dependency-20]: =============== Starting dependency detection ===============
+[2023-04-25 18:30:32,531-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 18:30:32,533-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-25 18:30:32,534-INFO-scanDependencies-99]: Total dependencies: 4
+[2023-04-25 18:30:32,534-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-04-25 18:30:34,740-INFO-scanDependencies-120]: Completed scanning dependency vulnerabilities
+[2023-04-25 18:30:34,740-INFO-scanDependencies-121]: Vulnerabilities found: 7
+[2023-04-25 18:30:34,742-INFO-dependency-40]: Execution time: 2.2111525535583496
+[2023-04-25 18:30:34,742-INFO-dependency-41]: =============== Finished dependency detection ===============
+[2023-04-25 19:03:24,345-INFO-dependency-20]: =============== Starting dependency detection ===============
+[2023-04-25 19:03:24,345-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:03:24,347-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-25 19:03:24,347-INFO-getDependencies-83]: Found package-lock.json
+[2023-04-25 19:03:24,362-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-25 19:03:24,371-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-25 19:03:24,373-INFO-getDependencies-130]: Completed pattern matching for package-lock.json
+[2023-04-25 19:03:24,375-INFO-scanDependencies-99]: Total dependencies: 658
+[2023-04-25 19:03:24,375-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-04-25 19:08:38,916-INFO-scanDependencies-120]: Completed scanning dependency vulnerabilities
+[2023-04-25 19:08:38,916-INFO-scanDependencies-121]: Vulnerabilities found: 64
+[2023-04-25 19:08:38,926-INFO-dependency-40]: Execution time: 314.581161737442
+[2023-04-25 19:08:38,928-INFO-dependency-41]: =============== Finished dependency detection ===============
+[2023-04-25 19:09:26,518-INFO-secret-49]: =============== Starting secret detection ===============
+[2023-04-25 19:09:26,518-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:09:26,520-INFO-secret-57]: Scanning secret...
+[2023-04-25 19:10:15,354-INFO-dumpVulnerabilities-63]: Dumping vulnerabilities...
+[2023-04-25 19:10:15,354-INFO-dumpVulnerabilities-66]: Found 466 vulnerabilities
+[2023-04-25 19:10:15,362-INFO-dumpVulnerabilities-75]: Successfully dump, with filename 2023-04-25-NodeGoat
+[2023-04-25 19:10:15,362-INFO-secret-111]: Execution time: 48.843677043914795
+[2023-04-25 19:10:15,362-INFO-secret-112]: =============== Finished secret detection ===============
+[2023-04-25 19:14:44,322-INFO-secret-49]: =============== Starting secret detection ===============
+[2023-04-25 19:14:44,323-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:14:44,326-INFO-secret-57]: Scanning secret...
+[2023-04-25 19:14:53,458-INFO-dumpVulnerabilities-63]: Dumping vulnerabilities...
+[2023-04-25 19:14:53,458-INFO-dumpVulnerabilities-66]: Found 580 vulnerabilities
+[2023-04-25 19:14:53,470-INFO-dumpVulnerabilities-75]: Successfully dump, with filename 2023-04-25-pygoat
+[2023-04-25 19:14:53,470-INFO-secret-111]: Execution time: 9.14767861366272
+[2023-04-25 19:14:53,470-INFO-secret-112]: =============== Finished secret detection ===============
+[2023-04-25 19:15:02,126-INFO-secret-49]: =============== Starting secret detection ===============
+[2023-04-25 19:15:02,126-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:15:02,140-INFO-secret-57]: Scanning secret...
+[2023-04-25 19:20:54,865-INFO-dumpVulnerabilities-63]: Dumping vulnerabilities...
+[2023-04-25 19:20:54,866-INFO-dumpVulnerabilities-66]: Found 3181 vulnerabilities
+[2023-04-25 19:20:54,916-INFO-dumpVulnerabilities-75]: Successfully dump, with filename 2023-04-25-WebGoat
+[2023-04-25 19:20:54,916-INFO-secret-111]: Execution time: 352.78995060920715
+[2023-04-25 19:20:54,916-INFO-secret-112]: =============== Finished secret detection ===============
+[2023-04-25 19:22:05,872-INFO-dependency-20]: =============== Starting dependency detection ===============
+[2023-04-25 19:22:05,873-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:22:05,875-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-25 19:22:05,875-INFO-getDependencies-83]: Found requirements.txt
+[2023-04-25 19:22:05,876-INFO-getDependencies-92]: Matching regex pattern...
+[2023-04-25 19:22:05,876-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-25 19:22:05,876-INFO-getDependencies-96]: Completed pattern matching for requirements.txt
+[2023-04-25 19:22:05,889-INFO-scanDependencies-99]: Total dependencies: 169
+[2023-04-25 19:22:05,889-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-04-25 19:23:31,281-INFO-scanDependencies-120]: Completed scanning dependency vulnerabilities
+[2023-04-25 19:23:31,281-INFO-scanDependencies-121]: Vulnerabilities found: 47
+[2023-04-25 19:23:31,285-INFO-dependency-40]: Execution time: 85.41197800636292
+[2023-04-25 19:23:31,285-INFO-dependency-41]: =============== Finished dependency detection ===============
+[2023-04-25 19:29:03,139-INFO-dependency-20]: =============== Starting dependency detection ===============
+[2023-04-25 19:29:03,139-INFO-getAllFilesFromRepository-43]: Searching all relevant files
+[2023-04-25 19:29:03,152-INFO-getDependencies-75]: Searching dependencies...
+[2023-04-25 19:29:03,152-INFO-getDependencies-83]: Found pom.xml
+[2023-04-25 19:29:03,153-INFO-getDependencies-99]: Matching json pattern...
+[2023-04-25 19:29:03,157-ERROR-getDependencies-123]: Error: KeyError('cglib-nodep.version')
+[2023-04-25 19:29:03,157-INFO-dependencyParser-136]: Parsing dependencies...
+[2023-04-25 19:29:03,157-INFO-getDependencies-130]: Completed pattern matching for pom.xml
+[2023-04-25 19:29:03,157-INFO-scanDependencies-99]: Total dependencies: 6
+[2023-04-25 19:29:03,157-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-04-25 19:29:06,816-INFO-scanDependencies-120]: Completed scanning dependency vulnerabilities
+[2023-04-25 19:29:06,816-INFO-scanDependencies-121]: Vulnerabilities found: 36
+[2023-04-25 19:29:06,819-INFO-dependency-40]: Execution time: 3.6795904636383057
+[2023-04-25 19:29:06,819-INFO-dependency-41]: =============== Finished dependency detection ===============

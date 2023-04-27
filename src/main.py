@@ -30,10 +30,9 @@ def dependency(path, output):
         for code in fh.getCodeFilesPath():
             dh.scanDependenciesUsingRegex(code)
         
+        fileNameOutput = path.split("/")[-1]
         dh.scanDependencies()
-        dh.dumpVulnerabilities()
-
-
+        dh.dumpVulnerabilities(fileNameOutput)
 
     except Exception as e:
         logger.error(f"Error : {repr(e)}")

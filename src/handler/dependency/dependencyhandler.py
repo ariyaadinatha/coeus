@@ -132,12 +132,12 @@ class DependencyHandler:
     
         return vulnResult
 
-    def dumpVulnerabilities(self):
+    def dumpVulnerabilities(self, filename):
         vulnerableDependenciesList = [x.getDependency() for x in self.getVulnerableDependencies()]
         if not os.path.exists("reports"):
             os.makedirs("reports")
 
-        with open(f"reports/{str(date.today())}-dependency-vulnerabiliies.json", "w") as fileRes:
+        with open(f"reports/{str(date.today())}-{filename}-dependency.json", "w") as fileRes:
             fileRes.write(json.dumps(vulnerableDependenciesList, indent=4))
 
 
