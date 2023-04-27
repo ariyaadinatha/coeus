@@ -72,7 +72,7 @@ class DependencyHandler:
             obj = {
                 "version": dependency.getVersion(),
                 "package": {
-                    "name": dependency.getName(),
+                    "name": dependency.getName().lower(),
                     "ecosystem": dependency.getEcosystem()
                 }
             }
@@ -94,7 +94,7 @@ class DependencyHandler:
             logger.error(f"Error : {repr(e)}")
 
     # scan all vulnerability
-    def scanDependencies(self):
+    def scanDependencies(self, mode):
         try:
             logger.info(f"Total dependencies: {len(self.getDependencies())}")
             logger.info("Scanning dependency vulnerabilities...")
@@ -105,6 +105,9 @@ class DependencyHandler:
                     for vuln in result["vulns"]:
                         parsedRes = self.parseDependencyResult(vuln)
                         depObj = dependency.getDependency()
+                        if mode != "high" and parsedRes["severity"] == None:
+                            continue
+
                         vulnDep = VulnerableDependency(
                             depObj["name"],
                             depObj["version"],
