@@ -98,6 +98,7 @@ class DependencyHandler:
         try:
             logger.info(f"Total dependencies: {len(self.getDependencies())}")
             logger.info("Scanning dependency vulnerabilities...")
+            
             for dependency in self.getDependencies():
                 result = self.scanDependency(dependency)
                 if result:

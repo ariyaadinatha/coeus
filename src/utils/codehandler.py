@@ -71,7 +71,7 @@ class FileHandler:
             logger.error(f"Readfile error : {repr(e)}, param: {codePath}")
 
     # get all dependencies from files
-    def getDependencies(self, dependencyHandler):
+    def getDependencies(self, dependencyHandler, mode):
         logger.info("Searching dependencies...")
         filesPath = self.getDependencyFilesPath()
         with open("rules/dependency.json", 'r') as file:
@@ -92,7 +92,7 @@ class FileHandler:
                     logger.info(f"Matching {patternType} pattern...")
                     for expression in rules["pattern"]["expression"]:
                         regexResult = (re.compile(expression).findall(content))
-                        self.dependencyParser(regexResult, pattern, dependencyHandler, filePath, ecosystem)
+                        self.dependencyParser(regexResult, pattern, dependencyHandler, filePath, ecosystem, mode)
                     logger.info(f"Completed pattern matching for {fileName}")
 
                 if patternType == "json":
@@ -126,13 +126,13 @@ class FileHandler:
                         dependencyDict = json.loads(content)
                     
                     dependencyList = (dependencyDict[rules["pattern"]["expression"][0]])
-                    self.dependencyParser(dependencyList, pattern, dependencyHandler, filePath, ecosystem)
+                    self.dependencyParser(dependencyList, pattern, dependencyHandler, filePath, ecosystem, mode)
                     logger.info(f"Completed pattern matching for {fileName}")
                     
             except Exception as e:
                 logger.error(f"Error : {repr(e)}")
 
-    def dependencyParser(self, dependencyList, pattern, dependencyHandler, filePath, ecosystem):
+    def dependencyParser(self, dependencyList, pattern, dependencyHandler, filePath, ecosystem, mode):
         logger.info("Parsing dependencies...")
         try:
             patternType = pattern["type"]
@@ -153,11 +153,17 @@ class FileHandler:
                     for key, values in dependencyList.items():
                         dep = Dependency(key, values[pattern["versionName"]], ecosystem, filePath)
                         dependencyHandler.addDependency(dep)
+
+                        required = values.get("requires")
+                        if required and mode == "high":
+                            for reqName, reqVer in required.items():
+                                parsedVer = reqVer.replace("^", "").replace("~", "").replace(">", "").replace("<", "").replace("=", "").replace(" ", "")
+                                dep = Dependency(reqName, parsedVer, ecosystem, filePath)
+                                dependencyHandler.addDependency(dep)
+
         
         except Exception as e:
             logger.error(f"Error : {repr(e)}")
-
-
 
 class CodeProcessor:
     def __init__(self, language, sourceCode):

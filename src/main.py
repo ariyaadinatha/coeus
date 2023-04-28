@@ -25,7 +25,7 @@ def dependency(path, output, mode):
         fh = FileHandler()
         dh = DependencyHandler()
         fh.getAllFilesFromRepository(path)
-        fh.getDependencies(dh)
+        fh.getDependencies(dh, mode)
 
         # get all path
         if mode == "high":
