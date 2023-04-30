@@ -155,8 +155,12 @@ class FileHandler:
                         dependencyHandler.addDependency(dep)
 
                         required = values.get("requires")
-                        if required and mode == "high":
+                        if required:
                             for reqName, reqVer in required.items():
+                                symbolList = ["^", "~", "<", ">", "="]
+                                if any(c in reqVer for c in ["^", "~", "<", ">", "="]) and mode != "high":
+                                    continue
+
                                 parsedVer = reqVer.replace("^", "").replace("~", "").replace(">", "").replace("<", "").replace("=", "").replace(" ", "")
                                 dep = Dependency(reqName, parsedVer, ecosystem, filePath)
                                 dependencyHandler.addDependency(dep)
