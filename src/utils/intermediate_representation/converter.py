@@ -1,7 +1,7 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes import ASTNode
-from uuid import uuid4
+import uuid
 from pathlib import Path
 import csv
 
@@ -15,7 +15,8 @@ class IRConverter():
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
 
-        astRoot = ASTNode(root, filename=filename)
+        projectId = uuid.uuid4().hex
+        astRoot = ASTNode(root, filename, projectId)
 
         queue: list[tuple(ASTNode, Union[ASTNode, None])] = [(root, None)]
 
@@ -25,7 +26,7 @@ class IRConverter():
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = ASTNode(node, filename, parent)
+            convertedNode = ASTNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -38,6 +39,28 @@ class IRConverter():
                 queue.append((child, convertedNode))
 
         return astRoot
+    
+    '''
+        ide buat optimisasi graf
+        gausa ada iterasi pertama yang cuman bikin ASTNode
+        jadi bakal ngebuat ASTNode seiring jalan bikin CFG atau DFG
+        tapi untuk ngehandle dependency ke lower node, kalau ada kejadian gitu
+        bakal ngebuat lower node tersebut dan disimpan di hashset atau apa gt
+        ntar tiap mau bikin ASTNode baru ngecek ke hashset tersebut dulu udah ada atau blm
+        pro: satu iterasi
+        cons: space yg dibutuhin bisa besar + perlu ngecek ke hash tiap ada isinya (tp harusnya ga lebih lama dr kl  iterasi gasih)
+    '''
+
+    '''
+        ide lain buat optimisasi graf
+        buat sedemikian rupa biar gaada dependency ke lower node
+        jadi semua ngarah ke parent
+    '''
+
+    '''
+        buat masalah control flow prioritas terakhir
+        sekarang fokus ke data flow
+    '''
 
     def addControlFlowEdges(self, root: ASTNode) -> ASTNode:
         queue: list[tuple(ASTNode, int, ASTNode)] = [(root, 0, None)]
@@ -56,9 +79,11 @@ class IRConverter():
                         if len(blockNode.astChildren) != 0:
                             # connect if true statements with if statement
                             if currNode.type == "if_statement":
+                                # !!!: depends on lower node
                                 blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
                             # connect else statements with if statement
                             elif currNode.type == "else_clause":
+                                # !!!: depends on lower node
                                 blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
             
             statementOrder = 0
@@ -96,11 +121,11 @@ class IRConverter():
 
             # add new scope for children if this node is class, function, module
             if currNode.type in scopeIdentifiers:
-                for child in currNode.astChildren:
+                for child in currNode.node.children:
                     # get the class, function, or module name
                     if child.type == "identifier":
                         # store name to pass down to the children
-                        currentIdentifier = child.content
+                        currentIdentifier = child.text.decode("utf-8")
                 scope += f"\{currentIdentifier}"
             
             # handle variable assignment and reassignment
