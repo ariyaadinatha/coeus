@@ -16,6 +16,20 @@ class Vulnerable:
         self.date = date
         self.whitelist = False
 
+    def __str__(self):
+        return f'''
+        found vulnerability!\n
+        {self.title}\n
+        {self.details}\n
+        {self.aliases}\n
+        {self.severity}\n
+        {self.confidence}\n
+        {self.evidence}\n
+        {self.files}\n
+        {self.line}\n
+        {self.date}\n
+        '''
+
     def getTitle(self):
         return self.title
     
