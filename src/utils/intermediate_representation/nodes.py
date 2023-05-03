@@ -4,7 +4,7 @@ from typing import Union
 
 # all node from tree-sitter parse result
 class ASTNode:
-    def __init__(self, node: Node, filename: str, parent=None) -> None:
+    def __init__(self, node: Node, filename: str, projectId: str, parent=None) -> None:
         if self.isIgnoredType(node):
           self.id = None
           return
@@ -18,8 +18,13 @@ class ASTNode:
           self.content = node.text.decode("utf-8")
           self.type = node.type
           self.node = node
-          self.location = [node.start_point, node.end_point]
+          self.startPoint = node.start_point
+          self.endPoint = node.end_point
           self.astChildren: list[ASTNode] = []
+
+          # metadata info
+          self.filename = filename
+          self.projectId = projectId
 
           # data flow props
           self.scope = None
@@ -45,6 +50,26 @@ class ASTNode:
     # print shortcut
     def __str__(self) -> str:
       return f'[{self.id}] {self.type} : {self.content}'
+    
+    def printChildren(self, depth=0):
+      indent = ' ' * depth
+
+      print(f'{indent}{self}')
+      # control flow info
+      # for control in node.controlFlowEdges:
+      #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
+
+      # taint analysis info
+      print(f'{indent}sink {self.isSink}')
+      print(f'{indent}source {self.isSource}')
+      print(f'{indent}sanitizer {self.isSanitizer}')
+
+      # data flow info
+      for data in self.dataFlowEdges:
+          print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
+
+      for child in self.astChildren:
+          child.printChildren(depth + 2)
 
     def isIgnoredType(self, node: Node) -> bool:
       ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}']
