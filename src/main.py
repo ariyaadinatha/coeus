@@ -18,7 +18,8 @@ def cli():
 @click.command(short_help='Scan code for dependencies vulnerabilities')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def dependency(path, output):
+@click.option('--mode', '-m', default='medium', type=click.Choice(['low', 'medium', 'high']), help='Specifies the scan sensitivity.')
+def dependency(path, output, mode):
     logger.info("=============== Starting dependency detection ===============")
     startTime = time.time()
 
@@ -26,16 +27,16 @@ def dependency(path, output):
         fh = FileHandler()
         dh = DependencyHandler()
         fh.getAllFilesFromRepository(path)
-        fh.getDependencies(dh)
+        fh.getDependencies(dh, mode)
 
         # get all path
-        for code in fh.getCodeFilesPath():
-            dh.scanDependenciesUsingRegex(code)
+        if mode == "high":
+            for code in fh.getCodeFilesPath():
+                dh.scanDependenciesUsingRegex(code)
         
-        dh.scanDependencies()
-        dh.dumpVulnerabilities()
-
-
+        fileNameOutput = path.split("/")[-1]
+        dh.scanDependencies(mode)
+        dh.dumpVulnerabilities(fileNameOutput)
 
     except Exception as e:
         logger.error(f"Error : {repr(e)}")
@@ -48,7 +49,8 @@ cli.add_command(dependency)
 @click.command(short_help='Scan code for hardcoded secret')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def secret(path, output):
+@click.option('--mode', '-m', default='medium', type=click.Choice(['low', 'medium', 'high']), help='Specifies the scan sensitivity.')
+def secret(path, output, mode):
     logger.info("=============== Starting secret detection ===============")
     startTime = time.time()
 
@@ -120,7 +122,8 @@ cli.add_command(secret)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def injection(path, language, output):
+@click.option('--mode', '-m', default='medium', type=click.Choice(['low', 'medium', 'high']), help='Specifies the scan sensitivity.')
+def injection(path, language, output, mode):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
@@ -138,7 +141,8 @@ cli.add_command(injection)
 @click.command(short_help='Scan code for broken access control')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
-def access():
+@click.option('--mode', '-m', default='medium', type=click.Choice(['low', 'medium', 'high']), help='Specifies the scan sensitivity.')
+def access(path, output, mode):
     logger.info("=============== Starting broken access detection ===============")
     startTime = time.time()
 
