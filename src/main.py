@@ -1,15 +1,18 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.secret.secrethandler import SecretDetection
 from handler.injection.injectionhandler import InjectionHandler
-from utils.vulnhandler import VulnerableHandler
+from utils.intermediate_representation.converter import IRConverter
+from utils.vulnhandler import VulnerableHandler, Vulnerable
 from utils.codehandler import FileHandler
 from utils.codehandler import CodeProcessor
 from utils.log import logger
-from utils.intermediate_representation.converter import IRConverter
 from dotenv import load_dotenv
-import os
+from datetime import datetime
 import time
 import click
+
+# setup global variable
+load_dotenv()
 
 @click.group()
 def cli():
@@ -129,11 +132,33 @@ def injection(path, language, output, mode):
 
     try:
         handler = InjectionHandler("./testcase/injection/command", language)
-        handler.taintAnalysis()
+        # handler = InjectionHandler("../../flask-simple-app", language)
+        result = handler.taintAnalysis()
+        vulnHandler = VulnerableHandler()
+
+        for res in result:
+                vuln = Vulnerable(
+                    "Injection vulnerability", 
+                    "application is vulnerable to unsafe input injection", 
+                    "A03:2021", 
+                    "High", 
+                    None, 
+                    f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
+                    f"{res['SourceFile']} and {res['SinkFile']}", 
+                    f"{res['SourceStart']} and {res['SinkStart']}", 
+                    datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+                    )
+                print(vuln)
+                vulnHandler.addVulnerable(vuln)
+        
+        fileNameOutput = path.split("/")[-1]
+        vulnHandler.dumpVulnerabilities("result")
     except Exception as e:
         print("Failed to do taint analysis:", e)
 
-    logger.info(f"Execution time: {(time.time() - startTime)}")
+    executionTime = time.time() - startTime
+    print(f"Execution time: {executionTime}")
+    logger.info(f"Execution time: {executionTime}")
     logger.info("=============== Finished injection detection ===============")
 
 cli.add_command(injection)
@@ -152,6 +177,5 @@ def access(path, output, mode):
     logger.info("=============== Finished broken access detection ===============")
 cli.add_command(access)
 
-load_dotenv()
 if __name__ == "__main__":
     cli()

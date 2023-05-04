@@ -2,6 +2,9 @@ from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter import IRConverter
 from utils.intermediate_representation.nodes import ASTNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
+from utils.vulnhandler import VulnerableHandler, Vulnerable
+from datetime import datetime
+import time
 import os
 import json
 
@@ -11,7 +14,8 @@ class InjectionHandler:
             self.connection = Neo4jConnection(os.getenv('DB_URI'), os.getenv('DB_USER'), os.getenv('DB_PASS'))
         except Exception as e:
             print("Failed to create the driver:", e)
-            
+        
+        self.vulnHandler = VulnerableHandler()
         self.projectPath = projectPath
         self.language = language
         self.loadSourceSinkAndSanitizer()
@@ -42,24 +46,49 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createCompleteTree(root, codePath)
+            astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)
-            self.insertRelationshipsToNeo4j(astRoot)
+            self.insertRelationshipsToNeo4j()
+
 
     def taintAnalysis(self):
         try:
+            self.deleteAllNodesAndRelationshipsByAPOC()
             self.buildProjectTree()
             self.propagateTaint()
             self.appySanitizers()
-            result = self.getPathInjectionVulnerability()
-            print(result)
-        except Exception as e:
-            self.deleteAllNodesAndRelationships()
-            raise 
-        # finally:
-        #     self.deleteAllNodesAndRelationships()
+            result = self.getSourceAndSinkInjectionVulnerability()
 
-        return result
+            return result
+        except Exception as e:
+            print(e)
+            self.deleteAllNodesAndRelationshipsByAPOC()
+            raise
+
+    def compareDataFlowAlgorithms(self):
+        fh = FileHandler()
+        fh.getAllFilesFromRepository(self.projectPath)
+
+        extensionAlias = {
+        "python": "py",
+        "java": "java",
+        "javascript": "js",
+        "php": "php",
+        }
+        
+        for codePath in fh.getCodeFilesPath():
+            if codePath.split('.')[-1] != extensionAlias[self.language]:
+                continue
+            sourceCode = fh.readFile(codePath)
+            code = CodeProcessor(self.language, sourceCode)
+            root = code.getRootNode()
+
+            print("optimized tree")
+            self.converter.createDataFlowTree(root, codePath)
+
+            # print("previous tree")
+            # astRoot = self.converter.createAstTree(root, codePath)
+            # self.converter.addDataFlowEdgesToTree(astRoot)
     
     def insertTreeToNeo4j(self, root: ASTNode):
         queue: list[ASTNode] = [root]
@@ -81,12 +110,9 @@ class InjectionHandler:
 
             if len(node.dataFlowEdges) != 0:
                 self.createDataFlowRelationship(node)
-                self.createControlFlowRelationship(node)
 
             for child in node.astChildren:
                 queue.append(child)
-                
-        self.createASTRelationship()
         
     def insertNodeToNeo4j(self, node: ASTNode):
         parameters = {
@@ -95,6 +121,9 @@ class InjectionHandler:
             "content": node.content,
             "parent_id": node.parentId, 
             "scope": node.scope, 
+            "filename": node.filename, 
+            "startPoint": node.startPoint,
+            "endPoint": node.endPoint,
             "is_source": node.isSource, 
             "is_sink": node.isSink, 
             "is_tainted": node.isTainted, 
@@ -107,13 +136,19 @@ class InjectionHandler:
             content: $content, 
             parent_id: $parent_id, 
             scope: $scope, 
+            filename: $filename, 
+            startPoint: $startPoint, 
+            endPoint: $endPoint, 
             is_source: $is_source, 
             is_sink: $is_sink, 
             is_tainted: $is_tainted, 
             is_sanitizer: $is_sanitizer
             })'''
         
-        self.connection.query(query, parameters, db="connect-python")
+        try:
+            self.connection.query(query, parameters, db="connect-python")
+        except Exception as e:
+            print(f"Query insert node error: {e}")
     
     def createASTRelationship(self):
         query = '''
@@ -121,7 +156,10 @@ class InjectionHandler:
                 WHERE child.parent_id = parent.id
                 CREATE (parent)-[:AST_PARENT_TO]->(child)
             '''
-        self.connection.query(query, db="connect-python")
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query create AST relationship error: {e}")
 
     def createControlFlowRelationship(self, node: ASTNode):
         for edge in node.controlFlowEdges:
@@ -133,13 +171,16 @@ class InjectionHandler:
 
             query = '''
                     MATCH (child:Node), (parent:Node)
-                    WHERE child.id = id AND parent.id = cfg_parent_id
-                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: statement_order}]-(parent)
+                    WHERE child.id = $id AND parent.id = $cfg_parent_id
+                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order}]-(parent)
                     SET child:ControlNode
                     SET parent:ControlNode
                 '''
 
-            self.connection.query(query, parameters=parameters, db="connect-python")
+            try:
+                self.connection.query(query, parameters=parameters, db="connect-python")
+            except Exception as e:
+                print(f"Query create control flow relationship error: {e}")
 
     def createDataFlowRelationship(self, node: ASTNode):
         for edge in node.dataFlowEdges:
@@ -165,7 +206,11 @@ class InjectionHandler:
                         SET child:DataNode
                         SET parent:DataNode
                 '''
-            self.connection.query(query, parameters=parameters, db="connect-python")
+
+            try:
+                self.connection.query(query, parameters=parameters, db="connect-python")
+            except Exception as e:
+                print(f"Query create data flow relationship error: {e}")
     
     def propagateTaint(self):
         query = '''
@@ -182,24 +227,52 @@ class InjectionHandler:
             REMOVE untainted:Tainted
             RETURN sanitizer, r, untainted
         '''
-        self.connection.query(query, db="connect-python")
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query insert node error: {e}")
 
     def getPathInjectionVulnerability(self):
         query = '''
             MATCH vuln=(n1:Node {is_source: True})-[:DATA_FLOW_TO*]->(n2:Node {is_sink: True})
             RETURN n1, vuln, n2
         '''
-        return self.connection.query(query, db="connect-python")
+        try:
+            return self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query get path injection error: {e}")
     
     def getSourceAndSinkInjectionVulnerability(self):
         query = '''
-            MATCH (n1:Node {is_source: True})-[:DATA_FLOW_TO]->(n2:Node {is_sink: True})
-            RETURN n1, n2
+            MATCH (source:Node {is_source: True})-[:DATA_FLOW_TO*]->(:Node {is_tainted: True})-[:DATA_FLOW_TO]->(sink:Node {is_sink: True})
+            RETURN 
+            source.content as SourceContent, 
+            sink.content as SinkContent, 
+            source.filename as SourceFile, 
+            sink.filename as SinkFile, 
+            source.startPoint as SourceStart, 
+            sink.startPoint as SinkStart
         '''
-        return self.connection.query(query, db="connect-python")
+        try:
+            return self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query get source and sink injection error: {e}")
     
     def deleteAllNodesAndRelationships(self):
         query = '''
             MATCH (n) DETACH DELETE (n)
         '''
-        return self.connection.query(query, db="connect-python")
+        try:
+            return self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query delete all nodes and relationships error: {e}")
+
+    def deleteAllNodesAndRelationshipsByAPOC(self):
+        query = '''
+            MATCH (n) DETACH DELETE (n)
+        '''
+        try:
+            return self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query delete all nodes and relationships error: {e}")
