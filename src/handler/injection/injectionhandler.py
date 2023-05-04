@@ -4,6 +4,7 @@ from utils.intermediate_representation.nodes import ASTNode, DataFlowEdge, Contr
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
+import time
 import os
 import json
 
@@ -45,26 +46,51 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createCompleteTree(root, codePath)
+            # astRoot = self.converter.createCompleteTree(root, codePath)
+            astRoot = self.converter.createDataFlowTree(root, codePath)
             astRoot.printChildren()
-            self.insertTreeToNeo4j(astRoot)
-            self.insertRelationshipsToNeo4j(astRoot)
+            # self.insertTreeToNeo4j(astRoot)
+            # self.insertRelationshipsToNeo4j(astRoot)
 
     def taintAnalysis(self):
-        try:
-            self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildProjectTree()
-            self.propagateTaint()
-            self.appySanitizers()
-            result = self.getSourceAndSinkInjectionVulnerability()
+        self.buildProjectTree()
+        # try:
+            # self.deleteAllNodesAndRelationshipsByAPOC()
+            # self.buildProjectTree()
+            # self.propagateTaint()
+            # self.appySanitizers()
+            # result = self.getSourceAndSinkInjectionVulnerability()
 
-            return result
-        except Exception as e:
-            print(e)
-            self.deleteAllNodesAndRelationshipsByAPOC()
-            raise
+            # return result
+        # except Exception as e:
+        #     print(e)
+            # self.deleteAllNodesAndRelationshipsByAPOC()
+            # raise
 
-        return result
+    def compareDataFlowAlgorithms(self):
+        fh = FileHandler()
+        fh.getAllFilesFromRepository(self.projectPath)
+
+        extensionAlias = {
+        "python": "py",
+        "java": "java",
+        "javascript": "js",
+        "php": "php",
+        }
+        
+        for codePath in fh.getCodeFilesPath():
+            if codePath.split('.')[-1] != extensionAlias[self.language]:
+                continue
+            sourceCode = fh.readFile(codePath)
+            code = CodeProcessor(self.language, sourceCode)
+            root = code.getRootNode()
+
+            print("optimized tree")
+            self.converter.createDataFlowTree(root, codePath)
+
+            # print("previous tree")
+            # astRoot = self.converter.createAstTree(root, codePath)
+            # self.converter.addDataFlowEdgesToTree(astRoot)
     
     def insertTreeToNeo4j(self, root: ASTNode):
         queue: list[ASTNode] = [root]
