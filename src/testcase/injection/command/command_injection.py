@@ -1,7 +1,12 @@
+import shlex
 import subprocess
 
 address = input()
-# command injection
-# ex: google.com ; ls -la
-cmd = "ping -c 1 %s" % address
-subprocess.Popen(cmd, shell=True)
+command = "ping -c 1 {}".format(address)
+
+# vuln
+subprocess.Popen(command, shell=True)
+
+# safe
+args = shlex.split(command)
+subprocess.Popen(args)

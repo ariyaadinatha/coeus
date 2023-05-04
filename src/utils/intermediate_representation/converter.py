@@ -6,11 +6,10 @@ from pathlib import Path
 import csv
 
 class IRConverter():
-    def __init__(self, sources, sinks, sanitizers, language: str) -> None:
+    def __init__(self, sources, sinks, sanitizers) -> None:
         self.sources = sources
         self.sinks = sinks
         self.sanitizers = sanitizers
-        self.language = language
 
     def createAstTree(self, root: Node, filename: str) -> ASTNode:
         # iterate through root until the end using BFS
@@ -178,7 +177,7 @@ class IRConverter():
         for child in node.astChildren:
             self.printTree(child, filter, depth + 2)
 
-    def exportAstNodesToCsv(self, root: ASTNode):
+    def exportAstNodesToCsv(self, root: ASTNode, exportPath: str):
         header = [
                 'id', 
                 'type', 
@@ -193,10 +192,10 @@ class IRConverter():
                 ]
         
         # setup file and folder
-        basename = self.getExportBasename(root.scope)
+        basename = self.getExportBasename(exportPath)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
-        with open(f'./csv/{basename}/{basename}_nodes.csv', 'w+') as f:
+        with open(f'./csv/{basename}/{basename}_nodes.csv', 'a', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -222,14 +221,14 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)
 
-    def exportDfgEdgesToCsv(self, root: ASTNode):
+    def exportDfgEdgesToCsv(self, root: ASTNode, exportPath: str):
         header = ['id', 'dfg_parent_id', 'data_type']
 
         # setup file and folder
-        basename = self.getExportBasename(root.scope)
+        basename = self.getExportBasename(exportPath)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
-        with open(f'./csv/{basename}/{basename}_dfg_edges.csv', 'w+') as f:
+        with open(f'./csv/{basename}/{basename}_dfg_edges.csv', 'a', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -245,14 +244,14 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)
     
-    def exportCfgEdgesToCsv(self, root: ASTNode):
+    def exportCfgEdgesToCsv(self, root: ASTNode, exportPath: str):
         header = ['id', 'cfg_parent_id', 'statement_order']
 
         # setup file and folder
-        basename = self.getExportBasename(root.scope)
+        basename = self.getExportBasename(exportPath)
         Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
 
-        with open(f'./csv/{basename}/{basename}_cfg_edges.csv', 'w+') as f:
+        with open(f'./csv/{basename}/{basename}_cfg_edges.csv', 'a', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(header)
 
@@ -268,17 +267,19 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)     
     
-    def exportTreeToCsvFiles(self, root: ASTNode):
-        self.exportAstNodesToCsv(root)
-        self.exportDfgEdgesToCsv(root)
-        self.exportCfgEdgesToCsv(root)
+    def exportTreeToCsvFiles(self, root: ASTNode, exportPath: str):
+        self.exportAstNodesToCsv(root, exportPath)
+        self.exportDfgEdgesToCsv(root, exportPath)
+        self.exportCfgEdgesToCsv(root, exportPath)
 
     def getExportBasename(self, filename: str) -> str:
-        basename = filename.split(".")[1].replace("/", "-").replace("\\", "-")
-        if basename[0] == "-":
-            basename = basename[1:]
+        if len(filename.split("\\")) >= 2:
+            basename = filename.split("\\")[-1].replace("/", "-").replace("\\", "-")
+            if basename[0] == "-":
+                basename = basename[1:]
         
-        return basename
+            return basename
+        return filename
 
     def isSource(self, node: ASTNode) -> bool:
         for source in self.sources:
@@ -299,7 +300,7 @@ class IRConverter():
         return False
 
     def isIgnoredType(self, node: Node) -> bool:
-        ignoredList = ['"', '=', '(', ')', '[', ']', ':', '{', '}', 'comment']
+        ignoredList = ['"', '.', ',', '=', '(', ')', '[', ']', ':', '{', '}', 'comment']
 
         if node.type in ignoredList:
             return True
