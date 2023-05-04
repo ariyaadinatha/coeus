@@ -79,6 +79,12 @@ class ASTNode:
       
       return False
     
+    def setDataFlowProps(self, scope, sources, sinks, sanitizers):
+      self.isSource = self.checkSource(sources)
+      self.isSink = self.checkSink(sinks)
+      self.isSanitizer = self.checkSanitizer(sanitizers)
+      self.scope = scope
+    
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
       edge = ControlFlowEdge(statementOrder, cfgParentId)
       self.controlFlowEdges.append(edge)
@@ -86,6 +92,24 @@ class ASTNode:
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
         edge = DataFlowEdge(dataType, dfgParentId)
         self.dataFlowEdges.append(edge)
+
+    def checkSource(self, sources) -> bool:
+        for source in sources:
+            if source in self.content.lower():
+                return True
+        return False
+    
+    def checkSink(self, sinks) -> bool:
+        for sink in sinks:
+            if sink in self.content.lower():
+                return True
+        return False
+    
+    def checkSanitizer(self, sanitizers) -> bool:
+        for sanitizer in sanitizers:
+            if sanitizer in self.content.lower():
+                return True
+        return False
 
 # class to store all control flow related actions
 class ControlFlowEdge:
