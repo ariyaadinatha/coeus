@@ -46,26 +46,24 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            # astRoot = self.converter.createCompleteTree(root, codePath)
             astRoot = self.converter.createDataFlowTree(root, codePath)
-            astRoot.printChildren()
-            # self.insertTreeToNeo4j(astRoot)
-            # self.insertRelationshipsToNeo4j(astRoot)
+            self.insertTreeToNeo4j(astRoot)
+            self.insertRelationshipsToNeo4j()
+
 
     def taintAnalysis(self):
-        self.buildProjectTree()
-        # try:
-            # self.deleteAllNodesAndRelationshipsByAPOC()
-            # self.buildProjectTree()
-            # self.propagateTaint()
-            # self.appySanitizers()
-            # result = self.getSourceAndSinkInjectionVulnerability()
+        try:
+            self.deleteAllNodesAndRelationshipsByAPOC()
+            self.buildProjectTree()
+            self.propagateTaint()
+            self.appySanitizers()
+            result = self.getSourceAndSinkInjectionVulnerability()
 
-            # return result
-        # except Exception as e:
-        #     print(e)
-            # self.deleteAllNodesAndRelationshipsByAPOC()
-            # raise
+            return result
+        except Exception as e:
+            print(e)
+            self.deleteAllNodesAndRelationshipsByAPOC()
+            raise
 
     def compareDataFlowAlgorithms(self):
         fh = FileHandler()
@@ -112,13 +110,9 @@ class InjectionHandler:
 
             if len(node.dataFlowEdges) != 0:
                 self.createDataFlowRelationship(node)
-            if len(node.controlFlowEdges) != 0:
-                self.createControlFlowRelationship(node)
 
             for child in node.astChildren:
                 queue.append(child)
-                
-        self.createASTRelationship()
         
     def insertNodeToNeo4j(self, node: ASTNode):
         parameters = {

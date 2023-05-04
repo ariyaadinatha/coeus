@@ -127,37 +127,34 @@ def injection(path, language, output):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
-    handler = InjectionHandler("./testcase/injection/command", language)
-    handler.compareDataFlowAlgorithms()
+    try:
+        handler = InjectionHandler("./testcase/injection/command", language)
+        # handler = InjectionHandler("../../flask-simple-app", language)
+        result = handler.taintAnalysis()
+        vulnHandler = VulnerableHandler()
 
-    # try:
-    #     handler = InjectionHandler("./testcase/injection/command", language)
-    #     # handler = InjectionHandler("../../flask-simple-app", language)
-    #     result = handler.taintAnalysis()
-    #     vulnHandler = VulnerableHandler()
-
-    #     for res in result:
-    #             vuln = Vulnerable(
-    #                 "Injection vulnerability", 
-    #                 "application is vulnerable to unsafe input injection", 
-    #                 "A03:2021", 
-    #                 "High", 
-    #                 None, 
-    #                 f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
-    #                 f"{res['SourceFile']} and {res['SinkFile']}", 
-    #                 f"{res['SourceStart']} and {res['SinkStart']}", 
-    #                 datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-    #                 )
-    #             print(vuln)
-    #             vulnHandler.addVulnerable(vuln)
+        for res in result:
+                vuln = Vulnerable(
+                    "Injection vulnerability", 
+                    "application is vulnerable to unsafe input injection", 
+                    "A03:2021", 
+                    "High", 
+                    None, 
+                    f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
+                    f"{res['SourceFile']} and {res['SinkFile']}", 
+                    f"{res['SourceStart']} and {res['SinkStart']}", 
+                    datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+                    )
+                print(vuln)
+                vulnHandler.addVulnerable(vuln)
         
-    #     fileNameOutput = path.split("/")[-1]
-    #     vulnHandler.dumpVulnerabilities("result")
-    # except Exception as e:
-    #     print("Failed to do taint analysis:", e)
+        fileNameOutput = path.split("/")[-1]
+        vulnHandler.dumpVulnerabilities("result")
+    except Exception as e:
+        print("Failed to do taint analysis:", e)
 
     executionTime = time.time() - startTime
-    print(executionTime)
+    print(f"Execution time: {executionTime}")
     logger.info(f"Execution time: {executionTime}")
     logger.info("=============== Finished injection detection ===============")
 
