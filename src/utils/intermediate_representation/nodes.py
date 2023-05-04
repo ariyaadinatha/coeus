@@ -3,7 +3,7 @@ import uuid
 from typing import Union
 
 # all node from tree-sitter parse result
-class ASTNode:
+class IRNode:
     def __init__(self, node: Node, filename: str, projectId: str, parent=None) -> None:
         if self.isIgnoredType(node):
           self.id = None
@@ -20,7 +20,7 @@ class ASTNode:
           self.node = node
           self.startPoint = node.start_point
           self.endPoint = node.end_point
-          self.astChildren: list[ASTNode] = []
+          self.astChildren: list[IRNode] = []
 
           # metadata info
           self.filename = filename
@@ -36,7 +36,7 @@ class ASTNode:
           # control flow props
 
           # if root
-          if type(parent) is ASTNode:
+          if type(parent) is IRNode:
             self.parent = parent
             self.parentId = parent.id
           else:
@@ -80,9 +80,9 @@ class ASTNode:
       return False
     
     def setDataFlowProps(self, scope, sources, sinks, sanitizers):
-      self.isSource = self.checkSource(sources)
-      self.isSink = self.checkSink(sinks)
-      self.isSanitizer = self.checkSanitizer(sanitizers)
+      self.isSource = self.checkIsSource(sources)
+      self.isSink = self.checkIsSink(sinks)
+      self.isSanitizer = self.checkIsSanitizer(sanitizers)
       self.scope = scope
     
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
@@ -93,19 +93,19 @@ class ASTNode:
         edge = DataFlowEdge(dataType, dfgParentId)
         self.dataFlowEdges.append(edge)
 
-    def checkSource(self, sources) -> bool:
+    def checkIsSource(self, sources) -> bool:
         for source in sources:
             if source in self.content.lower():
                 return True
         return False
     
-    def checkSink(self, sinks) -> bool:
+    def checkIsSink(self, sinks) -> bool:
         for sink in sinks:
             if sink in self.content.lower():
                 return True
         return False
     
-    def checkSanitizer(self, sanitizers) -> bool:
+    def checkIsSanitizer(self, sanitizers) -> bool:
         for sanitizer in sanitizers:
             if sanitizer in self.content.lower():
                 return True

@@ -1,6 +1,6 @@
 from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter import IRConverter
-from utils.intermediate_representation.nodes import ASTNode, DataFlowEdge, ControlFlowEdge
+from utils.intermediate_representation.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
@@ -90,8 +90,8 @@ class InjectionHandler:
             # astRoot = self.converter.createAstTree(root, codePath)
             # self.converter.addDataFlowEdgesToTree(astRoot)
     
-    def insertTreeToNeo4j(self, root: ASTNode):
-        queue: list[ASTNode] = [root]
+    def insertTreeToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
 
         while len(queue) != 0:
             node = queue.pop(0)
@@ -102,8 +102,8 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
 
-    def insertRelationshipsToNeo4j(self, root: ASTNode):
-        queue: list[ASTNode] = [root]
+    def insertRelationshipsToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
 
         while len(queue) != 0:
             node = queue.pop(0)
@@ -114,7 +114,7 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
         
-    def insertNodeToNeo4j(self, node: ASTNode):
+    def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
             "id": node.id,
             "type": node.type,
@@ -161,7 +161,7 @@ class InjectionHandler:
         except Exception as e:
             print(f"Query create AST relationship error: {e}")
 
-    def createControlFlowRelationship(self, node: ASTNode):
+    def createControlFlowRelationship(self, node: IRNode):
         for edge in node.controlFlowEdges:
             parameters = {
                 "id": node.id,
@@ -182,7 +182,7 @@ class InjectionHandler:
             except Exception as e:
                 print(f"Query create control flow relationship error: {e}")
 
-    def createDataFlowRelationship(self, node: ASTNode):
+    def createDataFlowRelationship(self, node: IRNode):
         for edge in node.dataFlowEdges:
             parameters = {
                     "id": node.id,

@@ -1,6 +1,6 @@
 from tree_sitter import Node
 from typing import Union, Callable
-from utils.intermediate_representation.nodes import ASTNode
+from utils.intermediate_representation.nodes import IRNode
 import uuid
 from pathlib import Path
 import csv
@@ -11,14 +11,14 @@ class IRConverter():
         self.sinks = sinks
         self.sanitizers = sanitizers
 
-    def createAstTree(self, root: Node, filename: str) -> ASTNode:
+    def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        astRoot = ASTNode(root, filename, projectId)
+        astRoot = IRNode(root, filename, projectId)
 
-        queue: list[tuple(ASTNode, Union[ASTNode, None])] = [(root, None)]
+        queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
             node, parent = queue.pop(0)
@@ -26,7 +26,7 @@ class IRConverter():
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = ASTNode(node, filename, projectId, parent)
+            convertedNode = IRNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -70,8 +70,8 @@ class IRConverter():
         sekarang fokus ke data flow
     '''
 
-    def addControlFlowEdgesToTree(self, root: ASTNode):
-        queue: list[tuple(ASTNode, int, ASTNode)] = [(root, 0, None)]
+    def addControlFlowEdgesToTree(self, root: IRNode):
+        queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
             currNode, statementOrder, cfgParentId = queue.pop(0)
@@ -106,7 +106,7 @@ class IRConverter():
                 else:
                     queue.append((child, 0, None))
     
-    def addDataFlowEdgesToTree(self, root: ASTNode):
+    def addDataFlowEdgesToTree(self, root: IRNode):
         queue = [(root, root.scope)]
         # symbol table to store variables as key and their node ids as value
         # key: (identifier, scope)
@@ -180,14 +180,14 @@ class IRConverter():
             for child in currNode.astChildren:
                 queue.append((child, scope))
 
-    def createCompleteTree(self, root: Node, filename: str) -> ASTNode:
+    def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         astRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(astRoot)
         self.addDataFlowEdgesToTree(astRoot)
 
         return astRoot
     
-    def createDataFlowTree(self, root: Node, filename: str) -> ASTNode:
+    def createDataFlowTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
 
@@ -195,7 +195,7 @@ class IRConverter():
         astRoot = None
         symbolTable = {}
 
-        queue: list[tuple(Node, Union[ASTNode, None], str)] = [(root, None, filename)]
+        queue: list[tuple(Node, Union[IRNode, None], str)] = [(root, None, filename)]
 
         while len(queue) != 0:
             node, parent, scope = queue.pop(0)
@@ -203,7 +203,7 @@ class IRConverter():
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = ASTNode(node, filename, projectId, parent)
+            convertedNode = IRNode(node, filename, projectId, parent)
             convertedNode.setDataFlowProps(scope, self.sources, self.sanitizers, self.sinks)
 
             scope = self.determineScopeNode(node, scope)
@@ -221,7 +221,7 @@ class IRConverter():
 
         return astRoot
 
-    def setNodeDataFlowEdges(self, node: ASTNode, symbolTable):
+    def setNodeDataFlowEdges(self, node: IRNode, symbolTable):
         # handle variable assignment and reassignment
             if node.type == "identifier" and node.parent.type == "assignment":
                 key = (node.content, node.scope)
@@ -265,7 +265,7 @@ class IRConverter():
                     if node.parent.parent.type == "call":
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
 
-    def printTree(self, node: ASTNode, filter: Callable[[ASTNode], bool], depth=0):
+    def printTree(self, node: IRNode, filter: Callable[[IRNode], bool], depth=0):
         indent = ' ' * depth
 
         if filter(node):
@@ -301,7 +301,7 @@ class IRConverter():
 
         return currScope
 
-    def exportAstNodesToCsv(self, root: ASTNode, exportPath: str):
+    def exportAstNodesToCsv(self, root: IRNode, exportPath: str):
         header = [
                 'id', 
                 'type', 
@@ -323,7 +323,7 @@ class IRConverter():
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue: list[ASTNode] = [root]
+            queue: list[IRNode] = [root]
 
             while queue:
                 node = queue.pop(0)
@@ -345,7 +345,7 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)
 
-    def exportDfgEdgesToCsv(self, root: ASTNode, exportPath: str):
+    def exportDfgEdgesToCsv(self, root: IRNode, exportPath: str):
         header = ['id', 'dfg_parent_id', 'data_type']
 
         # setup file and folder
@@ -356,7 +356,7 @@ class IRConverter():
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue: list[ASTNode] = [root]
+            queue: list[IRNode] = [root]
 
             while queue:
                 node = queue.pop(0)
@@ -368,7 +368,7 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)
     
-    def exportCfgEdgesToCsv(self, root: ASTNode, exportPath: str):
+    def exportCfgEdgesToCsv(self, root: IRNode, exportPath: str):
         header = ['id', 'cfg_parent_id', 'statement_order']
 
         # setup file and folder
@@ -379,7 +379,7 @@ class IRConverter():
             writer = csv.writer(f)
             writer.writerow(header)
 
-            queue: list[ASTNode] = [root]
+            queue: list[IRNode] = [root]
 
             while queue:
                 node = queue.pop(0)
@@ -391,7 +391,7 @@ class IRConverter():
                 for child in node.astChildren:
                     queue.append(child)     
     
-    def exportTreeToCsvFiles(self, root: ASTNode, exportPath: str):
+    def exportTreeToCsvFiles(self, root: IRNode, exportPath: str):
         self.exportAstNodesToCsv(root, exportPath)
         self.exportDfgEdgesToCsv(root, exportPath)
         self.exportCfgEdgesToCsv(root, exportPath)
@@ -405,19 +405,19 @@ class IRConverter():
             return basename
         return filename
 
-    def isSource(self, node: ASTNode) -> bool:
+    def isSource(self, node: IRNode) -> bool:
         for source in self.sources:
             if source in node.content.lower():
                 return True
         return False
     
-    def isSink(self, node: ASTNode) -> bool:
+    def isSink(self, node: IRNode) -> bool:
         for sink in self.sinks:
             if sink in node.content.lower():
                 return True
         return False
     
-    def isSanitizer(self, node: ASTNode) -> bool:
+    def isSanitizer(self, node: IRNode) -> bool:
         for sanitizer in self.sanitizers:
             if sanitizer in node.content.lower():
                 return True
