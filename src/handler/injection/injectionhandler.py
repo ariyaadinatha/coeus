@@ -29,7 +29,7 @@ class InjectionHandler:
         with open(f"./rules/injection/sanitizer-{self.language}-wordlist.json", 'r') as file:
             self.sanitizers = json.load(file)["wordlist"]
 
-    def buildProjectTree(self):
+    def buildDataFlowTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -48,13 +48,35 @@ class InjectionHandler:
             root = code.getRootNode()
             astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)
-            self.insertRelationshipsToNeo4j()
+            self.insertDataFlowRelationshipsToNeo4j()
 
+    def buildCompleteTree(self):
+        fh = FileHandler()
+        fh.getAllFilesFromRepository(self.projectPath)
+
+        extensionAlias = {
+        "python": "py",
+        "java": "java",
+        "javascript": "js",
+        "php": "php",
+        }
+        
+        for codePath in fh.getCodeFilesPath():
+            if codePath.split('.')[-1] != extensionAlias[self.language]:
+                continue
+            sourceCode = fh.readFile(codePath)
+            code = CodeProcessor(self.language, sourceCode)
+            root = code.getRootNode()
+            astRoot = self.converter.createCompleteTree(root, codePath)
+            self.insertCompleteTreeToNeo4j(astRoot)
+            self.insertAllRelationshipsToNeo4j(astRoot)
+
+            astRoot.printChildren()
 
     def taintAnalysis(self):
         try:
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildProjectTree()
+            self.buildDataFlowTree()
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()
@@ -102,7 +124,18 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
 
-    def insertRelationshipsToNeo4j(self, root: IRNode):
+    def insertCompleteTreeToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            self.insertNodeToNeo4j(node)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+    def insertDataFlowRelationshipsToNeo4j(self, root: IRNode):
         queue: list[IRNode] = [root]
 
         while len(queue) != 0:
@@ -113,6 +146,22 @@ class InjectionHandler:
 
             for child in node.astChildren:
                 queue.append(child)
+
+    def insertAllRelationshipsToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            if len(node.dataFlowEdges) != 0:
+                self.createDataFlowRelationship(node)
+            if len(node.controlFlowEdges) != 0:
+                self.createControlFlowRelationship(node)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+        self.createASTRelationship()
         
     def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
