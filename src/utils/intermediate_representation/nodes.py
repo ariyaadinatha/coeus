@@ -5,47 +5,43 @@ from typing import Union
 # all node from tree-sitter parse result
 class IRNode:
     def __init__(self, node: Node, filename: str, projectId: str, parent=None) -> None:
-        if self.isIgnoredType(node):
-          self.id = None
-          return
-        else:
-          self.id = uuid.uuid4().hex
-          self.controlFlowEdges: list[ControlFlowEdge] = []
-          self.dataFlowEdges: list[DataFlowEdge] = []
+      self.id = uuid.uuid4().hex
+      self.controlFlowEdges: list[ControlFlowEdge] = []
+      self.dataFlowEdges: list[DataFlowEdge] = []
 
-          # get info from tree-sitter node
-          self.treeSitterId = node.id
-          self.content = node.text.decode("utf-8")
-          self.type = node.type
-          self.node = node
-          self.startPoint = node.start_point
-          self.endPoint = node.end_point
-          self.astChildren: list[IRNode] = []
+      # get info from tree-sitter node
+      self.treeSitterId = node.id
+      self.content = node.text.decode("utf-8")
+      self.type = node.type
+      self.node = node
+      self.startPoint = node.start_point
+      self.endPoint = node.end_point
+      self.astChildren: list[IRNode] = []
 
-          # metadata info
-          self.filename = filename
-          self.projectId = projectId
+      # metadata info
+      self.filename = filename
+      self.projectId = projectId
 
-          # data flow props
-          self.scope = None
-          self.isSource = False
-          self.isSink = False
-          self.isTainted = False
-          self.isSanitizer = False
+      # data flow props
+      self.scope = None
+      self.isSource = False
+      self.isSink = False
+      self.isTainted = False
+      self.isSanitizer = False
 
-          # control flow props
+      # control flow props
 
-          # if root
-          if type(parent) is IRNode:
-            self.parent = parent
-            self.parentId = parent.id
-          else:
-            self.parent = None
-            self.parentId = None
-            self.scope = filename
-            self.isSource = False
-            self.isSink = False
-            self.isTainted = False
+      # if root
+      if type(parent) is IRNode:
+        self.parent = parent
+        self.parentId = parent.id
+      else:
+        self.parent = None
+        self.parentId = None
+        self.scope = filename
+        self.isSource = False
+        self.isSink = False
+        self.isTainted = False
     
     # print shortcut
     def __str__(self) -> str:
@@ -54,7 +50,7 @@ class IRNode:
     def printChildren(self, depth=0):
       indent = ' ' * depth
 
-      print(f'{indent}{self}')
+      print(f'{indent}[{depth}]{self}')
       # control flow info
       # for control in node.controlFlowEdges:
       #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
@@ -94,20 +90,25 @@ class IRNode:
         self.dataFlowEdges.append(edge)
 
     def checkIsSource(self, sources) -> bool:
+        if self.parent == None: return False
         for source in sources:
             if source in self.content.lower():
                 return True
         return False
     
     def checkIsSink(self, sinks) -> bool:
+        if self.parent == None: return False
         for sink in sinks:
             if sink in self.content.lower():
                 return True
         return False
     
     def checkIsSanitizer(self, sanitizers) -> bool:
+        if self.parent == None: return False
         for sanitizer in sanitizers:
             if sanitizer in self.content.lower():
+                print(sanitizer)
+                print(self.content.lower())
                 return True
         return False
 

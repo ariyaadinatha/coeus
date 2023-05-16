@@ -50,6 +50,8 @@ class InjectionHandler:
             self.insertTreeToNeo4j(astRoot)
             self.insertDataFlowRelationshipsToNeo4j()
 
+            astRoot.printChildren()
+
     def buildCompleteTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
@@ -75,6 +77,7 @@ class InjectionHandler:
 
     def taintAnalysis(self):
         try:
+            self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
             self.buildDataFlowTree()
             self.propagateTaint()
@@ -162,6 +165,16 @@ class InjectionHandler:
                 queue.append(child)
 
         self.createASTRelationship()
+
+    def createUniqueConstraint(self):
+        query = '''
+            CREATE CONSTRAINT ON (n:Node) ASSERT n.id IS UNIQUE
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query create constraint error: {e}")
         
     def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
@@ -263,7 +276,7 @@ class InjectionHandler:
     
     def propagateTaint(self):
         query = '''
-            MATCH (source{is_source: True})-[r:DATA_FLOW_TO|CALL*]->(tainted)
+            MATCH (source{is_source: True})-[r:DATA_FLOW_TO*]->(tainted)
             SET tainted.is_tainted=True, tainted:Tainted
             return source, r, tainted
         '''
@@ -319,7 +332,7 @@ class InjectionHandler:
 
     def deleteAllNodesAndRelationshipsByAPOC(self):
         query = '''
-            MATCH (n) DETACH DELETE (n)
+            CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'DETACH DELETE n', {batchSize:1000})
         '''
         try:
             return self.connection.query(query, db="connect-python")

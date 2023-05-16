@@ -16,7 +16,7 @@ class IRConverter():
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        astRoot = IRNode(root, filename, projectId)
+        irRoot = IRNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
@@ -33,12 +33,12 @@ class IRConverter():
             if parent is not None:
                 parent.astChildren.append(convertedNode)
             else:
-                astRoot = convertedNode
+                irRoot = convertedNode
 
             for child in node.children:
                 queue.append((child, convertedNode))
 
-        return astRoot
+        return irRoot
     
     '''
         ide buat optimisasi graf
@@ -181,18 +181,18 @@ class IRConverter():
                 queue.append((child, scope))
 
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
-        astRoot = self.createAstTree(root, filename)
-        self.addControlFlowEdgesToTree(astRoot)
-        self.addDataFlowEdgesToTree(astRoot)
+        irRoot = self.createAstTree(root, filename)
+        self.addControlFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTree(irRoot)
 
-        return astRoot
+        return irRoot
     
     def createDataFlowTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        astRoot = None
+        irRoot = None
         symbolTable = {}
 
         queue: list[tuple(Node, Union[IRNode, None], str)] = [(root, None, filename)]
@@ -214,12 +214,43 @@ class IRConverter():
             if parent is not None:
                 parent.astChildren.append(convertedNode)
             else:
-                astRoot = convertedNode
+                irRoot = convertedNode
 
             for child in node.children:
                 queue.append((child, convertedNode, scope))
 
-        return astRoot
+        return irRoot
+    
+    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
+        irRoot = self.createDataFlowTreeDFS(root, filename)
+        self.addControlFlowEdgesToTree(irRoot)
+
+        return irRoot
+    
+    def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
+        visited = set()
+        symbolTable = {}
+
+        projectId = uuid.uuid4().hex
+        irRoot = IRNode(root, filename, projectId)
+
+        self.dfs(irRoot, visited, symbolTable, filename)
+
+        return irRoot
+    
+    def dfs(self, node: IRNode, visited, symbolTable, scope):
+        visited.add(node.id)
+
+        node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+        scope = self.determineScopeNode(node, scope)
+        self.setNodeDataFlowEdges(node, symbolTable)
+
+        for child in node.node.children:
+            if child.id not in visited:
+                irChild = IRNode(child, node.filename, node.projectId, node)
+                node.astChildren.append(irChild)
+                self.dfs(irChild, visited, symbolTable, scope)
+
 
     def setNodeDataFlowEdges(self, node: IRNode, symbolTable):
         # handle variable assignment and reassignment
