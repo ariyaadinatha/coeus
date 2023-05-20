@@ -9,6 +9,8 @@ import csv
 import uuid
 import xmltodict
 
+import traceback
+
 
 class FileHandler:
     def __init__(self):
@@ -99,9 +101,13 @@ class FileHandler:
 
                 if patternType == "json":
                     logger.info(f"Matching {patternType} pattern...")
-                    try:
-                        if fileName == "pom.xml":
+                    if fileName == "pom.xml":
+                        try:
                             pomDict = xmltodict.parse(content)["project"]
+
+                            with open(f"java-dependency.json", "w") as fileRes:
+                                fileRes.write(json.dumps(pomDict, indent=4))
+
                             javaDependencyDict = pomDict["dependencyManagement"]["dependencies"]["dependency"]
                             dependencyDict = {"dependencies": []}
 
@@ -109,9 +115,19 @@ class FileHandler:
                                 # print(len(javaDependencyDict))
                                 dependencyPOMName = f'{dependency["groupId"]}:{dependency["artifactId"]}'
                                 versionPOM = dependency["version"]
+                                # print(f"deppomname: {dependencyPOMName}")
+                                # print(f"versionpom: {versionPOM}")
+                                    
                                 if versionPOM[0] == "$":
-                                    getVersionName = f'{dependency["artifactId"]}.version'
-                                    versionPOM = pomDict["properties"][getVersionName]
+                                    try:
+                                        getVersionName = f'{dependency["artifactId"]}.version'
+                                        # print(f"getversionname: {getVersionName}")
+                                        versionPOM = pomDict["properties"][getVersionName]
+                                    except:
+                                        getVersionName = versionPOM[2:-1]
+                                        # print(f"getversionname except: {getVersionName}")
+                                        versionPOM = pomDict["properties"][getVersionName]
+
                                     # print(versionPOM)
 
                                 betterDict = {
@@ -120,9 +136,11 @@ class FileHandler:
                                 }
 
                                 dependencyDict["dependencies"].append(betterDict)
-                            print(dependencyDict)
-                    except Exception as e:
-                        logger.error(f"Error: {repr(e)}")
+                            # print(dependencyDict)
+                        except Exception as e:
+                            logger.error(f"Error: {repr(e)}")
+                            # tb = traceback.format_exc()
+                            # logger.error(f"Error: {repr(e)}\n{tb}")
 
                     else:
                         dependencyDict = json.loads(content)
@@ -133,6 +151,8 @@ class FileHandler:
                     
             except Exception as e:
                 logger.error(f"Error : {repr(e)}")
+                # tb = traceback.format_exc()
+                # logger.error(f"Error: {repr(e)}\n{tb}")
 
     def dependencyParser(self, dependencyList, pattern, dependencyHandler, filePath, ecosystem, mode):
         logger.info("Parsing dependencies...")
@@ -160,6 +180,8 @@ class FileHandler:
                         if required:
                             for reqName, reqVer in required.items():
                                 symbolList = ["^", "~", "<", ">", "="]
+
+                                # without exact version
                                 if any(c in reqVer for c in ["^", "~", "<", ">", "="]) and mode != "high":
                                     continue
 

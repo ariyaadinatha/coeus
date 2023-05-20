@@ -106,6 +106,8 @@ class DependencyHandler:
                     for vuln in result["vulns"]:
                         parsedRes = self.parseDependencyResult(vuln)
                         depObj = dependency.getDependency()
+
+                        # dependencies without version
                         if mode != "high" and parsedRes["severity"] == None:
                             continue
 

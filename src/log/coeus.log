@@ -1,13 +1,40 @@
-[2023-04-28 21:24:03,720-INFO-dependency-21]: =============== Starting dependency detection ===============
-[2023-04-28 21:24:03,721-INFO-getAllFilesFromRepository-43]: Searching all relevant files
-[2023-04-28 21:24:03,722-INFO-getDependencies-75]: Searching dependencies...
-[2023-04-28 21:24:03,723-INFO-getDependencies-83]: Found package-lock.json
-[2023-04-28 21:24:03,724-INFO-getDependencies-99]: Matching json pattern...
-[2023-04-28 21:24:03,732-INFO-dependencyParser-136]: Parsing dependencies...
-[2023-04-28 21:24:03,735-INFO-getDependencies-130]: Completed pattern matching for package-lock.json
-[2023-04-28 21:24:03,736-INFO-scanDependencies-99]: Total dependencies: 1872
-[2023-04-28 21:24:03,736-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
-[2023-04-28 21:41:58,289-INFO-scanDependencies-124]: Completed scanning dependency vulnerabilities
-[2023-04-28 21:41:58,290-INFO-scanDependencies-125]: Vulnerabilities found: 206
-[2023-04-28 21:41:58,298-INFO-dependency-43]: Execution time: 1074.577541589737
-[2023-04-28 21:41:58,298-INFO-dependency-44]: =============== Finished dependency detection ===============
+[2023-05-21 05:01:18,552-INFO-dependency-26]: =============== Starting dependency detection ===============
+[2023-05-21 05:01:18,552-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-05-21 05:01:18,553-INFO-getDependencies-79]: Searching dependencies...
+[2023-05-21 05:01:18,553-INFO-getDependencies-87]: Found pom.xml
+[2023-05-21 05:01:18,553-INFO-getDependencies-103]: Matching json pattern...
+[2023-05-21 05:01:18,558-INFO-dependencyParser-158]: Parsing dependencies...
+[2023-05-21 05:01:18,558-INFO-getDependencies-150]: Completed pattern matching for pom.xml
+[2023-05-21 05:01:18,558-INFO-scanDependencies-99]: Total dependencies: 19
+[2023-05-21 05:01:18,559-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-05-21 05:01:28,611-INFO-scanDependencies-126]: Completed scanning dependency vulnerabilities
+[2023-05-21 05:01:28,611-INFO-scanDependencies-127]: Vulnerabilities found: 36
+[2023-05-21 05:01:28,617-INFO-dependency-47]: Execution time: 10.064778566360474
+[2023-05-21 05:01:28,617-INFO-dependency-48]: =============== Finished dependency detection ===============
+[2023-05-21 05:02:31,254-INFO-dependency-26]: =============== Starting dependency detection ===============
+[2023-05-21 05:02:31,254-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-05-21 05:02:31,254-INFO-getDependencies-79]: Searching dependencies...
+[2023-05-21 05:02:31,254-INFO-getDependencies-87]: Found pom.xml
+[2023-05-21 05:02:31,255-INFO-getDependencies-103]: Matching json pattern...
+[2023-05-21 05:02:31,260-INFO-dependencyParser-158]: Parsing dependencies...
+[2023-05-21 05:02:31,260-INFO-getDependencies-150]: Completed pattern matching for pom.xml
+[2023-05-21 05:02:31,260-INFO-scanDependencies-99]: Total dependencies: 19
+[2023-05-21 05:02:31,260-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-05-21 05:02:41,726-INFO-scanDependencies-126]: Completed scanning dependency vulnerabilities
+[2023-05-21 05:02:41,726-INFO-scanDependencies-127]: Vulnerabilities found: 36
+[2023-05-21 05:02:41,732-INFO-dependency-47]: Execution time: 10.478439092636108
+[2023-05-21 05:02:41,733-INFO-dependency-48]: =============== Finished dependency detection ===============
+[2023-05-21 05:05:27,560-INFO-dependency-26]: =============== Starting dependency detection ===============
+[2023-05-21 05:05:27,560-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-05-21 05:05:27,560-INFO-getDependencies-79]: Searching dependencies...
+[2023-05-21 05:05:27,560-INFO-getDependencies-87]: Found pom.xml
+[2023-05-21 05:05:27,561-INFO-getDependencies-103]: Matching json pattern...
+[2023-05-21 05:05:27,567-ERROR-getDependencies-144]: Error: KeyError('cglib-nodep.version')
+[2023-05-21 05:05:27,567-INFO-dependencyParser-161]: Parsing dependencies...
+[2023-05-21 05:05:27,567-INFO-getDependencies-153]: Completed pattern matching for pom.xml
+[2023-05-21 05:05:27,568-INFO-scanDependencies-99]: Total dependencies: 6
+[2023-05-21 05:05:27,568-INFO-scanDependencies-100]: Scanning dependency vulnerabilities...
+[2023-05-21 05:05:31,643-INFO-scanDependencies-126]: Completed scanning dependency vulnerabilities
+[2023-05-21 05:05:31,643-INFO-scanDependencies-127]: Vulnerabilities found: 36
+[2023-05-21 05:05:31,650-INFO-dependency-47]: Execution time: 4.090170383453369
+[2023-05-21 05:05:31,651-INFO-dependency-48]: =============== Finished dependency detection ===============
