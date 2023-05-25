@@ -2,8 +2,6 @@ from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes import IRNode
 import uuid
-from pathlib import Path
-import csv
 
 class IRConverter():
     def __init__(self, sources, sinks, sanitizers) -> None:
@@ -119,10 +117,10 @@ class IRConverter():
             currNode, scope = queue.pop(0)
 
             # set data flow properties
-            currNode.isSource = self.isSource(currNode)
-            currNode.isTainted = self.isSource(currNode)
-            currNode.isSink = self.isSink(currNode)
-            currNode.isSanitizer = self.isSanitizer(currNode)
+            currNode.isSource = currNode.checkIsSource()
+            currNode.isTainted = currNode.checkIsSource()
+            currNode.isSink = currNode.checkIsSink()
+            currNode.isSanitizer = currNode.checkIsSanitizer()
             currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
@@ -252,7 +250,7 @@ class IRConverter():
                 self.dfs(irChild, visited, symbolTable, scope)
 
     def setNodeDataFlowEdges(self, node: IRNode, symbolTable):
-        # handle variable assignment and reassignment
+            # handle variable assignment and reassignment
             if node.type == "identifier" and node.parent.type == "assignment":
                 key = (node.content, node.scope)
                 if node.node.prev_sibling is None:
@@ -260,7 +258,8 @@ class IRConverter():
                     if key in symbolTable:
                         dataType = "reassignment"
                         dfgParentId = symbolTable[key][-1]
-                        node.addDataFlowEdge(dataType, dfgParentId)
+                        # !!! : remove reassignment relationship temporarily
+                        node.addDataFlowEdge(dataType, None)
                         # register node id to symbol table
                         symbolTable[key].append(node.id)
                     # assignment of a new variable
@@ -268,6 +267,9 @@ class IRConverter():
                         dataType = "assignment"
                         node.addDataFlowEdge(dataType, None)
                         symbolTable[key] = [node.id]
+
+                        if node.isInsideIfElseBranch():
+                            
                 else:
                     # reference of an existing variable as value of another variable
                     dataType = "referenced"
@@ -295,163 +297,26 @@ class IRConverter():
                     if node.parent.parent.type == "call":
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
 
-    def printTree(self, node: IRNode, filter: Callable[[IRNode], bool], depth=0):
-        indent = ' ' * depth
-
-        if filter(node):
-            print(f'{indent}{node}')
-            # control flow info
-            # for control in node.controlFlowEdges:
-            #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
-
-            # taint analysis info
-            print(f'{indent}sink {node.isSink}')
-            print(f'{indent}source {node.isSource}')
-            print(f'{indent}sanitizer {node.isSanitizer}')
-
-            # data flow info
-            for data in node.dataFlowEdges:
-                print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
-
-        for child in node.astChildren:
-            self.printTree(child, filter, depth + 2)
-
     def determineScopeNode(self, node: Node, prevScope: str):
         currScope = prevScope
         scopeIdentifiers = ("class_definition", "function_definition")
+        controlScopeIdentifiers = ("else_clase", "elif_clause", "block")
+        currentIdentifier = ""
 
-        # add new scope for children if this node is class, function, module
+        # add new scope for children if this node is class, function, module, and if-else branch
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
                 if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
+        elif node.type in controlScopeIdentifiers and node.parent.type == "if_statement":
+                currentIdentifier = node.type
+
+        if currentIdentifier != "":
             currScope += f"\{currentIdentifier}"
 
         return currScope
-
-    def exportAstNodesToCsv(self, root: IRNode, exportPath: str):
-        header = [
-                'id', 
-                'type', 
-                'content', 
-                'parent_id', 
-                'scope', 
-                'location',
-                'is_source', 
-                'is_sink', 
-                'is_tainted',
-                'is_sanitizer',
-                ]
-        
-        # setup file and folder
-        basename = self.getExportBasename(exportPath)
-        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
-
-        with open(f'./csv/{basename}/{basename}_nodes.csv', 'a', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-
-            queue: list[IRNode] = [root]
-
-            while queue:
-                node = queue.pop(0)
-
-                row = [
-                    node.id, 
-                    node.type, 
-                    node.content, 
-                    node.parentId, 
-                    node.scope, 
-                    node.location,
-                    node.isSource,
-                    node.isSink,
-                    node.isTainted,
-                    node.isSanitizer,
-                    ]
-                writer.writerow(row)
-
-                for child in node.astChildren:
-                    queue.append(child)
-
-    def exportDfgEdgesToCsv(self, root: IRNode, exportPath: str):
-        header = ['id', 'dfg_parent_id', 'data_type']
-
-        # setup file and folder
-        basename = self.getExportBasename(exportPath)
-        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
-
-        with open(f'./csv/{basename}/{basename}_dfg_edges.csv', 'a', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-
-            queue: list[IRNode] = [root]
-
-            while queue:
-                node = queue.pop(0)
-
-                for edge in node.dataFlowEdges:
-                    row = [node.id, edge.dfgParentId, edge.dataType]
-                    writer.writerow(row)
-
-                for child in node.astChildren:
-                    queue.append(child)
-    
-    def exportCfgEdgesToCsv(self, root: IRNode, exportPath: str):
-        header = ['id', 'cfg_parent_id', 'statement_order']
-
-        # setup file and folder
-        basename = self.getExportBasename(exportPath)
-        Path(f"./csv/{basename}").mkdir(parents=True, exist_ok=True)
-
-        with open(f'./csv/{basename}/{basename}_cfg_edges.csv', 'a', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(header)
-
-            queue: list[IRNode] = [root]
-
-            while queue:
-                node = queue.pop(0)
-
-                for edge in node.controlFlowEdges:
-                    row = [node.id, edge.cfgParentId, edge.statementOrder]
-                    writer.writerow(row)
-
-                for child in node.astChildren:
-                    queue.append(child)     
-    
-    def exportTreeToCsvFiles(self, root: IRNode, exportPath: str):
-        self.exportAstNodesToCsv(root, exportPath)
-        self.exportDfgEdgesToCsv(root, exportPath)
-        self.exportCfgEdgesToCsv(root, exportPath)
-
-    def getExportBasename(self, filename: str) -> str:
-        if len(filename.split("\\")) >= 2:
-            basename = filename.split("\\")[-1].replace("/", "-").replace("\\", "-")
-            if basename[0] == "-":
-                basename = basename[1:]
-        
-            return basename
-        return filename
-
-    def isSource(self, node: IRNode) -> bool:
-        for source in self.sources:
-            if source in node.content.lower():
-                return True
-        return False
-    
-    def isSink(self, node: IRNode) -> bool:
-        for sink in self.sinks:
-            if sink in node.content.lower():
-                return True
-        return False
-    
-    def isSanitizer(self, node: IRNode) -> bool:
-        for sanitizer in self.sanitizers:
-            if sanitizer in node.content.lower():
-                return True
-        return False
 
     def isIgnoredType(self, node: Node) -> bool:
         ignoredList = ['"', '.', ',', '=', '(', ')', '[', ']', ':', '{', '}', 'comment']
