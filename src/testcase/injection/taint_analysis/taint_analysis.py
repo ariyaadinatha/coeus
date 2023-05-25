@@ -1,10 +1,18 @@
-test = input()
+import shlex
+import subprocess
 
-another_test = test
+address = input()
+command = "ping -c 1 {}".format(address)
 
-test = "change test"
+real_command = command
+command = "google.com"
 
 # safe
-eval(test)
-# vulnerable
-eval(another_test)
+subprocess.Popen(command, shell=True)
+
+# vuln
+subprocess.Popen(real_command, shell=True)
+
+# safe
+args = shlex.split(real_command)
+subprocess.Popen(args, shell=True)
