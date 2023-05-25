@@ -9,6 +9,19 @@ class IRConverter():
         self.sinks = sinks
         self.sanitizers = sanitizers
 
+    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
+        irRoot = self.createDataFlowTreeDFS(root, filename)
+        self.addControlFlowEdgesToTree(irRoot)
+
+        return irRoot
+    
+    def createCompleteTree(self, root: Node, filename: str) -> IRNode:
+        irRoot = self.createAstTree(root, filename)
+        self.addControlFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTree(irRoot)
+
+        return irRoot
+
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
@@ -177,13 +190,6 @@ class IRConverter():
             
             for child in currNode.astChildren:
                 queue.append((child, scope))
-
-    def createCompleteTree(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createAstTree(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
-
-        return irRoot
     
     def createDataFlowTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
@@ -216,12 +222,6 @@ class IRConverter():
 
             for child in node.children:
                 queue.append((child, convertedNode, scope))
-
-        return irRoot
-    
-    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
 
         return irRoot
     
