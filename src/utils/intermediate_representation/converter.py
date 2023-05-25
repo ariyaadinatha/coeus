@@ -251,7 +251,6 @@ class IRConverter():
                 node.astChildren.append(irChild)
                 self.dfs(irChild, visited, symbolTable, scope)
 
-
     def setNodeDataFlowEdges(self, node: IRNode, symbolTable):
         # handle variable assignment and reassignment
             if node.type == "identifier" and node.parent.type == "assignment":

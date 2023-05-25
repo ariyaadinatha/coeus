@@ -284,7 +284,7 @@ class InjectionHandler:
     
     def appySanitizers(self):
         query = '''
-            MATCH (sanitizer{is_sanitizer: True})-[r:DATA_FLOW_TO|CALL*]->(untainted)
+            MATCH (sanitizer{is_sanitizer: True})-[r:DATA_FLOW_TO]->(untainted)
             SET untainted.is_tainted=False
             REMOVE untainted:Tainted
             RETURN sanitizer, r, untainted
