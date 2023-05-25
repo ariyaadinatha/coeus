@@ -80,7 +80,7 @@ class IRConverter():
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause":
+            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
@@ -90,7 +90,7 @@ class IRConverter():
                                 # !!!: depends on lower node
                                 blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
                             # connect else statements with if statement
-                            elif currNode.type == "else_clause":
+                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
                                 # !!!: depends on lower node
                                 blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
             
