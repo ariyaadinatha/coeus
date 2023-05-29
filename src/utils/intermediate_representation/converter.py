@@ -1,6 +1,7 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes import IRNode
+from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
 
 class IRConverter():
@@ -124,16 +125,16 @@ class IRConverter():
         # value: [ids]
         # scope to differentiate duplicate identifiers
         symbolTable = {}
-        scopeIdentifiers = ("class_definition", "function_definition")
+        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
 
         while len(queue) != 0:
             currNode, scope = queue.pop(0)
 
             # set data flow properties
-            currNode.isSource = currNode.checkIsSource()
-            currNode.isTainted = currNode.checkIsSource()
-            currNode.isSink = currNode.checkIsSink()
-            currNode.isSanitizer = currNode.checkIsSanitizer()
+            currNode.isSource = currNode.checkIsSource(self.sources)
+            currNode.isTainted = currNode.checkIsSource(self.sources)
+            currNode.isSink = currNode.checkIsSink(self.sinks)
+            currNode.isSanitizer = currNode.checkIsSanitizer(self.sanitizers)
             currNode.scope = scope
 
             # add new scope for children if this node is class, function, module
@@ -210,7 +211,7 @@ class IRConverter():
             convertedNode = IRNode(node, filename, projectId, parent)
             convertedNode.setDataFlowProps(scope, self.sources, self.sanitizers, self.sinks)
 
-            scope = self.determineScopeNode(node, scope)
+            scope = self.determineScopeNode(convertedNode, scope)
             self.setNodeDataFlowEdges(convertedNode, symbolTable)
 
             # add current node as child to parent node
@@ -227,29 +228,31 @@ class IRConverter():
     
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         visited = set()
+        visitedList = []
         symbolTable = {}
 
         projectId = uuid.uuid4().hex
         irRoot = IRNode(root, filename, projectId)
 
-        self.dfs(irRoot, visited, symbolTable, filename)
+        self.dfs(irRoot, visited, visitedList, symbolTable, filename)
 
         return irRoot
     
-    def dfs(self, node: IRNode, visited, symbolTable, scope):
+    def dfs(self, node: IRNode, visited: set, visitedList: list, symbolTable, scope):
         visited.add(node.id)
+        visitedList.append(node.id)
 
         node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
         scope = self.determineScopeNode(node, scope)
-        self.setNodeDataFlowEdges(node, symbolTable)
+        self.setNodeDataFlowEdges(node, visited, visitedList, symbolTable)
 
         for child in node.node.children:
-            if child.id not in visited:
+            if child.id not in visited and not self.isIgnoredType(child):
                 irChild = IRNode(child, node.filename, node.projectId, node)
                 node.astChildren.append(irChild)
-                self.dfs(irChild, visited, symbolTable, scope)
+                self.dfs(irChild, visited, visitedList, symbolTable, scope)
 
-    def setNodeDataFlowEdges(self, node: IRNode, symbolTable):
+    def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, symbolTable):
             # handle variable assignment and reassignment
             if node.type == "identifier" and node.parent.type == "assignment":
                 key = (node.content, node.scope)
@@ -264,18 +267,24 @@ class IRConverter():
                         symbolTable[key].append(node.id)
                     # assignment of a new variable
                     else:
+                        # TODO : make sure we don't need to handle this relation in if else
+                        # if node.isInsideIfElseBranch():
+                            # handle if node is first occurence of assignment inside branch
+                            # but there is already an assignment from outside
+                            # self.setDataFlowEdgeInIfElseBranch(node, key, symbolTable)
                         dataType = "assignment"
                         node.addDataFlowEdge(dataType, None)
                         symbolTable[key] = [node.id]
-
-                        if node.isInsideIfElseBranch():
-                            
                 else:
                     # reference of an existing variable as value of another variable
                     dataType = "referenced"
                     if key in symbolTable:
                         dfgParentId = symbolTable[key][-1]
                         node.addDataFlowEdge(dataType, dfgParentId)
+                    if node.isInsideIfElseBranch():
+                        self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
+                    else:
+                        self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, symbolTable)
             # handle value of an assignment but is not identifier
             if node.parent is not None and node.parent.type == "assignment":
                 if node.node.prev_sibling is not None and node.node.prev_sibling.type == "=" and node.node.prev_sibling.prev_sibling.type == "identifier":
@@ -289,18 +298,22 @@ class IRConverter():
             # handle variable called as argument in function
             if node.type == "identifier" and node.parent.type != "assignment":
                 key = (node.content, node.scope)
+                dataType = "called"
                 if key in symbolTable:
                     dfgParentId = symbolTable[key][-1]
-                    dataType = "called"
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
                     if node.parent.parent.type == "call":
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
+                if node.isInsideIfElseBranch():
+                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, symbolTable)
+                else:
+                    self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, symbolTable)
 
-    def determineScopeNode(self, node: Node, prevScope: str):
+    def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
-        scopeIdentifiers = ("class_definition", "function_definition")
-        controlScopeIdentifiers = ("else_clase", "elif_clause", "block")
+        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
+        controlScopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
         currentIdentifier = ""
 
         # add new scope for children if this node is class, function, module, and if-else branch
@@ -317,9 +330,37 @@ class IRConverter():
             currScope += f"\{currentIdentifier}"
 
         return currScope
+    
+    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, symbolTable):
+        previousScope = node.scope.rpartition("\\")[0]
+        previousKey = (node.content, previousScope)
+        if previousKey in symbolTable and key not in symbolTable:
+            dfgParentId = symbolTable[previousKey][-1]
+            node.addDataFlowEdge(dataType, dfgParentId)
+
+    def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, symbolTable):
+        controlScopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        for identifier in controlScopeIdentifiers:
+            controlScope = f"{node.scope}\{identifier}"
+            controlKey = (node.content, controlScope)
+            if controlKey in symbolTable:
+                outsideId = symbolTable[key][-1]
+                insideId = symbolTable[controlKey][-1]
+                outsideOrder = visitedList.index(outsideId)
+                insideOrder = visitedList.index(insideId)
+                currentOrder = visitedList.index(node.id)
+
+                # make sure last outside occurance of variable is BEFORE if statement
+                # and make sure last inside occurance of variable is BEFORE current occurance
+                if outsideOrder < insideOrder and insideOrder < currentOrder:
+                    dfgParentId = symbolTable[controlKey][-1]
+                    node.addDataFlowEdge(dataType, dfgParentId)
+                    # handle variable in argument list in function
+                    if node.parent.parent.type == "call":
+                        node.parent.parent.addDataFlowEdge(dataType, node.id)
 
     def isIgnoredType(self, node: Node) -> bool:
-        ignoredList = ['"', '.', ',', '=', '(', ')', '[', ']', ':', '{', '}', 'comment']
+        ignoredList = ("\"", ".", ",", "=", "==", "(", ")", "[", "]", ":", "{", "}", "comment")
 
         if node.type in ignoredList:
             return True

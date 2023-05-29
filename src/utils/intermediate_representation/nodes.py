@@ -1,5 +1,6 @@
 from tree_sitter import Node
 import uuid
+from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
 from typing import Union
 
 # all node from tree-sitter parse result
@@ -50,7 +51,7 @@ class IRNode:
     def printChildren(self, depth=0):
       indent = ' ' * depth
 
-      print(f'{indent}[{depth}]{self}')
+      print(f'{indent}{self}')
       # control flow info
       # for control in node.controlFlowEdges:
       #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
@@ -74,6 +75,12 @@ class IRNode:
         return True
       
       return False
+    
+    def isInsideIfElseBranch(self) -> bool:
+        scopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        lastScope = self.scope.split("\\")[-1]
+
+        return lastScope in scopeIdentifiers
     
     def setDataFlowProps(self, scope, sources, sinks, sanitizers):
       self.isSource = self.checkIsSource(sources)
