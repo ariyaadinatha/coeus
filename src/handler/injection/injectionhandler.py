@@ -29,7 +29,7 @@ class InjectionHandler:
         with open(f"./rules/injection/sanitizer-{self.language}-wordlist.json", 'r') as file:
             self.sanitizers = json.load(file)["wordlist"]
 
-    def buildDataFlowTree(self):
+    def buildDataFlowTree(self, dfs: bool):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -46,13 +46,17 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createDataFlowTree(root, codePath)
+            if dfs:
+                astRoot = self.converter.createDataFlowTreeDFS(root, codePath)
+            else:
+                astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)
             self.insertDataFlowRelationshipsToNeo4j()
+            self.setLabels()
 
             astRoot.printChildren()
 
-    def buildCompleteTree(self):
+    def buildCompleteTree(self, dfs: bool):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -69,9 +73,13 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createCompleteTree(root, codePath)
-            self.insertCompleteTreeToNeo4j(astRoot)
+            if dfs:
+                astRoot = self.converter.createCompleteTreeDFS(root, codePath)
+            else:
+                astRoot = self.converter.createCompleteTree(root, codePath)
+            self.insertAllNodesToNeo4j(astRoot)
             self.insertAllRelationshipsToNeo4j(astRoot)
+            self.setLabels()
 
             astRoot.printChildren()
 
@@ -79,7 +87,7 @@ class InjectionHandler:
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildDataFlowTree()
+            self.buildDataFlowTree(dfs=True)
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()
@@ -127,7 +135,7 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
 
-    def insertCompleteTreeToNeo4j(self, root: IRNode):
+    def insertAllNodesToNeo4j(self, root: IRNode):
         queue: list[IRNode] = [root]
 
         while len(queue) != 0:
@@ -175,7 +183,61 @@ class InjectionHandler:
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query create constraint error: {e}")
+
+    def setLabels(self):
+        self.setRootLabel()
+        self.setSourceLabel()
+        self.setSanitizerLabel()
+        self.setSinkLabel()
+
+    def setRootLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.type = "module"
+            SET n:Root
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+
+    def setSourceLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_source = True
+            SET n:Source
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+    
+    def setSinkLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_sink = True
+            SET n:Sink
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
         
+    def setSanitizerLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_sanitizer = True
+            SET n:Sanitizer
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+
     def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
             "id": node.id,
