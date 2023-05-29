@@ -5,7 +5,7 @@ from typing import Union
 
 # all node from tree-sitter parse result
 class IRNode:
-    def __init__(self, node: Node, filename: str, projectId: str, parent=None) -> None:
+    def __init__(self, node: Node, filename: str, projectId: str, controlId: str=None, parent=None) -> None:
       self.id = uuid.uuid4().hex
       self.controlFlowEdges: list[ControlFlowEdge] = []
       self.dataFlowEdges: list[DataFlowEdge] = []
@@ -29,6 +29,11 @@ class IRNode:
       self.isSink = False
       self.isTainted = False
       self.isSanitizer = False
+      
+      if controlId != None:
+          self.controlId = controlId
+      else:
+          self.controlId = None
 
       # control flow props
 
@@ -77,10 +82,7 @@ class IRNode:
       return False
     
     def isInsideIfElseBranch(self) -> bool:
-        scopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
-        lastScope = self.scope.split("\\")[-1]
-
-        return lastScope in scopeIdentifiers
+        return len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
     
     def setDataFlowProps(self, scope, sources, sinks, sanitizers):
       self.isSource = self.checkIsSource(sources)
