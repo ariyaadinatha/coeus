@@ -1,11 +1,13 @@
-test = "test value"
+test = "test"
 
-if test == "test value":
-    print("success")
+if test == "test":
+    print(test)
+    test = "uhuy"
+elif test == "test":
+    print(test)
+    test = "ahay"
 else:
-    print("failed")
+    print(test)
+    test = "asoy"
 
-if test in "here":
-    print("here")
-else:
-    print("not here")
+print(test)
