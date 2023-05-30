@@ -47,7 +47,7 @@ class InjectionHandler:
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
             if dfs:
-                astRoot = self.converter.createDataFlowTreeDFS(root, codePath)
+                astRoot = self.converter.dfsIterative(root, codePath)
             else:
                 astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)

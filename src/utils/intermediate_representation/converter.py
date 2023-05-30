@@ -11,7 +11,7 @@ class IRConverter():
         self.sanitizers = sanitizers
 
     def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
+        irRoot = self.dfsIterative(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
 
         return irRoot
@@ -258,6 +258,48 @@ class IRConverter():
                 node.astChildren.append(irChild)
                 self.dfs(irChild, visited, visitedList, scopeDatabase, symbolTable, scope)
 
+    def dfsIterative(self, root: Node, filename: str) -> IRNode:
+        projectId = uuid.uuid4().hex
+        irRoot = IRNode(root, filename, projectId)
+
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(irRoot, filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.node.children:
+                if not self.isIgnoredType(child):
+                    if node.type == "if_statement":
+                        irChild = IRNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                    else:
+                        irChild = IRNode(child, node.filename, node.projectId, parent=node)
+                    node.astChildren.append(irChild)
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
+        
+        return irRoot
+
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
         if node.type == "identifier" and node.parent.type == "assignment":
@@ -267,17 +309,11 @@ class IRConverter():
                 if key in symbolTable:
                     dataType = "reassignment"
                     dfgParentId = symbolTable[key][-1]
-                    # !!! : remove reassignment relationship temporarily
                     node.addDataFlowEdge(dataType, None)
                     # register node id to symbol table
                     symbolTable[key].append(node.id)
-                # assignment of a new variable
                 else:
-                    # TODO : make sure we don't need to handle this relation in if else
-                    # if node.isInsideIfElseBranch():
-                        # handle if node is first occurence of assignment inside branch
-                        # but there is already an assignment from outside
-                        # self.setDataFlowEdgeInIfElseBranch(node, key, symbolTable)
+                    # assignment of a new variable
                     dataType = "assignment"
                     node.addDataFlowEdge(dataType, None)
                     symbolTable[key] = [node.id]
@@ -289,8 +325,10 @@ class IRConverter():
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
                     self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
+                    self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+
         # handle value of an assignment but is not identifier
         if node.parent is not None and node.parent.type == "assignment":
             if node.node.prev_sibling is not None and node.node.prev_sibling.type == "=" and node.node.prev_sibling.prev_sibling.type == "identifier":
@@ -313,6 +351,7 @@ class IRConverter():
                     node.parent.parent.addDataFlowEdge(dataType, node.id)
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, symbolTable)
+                self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
             else:
                 self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
@@ -343,6 +382,8 @@ class IRConverter():
     def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, symbolTable):
         previousScope = node.scope.rpartition("\\")[0]
         previousKey = (node.content, previousScope)
+        # check previous key exists in symbol table
+        # and check no key exists yet in current scope
         if previousKey in symbolTable and key not in symbolTable:
             dfgParentId = symbolTable[previousKey][-1]
             node.addDataFlowEdge(dataType, dfgParentId)
@@ -379,17 +420,20 @@ class IRConverter():
             targetGlobalScope, _, targetControlScope = scope.rpartition("\\")
             currentGlobalScope, _, currentControlScope = node.scope.rpartition("\\")
 
+            # check global scope is identical
             if targetGlobalScope != currentGlobalScope:
                 continue
+            # check both scope is inside control branch
             if not self.isControlScope(scope) or not self.isControlScope(node.scope):
                 continue
-            # check if else id to make sure scopes aren't from the same branch
-            if targetControlScope[:-32] == currentControlScope[:-32]:
+            # check if-else id(s) to make sure scopes aren't from the same branch
+            if self.getControlId(targetControlScope) == self.getControlId(currentControlScope):
                 continue
 
             controlKey = (node.content, scope)
+            outsideKey = (node.content, targetGlobalScope)
             if controlKey in symbolTable:
-                outsideId = symbolTable[key][-1]
+                outsideId = symbolTable[outsideKey][-1]
                 insideId = symbolTable[controlKey][-1]
                 outsideOrder = visitedList.index(outsideId)
                 insideOrder = visitedList.index(insideId)
@@ -414,3 +458,6 @@ class IRConverter():
     
     def isControlScope(self, scope: str) -> bool:
         return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
+    
+    def getControlId(self, scope: str) -> str:
+        return scope[-32:] if self.isControlScope(scope) else ""
