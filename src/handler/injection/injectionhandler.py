@@ -1,6 +1,6 @@
 from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter import IRConverter
-from utils.intermediate_representation.nodes import ASTNode, DataFlowEdge, ControlFlowEdge
+from utils.intermediate_representation.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
@@ -29,7 +29,7 @@ class InjectionHandler:
         with open(f"./rules/injection/sanitizer-{self.language}-wordlist.json", 'r') as file:
             self.sanitizers = json.load(file)["wordlist"]
 
-    def buildProjectTree(self):
+    def buildDataFlowTree(self, dfs: bool):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -46,15 +46,48 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createDataFlowTree(root, codePath)
+            if dfs:
+                astRoot = self.converter.dfsIterative(root, codePath)
+            else:
+                astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)
-            self.insertRelationshipsToNeo4j()
+            self.insertDataFlowRelationshipsToNeo4j()
+            self.setLabels()
 
+            astRoot.printChildren()
+
+    def buildCompleteTree(self, dfs: bool):
+        fh = FileHandler()
+        fh.getAllFilesFromRepository(self.projectPath)
+
+        extensionAlias = {
+        "python": "py",
+        "java": "java",
+        "javascript": "js",
+        "php": "php",
+        }
+        
+        for codePath in fh.getCodeFilesPath():
+            if codePath.split('.')[-1] != extensionAlias[self.language]:
+                continue
+            sourceCode = fh.readFile(codePath)
+            code = CodeProcessor(self.language, sourceCode)
+            root = code.getRootNode()
+            if dfs:
+                astRoot = self.converter.createCompleteTreeDFS(root, codePath)
+            else:
+                astRoot = self.converter.createCompleteTree(root, codePath)
+            self.insertAllNodesToNeo4j(astRoot)
+            self.insertAllRelationshipsToNeo4j(astRoot)
+            self.setLabels()
+
+            astRoot.printChildren()
 
     def taintAnalysis(self):
         try:
+            self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildProjectTree()
+            self.buildDataFlowTree(dfs=True)
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()
@@ -90,8 +123,8 @@ class InjectionHandler:
             # astRoot = self.converter.createAstTree(root, codePath)
             # self.converter.addDataFlowEdgesToTree(astRoot)
     
-    def insertTreeToNeo4j(self, root: ASTNode):
-        queue: list[ASTNode] = [root]
+    def insertTreeToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
 
         while len(queue) != 0:
             node = queue.pop(0)
@@ -102,8 +135,19 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
 
-    def insertRelationshipsToNeo4j(self, root: ASTNode):
-        queue: list[ASTNode] = [root]
+    def insertAllNodesToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            self.insertNodeToNeo4j(node)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+    def insertDataFlowRelationshipsToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
 
         while len(queue) != 0:
             node = queue.pop(0)
@@ -113,8 +157,88 @@ class InjectionHandler:
 
             for child in node.astChildren:
                 queue.append(child)
+
+    def insertAllRelationshipsToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            if len(node.dataFlowEdges) != 0:
+                self.createDataFlowRelationship(node)
+            if len(node.controlFlowEdges) != 0:
+                self.createControlFlowRelationship(node)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+        self.createASTRelationship()
+
+    def createUniqueConstraint(self):
+        query = '''
+            CREATE CONSTRAINT ON (n:Node) ASSERT n.id IS UNIQUE
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query create constraint error: {e}")
+
+    def setLabels(self):
+        self.setRootLabel()
+        self.setSourceLabel()
+        self.setSanitizerLabel()
+        self.setSinkLabel()
+
+    def setRootLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.type = "module"
+            SET n:Root
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+
+    def setSourceLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_source = True
+            SET n:Source
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+    
+    def setSinkLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_sink = True
+            SET n:Sink
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
         
-    def insertNodeToNeo4j(self, node: ASTNode):
+    def setSanitizerLabel(self):
+        query = '''
+            MATCH (n:Node)
+            WHERE n.is_sanitizer = True
+            SET n:Sanitizer
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query set root label error: {e}")
+
+    def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
             "id": node.id,
             "type": node.type,
@@ -161,7 +285,7 @@ class InjectionHandler:
         except Exception as e:
             print(f"Query create AST relationship error: {e}")
 
-    def createControlFlowRelationship(self, node: ASTNode):
+    def createControlFlowRelationship(self, node: IRNode):
         for edge in node.controlFlowEdges:
             parameters = {
                 "id": node.id,
@@ -182,7 +306,7 @@ class InjectionHandler:
             except Exception as e:
                 print(f"Query create control flow relationship error: {e}")
 
-    def createDataFlowRelationship(self, node: ASTNode):
+    def createDataFlowRelationship(self, node: IRNode):
         for edge in node.dataFlowEdges:
             parameters = {
                     "id": node.id,
@@ -214,7 +338,7 @@ class InjectionHandler:
     
     def propagateTaint(self):
         query = '''
-            MATCH (source{is_source: True})-[r:DATA_FLOW_TO|CALL*]->(tainted)
+            MATCH (source{is_source: True})-[r:DATA_FLOW_TO*]->(tainted)
             SET tainted.is_tainted=True, tainted:Tainted
             return source, r, tainted
         '''
@@ -222,7 +346,7 @@ class InjectionHandler:
     
     def appySanitizers(self):
         query = '''
-            MATCH (sanitizer{is_sanitizer: True})-[r:DATA_FLOW_TO|CALL*]->(untainted)
+            MATCH (sanitizer{is_sanitizer: True})-[r:DATA_FLOW_TO]->(untainted)
             SET untainted.is_tainted=False
             REMOVE untainted:Tainted
             RETURN sanitizer, r, untainted
@@ -270,7 +394,7 @@ class InjectionHandler:
 
     def deleteAllNodesAndRelationshipsByAPOC(self):
         query = '''
-            MATCH (n) DETACH DELETE (n)
+            CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'DETACH DELETE n', {batchSize:1000})
         '''
         try:
             return self.connection.query(query, db="connect-python")

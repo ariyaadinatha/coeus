@@ -1,51 +1,53 @@
 from tree_sitter import Node
 import uuid
+from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
 from typing import Union
 
 # all node from tree-sitter parse result
-class ASTNode:
-    def __init__(self, node: Node, filename: str, projectId: str, parent=None) -> None:
-        if self.isIgnoredType(node):
-          self.id = None
-          return
-        else:
-          self.id = uuid.uuid4().hex
-          self.controlFlowEdges: list[ControlFlowEdge] = []
-          self.dataFlowEdges: list[DataFlowEdge] = []
+class IRNode:
+    def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
+      self.id = uuid.uuid4().hex
+      self.controlFlowEdges: list[ControlFlowEdge] = []
+      self.dataFlowEdges: list[DataFlowEdge] = []
 
-          # get info from tree-sitter node
-          self.treeSitterId = node.id
-          self.content = node.text.decode("utf-8")
-          self.type = node.type
-          self.node = node
-          self.startPoint = node.start_point
-          self.endPoint = node.end_point
-          self.astChildren: list[ASTNode] = []
+      # get info from tree-sitter node
+      self.treeSitterId = node.id
+      self.content = node.text.decode("utf-8")
+      self.type = node.type
+      self.node = node
+      self.startPoint = node.start_point
+      self.endPoint = node.end_point
+      self.astChildren: list[IRNode] = []
 
-          # metadata info
-          self.filename = filename
-          self.projectId = projectId
+      # metadata info
+      self.filename = filename
+      self.projectId = projectId
 
-          # data flow props
-          self.scope = None
-          self.isSource = False
-          self.isSink = False
-          self.isTainted = False
-          self.isSanitizer = False
+      # data flow props
+      self.scope = None
+      self.isSource = False
+      self.isSink = False
+      self.isTainted = False
+      self.isSanitizer = False
 
-          # control flow props
+      if controlId != None:
+          self.controlId = controlId
+      else:
+          self.controlId = None
 
-          # if root
-          if type(parent) is ASTNode:
-            self.parent = parent
-            self.parentId = parent.id
-          else:
-            self.parent = None
-            self.parentId = None
-            self.scope = filename
-            self.isSource = False
-            self.isSink = False
-            self.isTainted = False
+      # control flow props
+
+      # if root
+      if type(parent) is IRNode:
+        self.parent = parent
+        self.parentId = parent.id
+      else:
+        self.parent = None
+        self.parentId = None
+        self.scope = filename
+        self.isSource = False
+        self.isSink = False
+        self.isTainted = False
     
     # print shortcut
     def __str__(self) -> str:
@@ -79,10 +81,13 @@ class ASTNode:
       
       return False
     
+    def isInsideIfElseBranch(self) -> bool:
+        return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
+    
     def setDataFlowProps(self, scope, sources, sinks, sanitizers):
-      self.isSource = self.checkSource(sources)
-      self.isSink = self.checkSink(sinks)
-      self.isSanitizer = self.checkSanitizer(sanitizers)
+      self.isSource = self.checkIsSource(sources)
+      self.isSink = self.checkIsSink(sinks)
+      self.isSanitizer = self.checkIsSanitizer(sanitizers)
       self.scope = scope
     
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
@@ -93,21 +98,26 @@ class ASTNode:
         edge = DataFlowEdge(dataType, dfgParentId)
         self.dataFlowEdges.append(edge)
 
-    def checkSource(self, sources) -> bool:
+    def checkIsSource(self, sources) -> bool:
+        if self.parent == None: return False
         for source in sources:
             if source in self.content.lower():
                 return True
         return False
     
-    def checkSink(self, sinks) -> bool:
+    def checkIsSink(self, sinks) -> bool:
+        if self.parent == None: return False
         for sink in sinks:
             if sink in self.content.lower():
                 return True
         return False
     
-    def checkSanitizer(self, sanitizers) -> bool:
+    def checkIsSanitizer(self, sanitizers) -> bool:
+        if self.parent == None: return False
         for sanitizer in sanitizers:
             if sanitizer in self.content.lower():
+                print(sanitizer)
+                print(self.content.lower())
                 return True
         return False
 
