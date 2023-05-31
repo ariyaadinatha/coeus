@@ -19,7 +19,7 @@ class InjectionHandler:
         self.projectPath = projectPath
         self.language = language
         self.loadSourceSinkAndSanitizer()
-        self.converter = IRConverter(self.sources, self.sinks, self.sanitizers)
+        self.converter = IRConverter(self.sources, self.sinks, self.sanitizers, language)
 
     def loadSourceSinkAndSanitizer(self):
         with open(f"./rules/injection/source-{self.language}-wordlist.json", 'r') as file:

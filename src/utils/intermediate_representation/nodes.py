@@ -5,7 +5,7 @@ from typing import Union
 
 # all node from tree-sitter parse result
 class IRNode:
-    def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
+    def __init__(self, node: Node, filename: str, projectId: str, language: str, controlId=None, parent=None) -> None:
       self.id = uuid.uuid4().hex
       self.controlFlowEdges: list[ControlFlowEdge] = []
       self.dataFlowEdges: list[DataFlowEdge] = []
@@ -22,6 +22,7 @@ class IRNode:
       # metadata info
       self.filename = filename
       self.projectId = projectId
+      self.language = language
 
       # data flow props
       self.scope = None
@@ -120,6 +121,34 @@ class IRNode:
                 print(self.content.lower())
                 return True
         return False
+    
+    def isIdentifier(self) -> bool:
+        if self.language.lower() == "python":
+            return self.type == "identifier"
+        elif self.language.lower() == "javascript":
+            return self.type == "identifier"
+
+    def isPartOfAssignment(self) -> bool:
+        if self.language.lower() == "python":
+            return self.parent.type == "assignment"
+        elif self.language.lower() == "javascript":
+            return (self.parent.type == "assignment_expression" or self.parent.type == "variable_declarator")
+        
+    def isCallExpression(self) -> bool:
+        if self.language.lower() == "python":
+            return self.parent.parent.type == "call"
+        else:
+            return self.parent.parent.type == "call_expression"
+        
+    def isInLeftHandSide(self) -> bool:
+        return self.node.prev_sibling is None
+    
+    def isInRightHandSide(self) -> bool:
+        return self.node.prev_sibling is not None
+    
+    def isValueOfAnAssignment(self) -> bool:
+        return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier"
+
 
 # class to store all control flow related actions
 class ControlFlowEdge:
