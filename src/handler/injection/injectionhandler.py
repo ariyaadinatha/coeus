@@ -192,9 +192,8 @@ class InjectionHandler:
 
     def setRootLabel(self):
         query = '''
-            MATCH (n:Node)
-            WHERE n.type = "module"
-            SET n:Root
+            MATCH (root) WHERE NOT ()-[:AST_PARENT_TO]->(root)
+            SET root:Root
         '''
 
         try:
