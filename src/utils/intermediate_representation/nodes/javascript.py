@@ -13,4 +13,7 @@ class IRJavascriptNode(IRNode):
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS
     
     def isPartOfAssignment(self) -> bool:
-        return self.parent is not None and self.parent.type == "assignment"
+        if self.parent is not None:
+            if self.parent.type == "assignment_expression" or self.parent.type == "variable_declarator":
+                return True
+        return False

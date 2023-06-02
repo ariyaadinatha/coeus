@@ -1,7 +1,7 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.python import IRPythonNode
+from utils.intermediate_representation.nodes.javascript import IRJavascriptNode
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
@@ -29,7 +29,7 @@ class IRJavascriptConverter(IRConverter):
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRPythonNode(root, filename, projectId)
+        irRoot = IRJavascriptNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
@@ -39,7 +39,7 @@ class IRJavascriptConverter(IRConverter):
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPythonNode(node, filename, projectId, parent)
+            convertedNode = IRJavascriptNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -112,7 +112,7 @@ class IRJavascriptConverter(IRConverter):
             # TODO: handle for, while, try, catch, etc. control
             currCfgParent = None if currNode.type != "module" else currNode.id
             for child in currNode.astChildren:
-                if "statement" in child.type:
+                if "statement" in child.type or "declaration" in child.type:
                     statementOrder += 1
                     queue.append((child, statementOrder, currCfgParent))
                     currCfgParent = child.id
@@ -121,7 +121,7 @@ class IRJavascriptConverter(IRConverter):
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRPythonNode(root, filename, projectId)
+        irRoot = IRJavascriptNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -153,9 +153,9 @@ class IRJavascriptConverter(IRConverter):
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRJavascriptNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRJavascriptNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
