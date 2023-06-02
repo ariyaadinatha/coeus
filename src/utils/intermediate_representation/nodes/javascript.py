@@ -8,6 +8,9 @@ import uuid
 class IRJavascriptNode(IRNode):
     def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
         super().__init__(node, filename, projectId, controlId, parent)
+
+    def isCallExpression(self) -> bool:
+        return self.type == "call_expression"
         
     def isInsideIfElseBranch(self) -> bool:
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS

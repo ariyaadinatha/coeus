@@ -130,7 +130,11 @@ class IRNode(ABC):
         return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier"
     
     def isIdentifier(self) -> bool:
-        return self.type == "identifier"
+        return self.type == "identifier" or self.type == "variable_name"
+    
+    @abstractmethod
+    def isCallExpression(self) -> bool:
+        pass
     
     @abstractmethod
     def isPartOfAssignment(self) -> bool:
