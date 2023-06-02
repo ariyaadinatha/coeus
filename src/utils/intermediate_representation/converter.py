@@ -11,7 +11,7 @@ class IRConverter():
         self.sanitizers = sanitizers
 
     def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.dfsIterative(root, filename)
+        irRoot = self.createDataFlowTreeDFS(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
 
         return irRoot
@@ -117,148 +117,8 @@ class IRConverter():
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
-    
-    def addDataFlowEdgesToTree(self, root: IRNode):
-        queue = [(root, root.scope)]
-        # symbol table to store variables as key and their node ids as value
-        # key: (identifier, scope)
-        # value: [ids]
-        # scope to differentiate duplicate identifiers
-        symbolTable = {}
-        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
 
-        while len(queue) != 0:
-            currNode, scope = queue.pop(0)
-
-            # set data flow properties
-            currNode.isSource = currNode.checkIsSource(self.sources)
-            currNode.isTainted = currNode.checkIsSource(self.sources)
-            currNode.isSink = currNode.checkIsSink(self.sinks)
-            currNode.isSanitizer = currNode.checkIsSanitizer(self.sanitizers)
-            currNode.scope = scope
-
-            # add new scope for children if this node is class, function, module
-            if currNode.type in scopeIdentifiers:
-                for child in currNode.node.children:
-                    # get the class, function, or module name
-                    if child.type == "identifier":
-                        # store name to pass down to the children
-                        currentIdentifier = child.text.decode("utf-8")
-                scope += f"\{currentIdentifier}"
-            
-            # handle variable assignment and reassignment
-            if currNode.type == "identifier" and currNode.parent.type == "assignment":
-                key = (currNode.content, currNode.scope)
-                if currNode.node.prev_sibling is None:
-                    # reassignment of an existing variable
-                    if key in symbolTable:
-                        dataType = "reassignment"
-                        dfgParentId = symbolTable[key][-1]
-                        currNode.addDataFlowEdge(dataType, dfgParentId)
-                        # register node id to symbol table
-                        symbolTable[key].append(currNode.id)
-                    # assignment of a new variable
-                    else:
-                        dataType = "assignment"
-                        currNode.addDataFlowEdge(dataType, None)
-                        symbolTable[key] = [currNode.id]
-                else:
-                    # reference of an existing variable as value of another variable
-                    dataType = "referenced"
-                    if key in symbolTable:
-                        dfgParentId = symbolTable[key][-1]
-                        currNode.addDataFlowEdge(dataType, dfgParentId)
-            # handle value of an assignment but is not identifier
-            if currNode.parent is not None and currNode.parent.type == "assignment":
-                if currNode.node.prev_sibling is not None and currNode.node.prev_sibling.type == "=" and currNode.node.prev_sibling.prev_sibling.type == "identifier":
-                    identifier = currNode.node.prev_sibling.prev_sibling.text.decode("UTF-8")
-                    key = (identifier, currNode.scope)
-                    if key in symbolTable:
-                        dfgParentId = symbolTable[key][-1]
-                        dataType = "value"
-                        currNode.addDataFlowEdge(dataType, dfgParentId)
-
-            # handle variable called as argument in function
-            if currNode.type == "identifier" and currNode.parent.type != "assignment":
-                key = (currNode.content, currNode.scope)
-                if key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
-                    dataType = "called"
-                    currNode.addDataFlowEdge(dataType, dfgParentId)
-                    # handle variable in argument list in function
-                    if currNode.parent.parent.type == "call":
-                        currNode.parent.parent.addDataFlowEdge(dataType, currNode.id)
-            
-            for child in currNode.astChildren:
-                queue.append((child, scope))
-    
-    def createDataFlowTree(self, root: Node, filename: str) -> IRNode:
-        # iterate through root until the end using BFS
-        # create new AST node for each tree-sitter node
-
-        projectId = uuid.uuid4().hex
-        irRoot = None
-        symbolTable = {}
-
-        queue: list[tuple(Node, Union[IRNode, None], str)] = [(root, None, filename)]
-
-        while len(queue) != 0:
-            node, parent, scope = queue.pop(0)
-
-            if self.isIgnoredType(node):
-                continue
-
-            convertedNode = IRNode(node, filename, projectId, parent)
-            convertedNode.setDataFlowProps(scope, self.sources, self.sanitizers, self.sinks)
-
-            scope = self.determineScopeNode(convertedNode, scope)
-            self.setNodeDataFlowEdges(convertedNode, symbolTable)
-
-            # add current node as child to parent node
-            # else set root node
-            if parent is not None:
-                parent.astChildren.append(convertedNode)
-            else:
-                irRoot = convertedNode
-
-            for child in node.children:
-                queue.append((child, convertedNode, scope))
-
-        return irRoot
-    
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
-        # to keep track of all visited nodes
-        visited = set()
-        # to keep track of order of visited nodes
-        visitedList = []
-        # to keep track of variables
-        symbolTable = {}
-        # to keep track of scopes
-        scopeDatabase = set()
-
-        projectId = uuid.uuid4().hex
-        irRoot = IRNode(root, filename, projectId)
-
-        self.dfs(irRoot, visited, visitedList, scopeDatabase, symbolTable, filename)
-
-        return irRoot
-    
-    def dfs(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, scope: str):
-        visited.add(node.id)
-        visitedList.append(node.id)
-        scopeDatabase.add(scope)
-
-        node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
-        scope = self.determineScopeNode(node, scope)
-        self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
-
-        for child in node.node.children:
-            if child.id not in visited and not self.isIgnoredType(child):
-                irChild = IRNode(child, node.filename, node.projectId, uuid.uuid4().hex, node)
-                node.astChildren.append(irChild)
-                self.dfs(irChild, visited, visitedList, scopeDatabase, symbolTable, scope)
-
-    def dfsIterative(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
         irRoot = IRNode(root, filename, projectId)
 
