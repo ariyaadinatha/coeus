@@ -1,13 +1,12 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.python import IRPythonNode
+from utils.intermediate_representation.nodes.php import IRPhpNode
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
-from abc import ABC, abstractmethod
 
-class IRPythonConverter(IRConverter):
+class IRPhpConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
@@ -29,7 +28,7 @@ class IRPythonConverter(IRConverter):
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRPythonNode(root, filename, projectId)
+        irRoot = IRPhpNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
@@ -39,7 +38,7 @@ class IRPythonConverter(IRConverter):
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPythonNode(node, filename, projectId, parent)
+            convertedNode = IRPhpNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -91,7 +90,7 @@ class IRPythonConverter(IRConverter):
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRPythonNode(root, filename, projectId)
+        irRoot = IRPhpNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -123,9 +122,9 @@ class IRPythonConverter(IRConverter):
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRPhpNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRPhpNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
@@ -197,7 +196,7 @@ class IRPythonConverter(IRConverter):
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
-                if child.type == "identifier":
+                if child.type == "variable_name":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
         elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
