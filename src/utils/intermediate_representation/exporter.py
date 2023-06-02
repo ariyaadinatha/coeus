@@ -1,6 +1,6 @@
 from pathlib import Path
 import csv
-from utils.intermediate_representation.nodes import IRNode
+from utils.intermediate_representation.nodes.nodes import IRNode
 
 class IRExporter():
     def __init__(self) -> None:

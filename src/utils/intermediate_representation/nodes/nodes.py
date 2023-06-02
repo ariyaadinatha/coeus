@@ -2,9 +2,10 @@ from tree_sitter import Node
 import uuid
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
 from typing import Union
+from abc import ABC, abstractmethod
 
 # all node from tree-sitter parse result
-class IRNode:
+class IRNode(ABC):
     def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
       self.id = uuid.uuid4().hex
       self.controlFlowEdges: list[ControlFlowEdge] = []
@@ -38,7 +39,7 @@ class IRNode:
       # control flow props
 
       # if root
-      if type(parent) is IRNode:
+      if isinstance(parent, IRNode):
         self.parent = parent
         self.parentId = parent.id
       else:
@@ -67,8 +68,9 @@ class IRNode:
       print(f'{indent}sanitizer {self.isSanitizer}')
 
       # data flow info
-      for data in self.dataFlowEdges:
-          print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
+    #   for data in self.dataFlowEdges:
+    #       print(f'{indent}[data] {data.dfgParentId} - {data.dataType}')
+    
 
       for child in self.astChildren:
           child.printChildren(depth + 2)
@@ -80,9 +82,6 @@ class IRNode:
         return True
       
       return False
-    
-    def isInsideIfElseBranch(self) -> bool:
-        return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
     
     def setDataFlowProps(self, scope, sources, sinks, sanitizers):
       self.isSource = self.checkIsSource(sources)
@@ -120,7 +119,27 @@ class IRNode:
                 print(self.content.lower())
                 return True
         return False
+    
+    def isInLeftHandSide(self) -> bool:
+        return self.node.prev_sibling is None
+    
+    def isInRightHandSide(self) -> bool:
+        return self.node.prev_sibling is not None
+    
+    def isValueOfAssignment(self) -> bool:
+        return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier"
+    
+    def isIdentifier(self) -> bool:
+        return self.type == "identifier"
+    
+    @abstractmethod
+    def isPartOfAssignment(self) -> bool:
+        pass
 
+    @abstractmethod
+    def isInsideIfElseBranch(self) -> bool:
+        pass
+    
 # class to store all control flow related actions
 class ControlFlowEdge:
     def __init__(self, statementOrder: int, cfgParentId: str) -> None:

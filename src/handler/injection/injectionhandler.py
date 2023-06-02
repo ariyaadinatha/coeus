@@ -1,6 +1,7 @@
 from utils.neo4j import Neo4jConnection
-from utils.intermediate_representation.converter import IRConverter
-from utils.intermediate_representation.nodes import IRNode, DataFlowEdge, ControlFlowEdge
+from utils.intermediate_representation.converter.converter import IRConverter
+from utils.intermediate_representation.converter.python import IRPythonConverter
+from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
@@ -19,7 +20,7 @@ class InjectionHandler:
         self.projectPath = projectPath
         self.language = language
         self.loadSourceSinkAndSanitizer()
-        self.converter = IRConverter(self.sources, self.sinks, self.sanitizers)
+        self.converter = IRPythonConverter(self.sources, self.sinks, self.sanitizers)
 
     def loadSourceSinkAndSanitizer(self):
         with open(f"./rules/injection/source-{self.language}-wordlist.json", 'r') as file:
@@ -29,7 +30,7 @@ class InjectionHandler:
         with open(f"./rules/injection/sanitizer-{self.language}-wordlist.json", 'r') as file:
             self.sanitizers = json.load(file)["wordlist"]
 
-    def buildDataFlowTree(self, dfs: bool):
+    def buildDataFlowTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -46,17 +47,14 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            if dfs:
-                astRoot = self.converter.dfsIterative(root, codePath)
-            else:
-                astRoot = self.converter.createDataFlowTree(root, codePath)
+            astRoot = self.converter.createDataFlowTreeDFS(root, codePath)
             self.insertTreeToNeo4j(astRoot)
-            self.insertDataFlowRelationshipsToNeo4j()
+            self.insertDataFlowRelationshipsToNeo4j(astRoot)
             self.setLabels()
 
             astRoot.printChildren()
 
-    def buildCompleteTree(self, dfs: bool):
+    def buildCompleteTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -73,10 +71,7 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            if dfs:
-                astRoot = self.converter.createCompleteTreeDFS(root, codePath)
-            else:
-                astRoot = self.converter.createCompleteTree(root, codePath)
+            astRoot = self.converter.createCompleteTreeDFS(root, codePath)
             self.insertAllNodesToNeo4j(astRoot)
             self.insertAllRelationshipsToNeo4j(astRoot)
             self.setLabels()
@@ -87,7 +82,7 @@ class InjectionHandler:
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildDataFlowTree(dfs=True)
+            self.buildDataFlowTree()
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()
@@ -176,7 +171,7 @@ class InjectionHandler:
 
     def createUniqueConstraint(self):
         query = '''
-            CREATE CONSTRAINT ON (n:Node) ASSERT n.id IS UNIQUE
+            CREATE CONSTRAINT FOR (n:Node) REQUIRE n.id IS UNIQUE
         '''
 
         try:

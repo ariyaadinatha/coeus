@@ -1,7 +1,7 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.secret.secrethandler import SecretDetection
 from handler.injection.injectionhandler import InjectionHandler
-from utils.intermediate_representation.converter import IRConverter
+from utils.intermediate_representation.converter.converter import IRConverter
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from utils.codehandler import FileHandler
 from utils.codehandler import CodeProcessor
@@ -130,36 +130,41 @@ def injection(path, language, output, mode):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
-    try:
-        handler = InjectionHandler("./testcase/injection/command", language)
-        # handler = InjectionHandler("../../flask-simple-app", language)
-        result = handler.taintAnalysis()
-        vulnHandler = VulnerableHandler()
 
-        for res in result:
-                vuln = Vulnerable(
-                    "Injection vulnerability", 
-                    "application is vulnerable to unsafe input injection", 
-                    "A03:2021", 
-                    "High", 
-                    None, 
-                    f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
-                    f"{res['SourceFile']} and {res['SinkFile']}", 
-                    f"{res['SourceStart']} and {res['SinkStart']}", 
-                    datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-                    )
-                print(vuln)
-                vulnHandler.addVulnerable(vuln)
+    handler = InjectionHandler("./testcase/graph/current", language)
+    handler.deleteAllNodesAndRelationshipsByAPOC()
+    handler.buildCompleteTree()
+
+    # try:
+    #     handler = InjectionHandler("./testcase/injection/command", language)
+    #     # handler = InjectionHandler("../../flask-simple-app", language)
+    #     result = handler.taintAnalysis()
+    #     vulnHandler = VulnerableHandler()
+
+    #     for res in result:
+    #             vuln = Vulnerable(
+    #                 "Injection vulnerability", 
+    #                 "application is vulnerable to unsafe input injection", 
+    #                 "A03:2021", 
+    #                 "High", 
+    #                 None, 
+    #                 f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
+    #                 f"{res['SourceFile']} and {res['SinkFile']}", 
+    #                 f"{res['SourceStart']} and {res['SinkStart']}", 
+    #                 datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+    #                 )
+    #             print(vuln)
+    #             vulnHandler.addVulnerable(vuln)
         
-        fileNameOutput = path.split("/")[-1]
-        vulnHandler.dumpVulnerabilities("result")
-    except Exception as e:
-        print("Failed to do taint analysis:", e)
+    #     fileNameOutput = path.split("/")[-1]
+    #     vulnHandler.dumpVulnerabilities("result")
+    # except Exception as e:
+    #     print("Failed to do taint analysis:", e)
 
-    executionTime = time.time() - startTime
-    print(f"Execution time: {executionTime}")
-    logger.info(f"Execution time: {executionTime}")
-    logger.info("=============== Finished injection detection ===============")
+    # executionTime = time.time() - startTime
+    # print(f"Execution time: {executionTime}")
+    # logger.info(f"Execution time: {executionTime}")
+    # logger.info("=============== Finished injection detection ===============")
 
 cli.add_command(injection)
 
