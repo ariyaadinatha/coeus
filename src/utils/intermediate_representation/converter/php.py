@@ -278,14 +278,6 @@ class IRPhpConverter(IRConverter):
                     # handle variable in argument list in function
                     if node.parent.parent.isCallExpression():
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
-
-    def isIgnoredType(self, node: Node) -> bool:
-        ignoredList = ("\"", ".", ",", "=", "==", "(", ")", "[", "]", ":", "{", "}", "comment")
-
-        if node.type in ignoredList:
-            return True
-        
-        return False
     
     def isControlScope(self, scope: str) -> bool:
         return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS

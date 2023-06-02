@@ -184,7 +184,7 @@ class IRConverter(ABC):
         pass
     
     def isIgnoredType(self, node: Node) -> bool:
-        ignoredList = ("\"", ".", ",", "=", "==", "(", ")", "[", "]", ":", "{", "}", "comment")
+        ignoredList = ("\"", ".", ",", "=", "==", "(", ")", "[", "]", ":", ";", "?>", "$", "{", "}", "comment")
 
         if node.type in ignoredList:
             return True

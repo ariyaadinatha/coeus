@@ -127,7 +127,7 @@ class IRNode(ABC):
         return self.node.prev_sibling is not None
     
     def isValueOfAssignment(self) -> bool:
-        return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier"
+        return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name")
     
     def isIdentifier(self) -> bool:
         return self.type == "identifier" or self.type == "variable_name"
