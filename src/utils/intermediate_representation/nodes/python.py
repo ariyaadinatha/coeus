@@ -6,6 +6,9 @@ import uuid
 
 # all node from tree-sitter parse result
 class IRPythonNode(IRNode):
+    def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
+        super().__init__(self, node, filename, projectId, controlId, parent)
+        
     def isInsideIfElseBranch(self) -> bool:
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
     
