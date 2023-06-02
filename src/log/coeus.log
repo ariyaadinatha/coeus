@@ -38,3 +38,61 @@
 [2023-05-21 05:05:31,643-INFO-scanDependencies-127]: Vulnerabilities found: 36
 [2023-05-21 05:05:31,650-INFO-dependency-47]: Execution time: 4.090170383453369
 [2023-05-21 05:05:31,651-INFO-dependency-48]: =============== Finished dependency detection ===============
+[2023-06-02 15:56:46,329-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 15:56:48,583-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 15:56:48,724-INFO-injection-161]: Execution time: 2.394669771194458
+[2023-06-02 15:56:48,724-INFO-injection-162]: =============== Finished injection detection ===============
+[2023-06-02 15:56:48,742-ERROR-_set_defunct-756]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-06-02 15:57:37,226-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 15:57:39,600-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 15:57:39,847-INFO-injection-161]: Execution time: 2.6209895610809326
+[2023-06-02 15:57:39,847-INFO-injection-162]: =============== Finished injection detection ===============
+[2023-06-02 15:57:39,867-ERROR-_set_defunct-756]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-06-02 15:59:08,560-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 15:59:08,560-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:03:54,312-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:04:12,648-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:04:20,412-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:04:20,412-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:04:59,247-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:05:01,381-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:05:02,299-ERROR-_set_defunct-756]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-06-02 16:14:21,952-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:14:24,042-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:19:38,599-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:19:59,986-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:20:02,098-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:21:10,469-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:21:12,526-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:22:04,248-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:22:06,305-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:22:42,772-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:22:44,845-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:22:58,708-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:23:00,766-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:23:17,096-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:23:19,159-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:25:14,902-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:25:17,004-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:43:57,759-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:43:59,832-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:45:09,376-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:45:11,435-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 16:48:15,235-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 16:48:17,307-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:06:05,445-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:06:07,523-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:06:33,083-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:06:35,164-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:12:34,006-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:12:36,140-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:15:35,563-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:15:37,644-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:16:20,791-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:16:22,850-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:26:00,291-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:26:02,350-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:26:11,553-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:26:13,647-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-06-02 17:38:19,843-INFO-injection-130]: =============== Starting injection detection ===============
+[2023-06-02 17:38:21,903-INFO-getAllFilesFromRepository-45]: Searching all relevant files

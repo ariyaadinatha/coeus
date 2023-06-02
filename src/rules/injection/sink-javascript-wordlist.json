@@ -1,0 +1,17 @@
+{
+  "type": "wordlist",
+  "wordlist": [
+      "res.send",
+      "res.write",
+      "vm.runInContext",
+      "vm.runInNewContext",
+      "vm.compileFunction",
+      "new vm.Script",
+      "new vm.SourceTextModule",
+      "eval",
+      "exec",
+      "spawn",
+      "connection.query",
+      "innerHTML"
+  ]
+}
