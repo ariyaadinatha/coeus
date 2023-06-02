@@ -1,0 +1,17 @@
+{
+  "type": "wordlist",
+  "wordlist": [
+    "req.body",
+    "req.cookies",
+    "req.params",
+    "req.path",
+    "req.query",
+    "request.body",
+    "request.cookies",
+    "request.params",
+    "request.path",
+    "request.query",
+    "res.headers",
+    "prompt"
+  ]
+}
