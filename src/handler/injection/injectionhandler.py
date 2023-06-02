@@ -47,7 +47,7 @@ class InjectionHandler:
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
             if dfs:
-                astRoot = self.converter.dfsIterative(root, codePath)
+                astRoot = self.converter.createDataFlowTreeDFS(root, codePath)
             else:
                 astRoot = self.converter.createDataFlowTree(root, codePath)
             self.insertTreeToNeo4j(astRoot)
@@ -56,7 +56,7 @@ class InjectionHandler:
 
             astRoot.printChildren()
 
-    def buildCompleteTree(self, dfs: bool):
+    def buildCompleteTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
@@ -73,10 +73,7 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            if dfs:
-                astRoot = self.converter.createCompleteTreeDFS(root, codePath)
-            else:
-                astRoot = self.converter.createCompleteTree(root, codePath)
+            astRoot = self.converter.createCompleteTreeDFS(root, codePath)
             self.insertAllNodesToNeo4j(astRoot)
             self.insertAllRelationshipsToNeo4j(astRoot)
             self.setLabels()
