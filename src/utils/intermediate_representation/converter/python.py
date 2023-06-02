@@ -1,14 +1,15 @@
 from tree_sitter import Node
 from typing import Union, Callable
-from utils.intermediate_representation.nodes import IRNode
+from utils.intermediate_representation.nodes.nodes import IRNode
+from utils.intermediate_representation.nodes.python import IRPythonNode
+from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
+from abc import ABC, abstractmethod
 
-class IRConverter():
+class IRPythonConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
-        self.sources = sources
-        self.sinks = sinks
-        self.sanitizers = sanitizers
+        IRConverter.__init__(self, sources, sinks, sanitizers)
 
     def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createDataFlowTreeDFS(root, filename)
@@ -28,7 +29,7 @@ class IRConverter():
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRNode(root, filename, projectId)
+        irRoot = IRPythonNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
@@ -38,7 +39,7 @@ class IRConverter():
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRNode(node, filename, projectId, parent)
+            convertedNode = IRPythonNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -120,7 +121,7 @@ class IRConverter():
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRNode(root, filename, projectId)
+        irRoot = IRPythonNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -152,9 +153,9 @@ class IRConverter():
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
@@ -162,9 +163,10 @@ class IRConverter():
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        if node.type == "identifier" and node.parent.type == "assignment":
+        if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
-            if node.node.prev_sibling is None:
+            # check node in left hand side
+            if node.isInLeftHandSide():
                 # reassignment of an existing variable
                 if key in symbolTable:
                     dataType = "reassignment"
@@ -190,8 +192,8 @@ class IRConverter():
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment but is not identifier
-        if node.parent is not None and node.parent.type == "assignment":
-            if node.node.prev_sibling is not None and node.node.prev_sibling.type == "=" and node.node.prev_sibling.prev_sibling.type == "identifier":
+        if node.isInRightHandSide() and node.isPartOfAssignment():
+            if node.isValueOfAssignment():
                 identifier = node.node.prev_sibling.prev_sibling.text.decode("UTF-8")
                 key = (identifier, node.scope)
                 if key in symbolTable:
@@ -200,7 +202,7 @@ class IRConverter():
                     node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.type == "identifier" and node.parent.type != "assignment":
+        if node.isIdentifier() and not node.isPartOfAssignment():
             key = (node.content, node.scope)
             dataType = "called"
             if key in symbolTable:
@@ -228,7 +230,7 @@ class IRConverter():
                 if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
-        elif node.type in controlScopeIdentifiers and node.parent.type == "if_statement":
+        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
                 if node.controlId != None:
                     currentIdentifier = f"{node.type}{node.controlId}"
                 else:

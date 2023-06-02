@@ -1,0 +1,13 @@
+from tree_sitter import Node
+from utils.intermediate_representation.nodes.nodes import IRNode
+from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
+from typing import Union
+import uuid
+
+# all node from tree-sitter parse result
+class IRPythonNode(IRNode):
+    def isInsideIfElseBranch(self) -> bool:
+        return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
+    
+    def isPartOfAssignment(self) -> bool:
+        return self.parent is not None and self.parent.type == "assignment"

@@ -1,6 +1,7 @@
 from utils.neo4j import Neo4jConnection
-from utils.intermediate_representation.converter import IRConverter
-from utils.intermediate_representation.nodes import IRNode, DataFlowEdge, ControlFlowEdge
+from utils.intermediate_representation.converter.converter import IRConverter
+from utils.intermediate_representation.converter.python import IRPythonConverter
+from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
@@ -19,7 +20,7 @@ class InjectionHandler:
         self.projectPath = projectPath
         self.language = language
         self.loadSourceSinkAndSanitizer()
-        self.converter = IRConverter(self.sources, self.sinks, self.sanitizers)
+        self.converter = IRPythonConverter(self.sources, self.sinks, self.sanitizers)
 
     def loadSourceSinkAndSanitizer(self):
         with open(f"./rules/injection/source-{self.language}-wordlist.json", 'r') as file:
