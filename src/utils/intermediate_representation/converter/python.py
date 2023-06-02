@@ -1,15 +1,13 @@
 from tree_sitter import Node
 from typing import Union, Callable
-from utils.intermediate_representation.nodes import IRNode
+from utils.intermediate_representation.nodes.nodes import IRNode
+from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS, JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS
 import uuid
 
-class IRConverter():
+class PythonConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers, language) -> None:
-        self.sources = sources
-        self.sinks = sinks
-        self.sanitizers = sanitizers
-        self.language = language
+        IRConverter.__init__(self, sources, sinks, sanitizers, language)
 
     def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createDataFlowTreeDFS(root, filename)
@@ -145,9 +143,6 @@ class IRConverter():
             
             for child in node.node.children:
                 if not self.isIgnoredType(child):
-                    # TODO: handle javascript if else structure
-                    if self.language == "javascript" and node.type == "if_statement" and node.parent.type == "else_clause":
-                        irChild = IRNode(child, node.filename, node.projectId, node.language, controlId=node.parent.controlId, parent=node)
                     if node.type == "if_statement":
                         irChild = IRNode(child, node.filename, node.projectId, node.language, controlId=controlId, parent=node)
                     else:
@@ -185,8 +180,7 @@ class IRConverter():
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.hasControlScope():
                     self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
-                    if self.language == "python" or self.language == "javascript":
-                        self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+                    self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 

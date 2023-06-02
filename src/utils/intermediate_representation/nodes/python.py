@@ -1,10 +1,11 @@
-from utils.intermediate_representation.exporter import IRNode
+from utils.intermediate_representation.converter.converter import IRNode
+from tree_sitter import Node
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_ASSIGNMENT_IDENTIFIER
 
 class IRPython(IRNode):
-    def __init__(self):
-        pass
-    
+    def __init__(self, node: Node, filename: str, projectId: str, language: str, controlId=None, parent=None) -> None:
+        IRNode.__init__(self, node, filename, projectId, language, controlId, parent)
+
     def isIdentifier(self) -> bool:
         return self.type == "identifier"
     
