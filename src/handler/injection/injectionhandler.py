@@ -2,6 +2,7 @@ from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.intermediate_representation.converter.python import IRPythonConverter
 from utils.intermediate_representation.converter.javascript import IRJavascriptConverter
+from utils.intermediate_representation.converter.php import IRPhpConverter
 from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
@@ -28,6 +29,8 @@ class InjectionHandler:
             return IRPythonConverter(self.sources, self.sinks, self.sanitizers)
         elif self.language == "javascript":
             return IRJavascriptConverter(self.sources, self.sinks, self.sanitizers)
+        elif self.language == "php":
+            return IRPhpConverter(self.sources, self.sinks, self.sanitizers)
 
     def loadSourceSinkAndSanitizer(self):
         with open(f"./rules/injection/source-{self.language}-wordlist.json", 'r') as file:
