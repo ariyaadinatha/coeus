@@ -209,8 +209,11 @@ class IRJavascriptConverter(IRConverter):
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
                 # handle variable in argument list in function
-                if node.parent.parent.type == "call":
-                    node.parent.parent.addDataFlowEdge(dataType, node.id)
+                if node.parent.parent.isCallExpression() or node.parent.parent.parent.isCallExpression():
+                    nodeCall: IRNode = node.parent.parent if node.parent.parent.isCallExpression() else node.parent.parent.parent
+                    for child in nodeCall.astChildren:
+                        if child.isIdentifier():
+                            child.addDataFlowEdge(dataType, node.id)
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, symbolTable)
                 self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
