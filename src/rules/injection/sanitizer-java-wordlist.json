@@ -1,0 +1,24 @@
+{
+  "type": "wordlist",
+  "wordlist": [
+    "escapeEcmaScript",
+    "escapeHtml3",
+    "escapeHtml4",
+    "escapeXml",
+    "escapeXml10",
+    "escapeXml11",
+    "encodeForCSS",
+    "encodeForHTML",
+    "encodeForHTMLAttribute",
+    "encodeForJavaScript",
+    "encodeForVBScript",
+    "encodeForSQL",
+    "encodeForOS",
+    "encodeForLDAP",
+    "encodeForDN",
+    "encodeForXPath",
+    "encodeForXML",
+    "encodeForXMLAttribute",
+    "encodeForURL"
+  ]
+}

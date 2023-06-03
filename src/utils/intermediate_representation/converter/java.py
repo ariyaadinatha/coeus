@@ -1,12 +1,13 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.php import IRPhpNode
+from utils.intermediate_representation.nodes.java import IRJavaNode
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
+from abc import ABC, abstractmethod
 
-class IRPhpConverter(IRConverter):
+class IRJavaConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
@@ -28,7 +29,7 @@ class IRPhpConverter(IRConverter):
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRJavaNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
@@ -38,7 +39,7 @@ class IRPhpConverter(IRConverter):
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPhpNode(node, filename, projectId, parent)
+            convertedNode = IRJavaNode(node, filename, projectId, parent)
 
             # add current node as child to parent node
             # else set root node
@@ -51,7 +52,7 @@ class IRPhpConverter(IRConverter):
                 queue.append((child, convertedNode))
 
         return irRoot
-    
+
     def addControlFlowEdgesToTree(self, root: IRNode):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
@@ -81,7 +82,7 @@ class IRPhpConverter(IRConverter):
             # TODO: handle for, while, try, catch, etc. control
             currCfgParent = None if currNode.type != "module" else currNode.id
             for child in currNode.astChildren:
-                if "statement" in child.type:
+                if "statement" in child.type or "declaration" in child.type:
                     statementOrder += 1
                     queue.append((child, statementOrder, currCfgParent))
                     currCfgParent = child.id
@@ -90,7 +91,7 @@ class IRPhpConverter(IRConverter):
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRJavaNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -122,9 +123,9 @@ class IRPhpConverter(IRConverter):
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRPhpNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRJavaNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRPhpNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRJavaNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
@@ -178,6 +179,8 @@ class IRPhpConverter(IRConverter):
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
                 # handle variable in argument list in function
+                # when arguments (identifier type) is child of argument_list and child of child of call expression
+                # handle when arguments is child of child of child of call expression
                 if node.parent.parent.isCallExpression() or node.parent.parent.parent.isCallExpression():
                     nodeCall: IRNode = node.parent.parent if node.parent.parent.isCallExpression() else node.parent.parent.parent
                     for child in nodeCall.astChildren:
@@ -199,7 +202,7 @@ class IRPhpConverter(IRConverter):
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
-                if child.type == "variable_name":
+                if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
         elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
@@ -240,7 +243,7 @@ class IRPhpConverter(IRConverter):
                         dfgParentId = symbolTable[controlKey][-1]
                         node.addDataFlowEdge(dataType, dfgParentId)
                         # handle variable in argument list in function
-                        if node.parent.parent.isCallExpression():
+                        if node.parent.parent.type == "call":
                             node.parent.parent.addDataFlowEdge(dataType, node.id)
 
     # only for languages that don't have scopes in if else blocks
@@ -279,7 +282,7 @@ class IRPhpConverter(IRConverter):
                     dfgParentId = symbolTable[controlKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
-                    if node.parent.parent.isCallExpression():
+                    if node.parent.parent.type == "call":
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
     
     def isControlScope(self, scope: str) -> bool:
