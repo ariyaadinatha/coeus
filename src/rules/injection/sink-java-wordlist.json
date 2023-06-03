@@ -1,0 +1,28 @@
+{
+  "type": "wordlist",
+  "wordlist": [
+    "prepareCall",
+    "prepareCall",
+    "prepareCall",
+    "prepareStatement",
+    "addBatch",
+    "execute",
+    "executeQuery",
+    "executeUpdate",
+    "exec",
+    "loadLibrary",
+    "load",
+    "compile",
+    "evaluate",
+    "getValue",
+    "query",
+    "queryResource",
+    "connect",
+    "print",
+    "println",
+    "write",
+    "sendRedirect",
+    "getRequestDispatcher",
+    "setValue"
+  ]
+}
