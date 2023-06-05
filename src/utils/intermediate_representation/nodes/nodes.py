@@ -87,6 +87,7 @@ class IRNode(ABC):
       self.isSource = self.checkIsSource(sources)
       self.isSink = self.checkIsSink(sinks)
       self.isSanitizer = self.checkIsSanitizer(sanitizers)
+      self.isTainted = self.isSource
       self.scope = scope
     
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
@@ -95,7 +96,8 @@ class IRNode(ABC):
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
         edge = DataFlowEdge(dataType, dfgParentId)
-        self.dataFlowEdges.append(edge)
+        if edge not in self.dataFlowEdges and dfgParentId != self.id:
+            self.dataFlowEdges.append(edge)
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
@@ -115,8 +117,6 @@ class IRNode(ABC):
         if self.parent == None: return False
         for sanitizer in sanitizers:
             if sanitizer in self.content.lower():
-                print(sanitizer)
-                print(self.content.lower())
                 return True
         return False
     

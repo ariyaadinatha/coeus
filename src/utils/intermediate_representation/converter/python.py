@@ -184,11 +184,13 @@ class IRPythonConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
+            nodeCall = node.getCallExpression()
+            nodeCall.addDataFlowEdge(dataType, node.id)
+
             if key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
-                nodeCall = node.getCallExpression()
-                nodeCall.addDataFlowEdge(dataType, node.id)
+
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)

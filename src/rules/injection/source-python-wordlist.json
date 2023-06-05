@@ -2,7 +2,6 @@
   "type": "wordlist",
   "wordlist": [
       "input",
-      "request",
       "request.args.get",
       "request.cookies.get",
       "request.form.get",

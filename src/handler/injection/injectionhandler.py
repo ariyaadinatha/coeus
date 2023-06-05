@@ -379,6 +379,8 @@ class InjectionHandler:
         query = '''
             MATCH (source:Node {is_source: True})-[:DATA_FLOW_TO*]->(:Node {is_tainted: True})-[:DATA_FLOW_TO]->(sink:Node {is_sink: True})
             RETURN 
+            source.id as SourceId,
+            sink.id as SinkId,
             source.content as SourceContent, 
             sink.content as SinkContent, 
             source.filename as SourceFile, 

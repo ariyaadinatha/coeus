@@ -20,6 +20,7 @@
       "os.spawn",
       "os.exec",
       "asyncio.subprocess.create_subprocess_exec",
-      ".objects.raw"
+      ".objects.raw",
+      "render"
   ]
 }

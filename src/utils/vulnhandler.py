@@ -1,5 +1,5 @@
 from utils.log import logger
-from datetime import date
+from datetime import datetime
 import json
 import os
 
@@ -82,7 +82,7 @@ class VulnerableHandler:
         if not os.path.exists("reports"):
             os.makedirs("reports")
 
-        finalName = f"{str(date.today())}-{filename}"
+        finalName = f"{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}-{filename}"
         with open(f"reports/{finalName}.json", "w") as fileRes:
             fileRes.write(json.dumps(vulnerableList, indent=4))
 
