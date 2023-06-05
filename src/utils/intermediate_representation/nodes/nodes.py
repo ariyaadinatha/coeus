@@ -127,7 +127,13 @@ class IRNode(ABC):
         return self.node.prev_sibling is not None
     
     def isValueOfAssignment(self) -> bool:
-        return self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name")
+        # a = x
+        if self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name"):
+            return True
+        # a = "test" + x
+        if self.isPartOfAssignment() and not self.isInLeftHandSide():
+            return True
+        return False
     
     def isIdentifier(self) -> bool:
         return self.type == "identifier" or self.type == "variable_name"
@@ -138,6 +144,10 @@ class IRNode(ABC):
     
     @abstractmethod
     def isPartOfAssignment(self) -> bool:
+        pass
+
+    @abstractmethod
+    def isPartOfCallExpression(self) -> bool:
         pass
 
     @abstractmethod

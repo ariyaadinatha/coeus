@@ -95,7 +95,7 @@ class InjectionHandler:
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildDataFlowTree()
+            self.buildCompleteTree()
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()

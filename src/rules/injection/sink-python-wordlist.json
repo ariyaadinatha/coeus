@@ -5,7 +5,6 @@
       "cursor.execute",
       "eval",
       "exec",
-      "input",
       "render_template_string",
       "render_template",
       "Markup",
@@ -20,6 +19,7 @@
       "os.popen4",
       "os.spawn",
       "os.exec",
-      "asyncio.subprocess.create_subprocess_exec"
+      "asyncio.subprocess.create_subprocess_exec",
+      ".objects.raw"
   ]
 }
