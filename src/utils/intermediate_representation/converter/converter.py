@@ -183,6 +183,10 @@ class IRConverter(ABC):
     def connectDataFlowEdgeToInsideFromInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         pass
     
+    @abstractmethod
+    def isControlScope(self, scope: str) -> bool:
+        pass
+
     def isIgnoredType(self, node: Node) -> bool:
         ignoredList = ("\"", ".", ",", "=", "==", "(", ")", "[", "]", ":", ";", "?>", "$", "{", "}", "comment")
 
@@ -191,8 +195,15 @@ class IRConverter(ABC):
         
         return False
     
-    def isControlScope(self, scope: str) -> bool:
-        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
-    
     def getControlId(self, scope: str) -> str:
         return scope[-32:] if self.isControlScope(scope) else ""
+    
+    def getLastScope(self, scope: str) -> str:
+        return scope.rpartition("\\")[2]
+    
+    def getDataScope(self, scope: str) -> str:
+        dataScope = scope
+        while self.isControlScope(dataScope):
+            dataScope, _, _ = dataScope.rpartition("\\")
+            
+        return dataScope

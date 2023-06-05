@@ -95,7 +95,7 @@ class InjectionHandler:
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildDataFlowTree()
+            self.buildCompleteTree()
             self.propagateTaint()
             self.appySanitizers()
             result = self.getSourceAndSinkInjectionVulnerability()
@@ -379,6 +379,8 @@ class InjectionHandler:
         query = '''
             MATCH (source:Node {is_source: True})-[:DATA_FLOW_TO*]->(:Node {is_tainted: True})-[:DATA_FLOW_TO]->(sink:Node {is_sink: True})
             RETURN 
+            source.id as SourceId,
+            sink.id as SinkId,
             source.content as SourceContent, 
             sink.content as SinkContent, 
             source.filename as SourceFile, 
