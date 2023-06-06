@@ -188,12 +188,12 @@ cli.add_command(buildCompleteTree, name="build-complete")
 @click.command(short_help='Build data flow tree of source code')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
-def buildCompleteTree(path, language, output, mode):
+def buildDataFlowTree(path, language, output, mode):
     handler = InjectionHandler("./testcase/injection/taint_analysis", language)
     handler.deleteAllNodesAndRelationshipsByAPOC()
     handler.buildDataFlowTree()
 
-cli.add_command(buildCompleteTree, name="build-data-flow")
+cli.add_command(buildDataFlowTree, name="build-data-flow")
 
 @click.command(short_help='Scan code for broken access control')
 @click.option('--path', '-p', help='Path to source code')
