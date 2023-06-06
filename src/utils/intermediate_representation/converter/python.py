@@ -162,8 +162,8 @@ class IRPythonConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment
-        # a = "test" + x
-        if node.isInRightHandSide() and node.isPartOfAssignment():
+        # a = x
+        if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
@@ -171,7 +171,8 @@ class IRPythonConverter(IRConverter):
                     dfgParentId = symbolTable[key][-1]
                     dataType = "value"
                     node.addDataFlowEdge(dataType, dfgParentId)
-        elif node.isPartOfAssignment():
+        # a = "test" + x
+        elif node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
