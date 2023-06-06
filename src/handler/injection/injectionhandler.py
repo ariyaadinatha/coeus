@@ -91,14 +91,17 @@ class InjectionHandler:
 
             astRoot.printChildren()
 
-    def taintAnalysis(self):
+    def taintAnalysis(self, apoc: bool):
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
             self.buildCompleteTree()
-            self.propagateTaint()
-            self.appySanitizers()
-            result = self.getSourceAndSinkInjectionVulnerability()
+            if apoc:
+                result = self.expandInjectionPathUsingAPOC()
+            else:
+                self.propagateTaint()
+                self.applySanitizers()
+                result = self.getSourceAndSinkInjectionVulnerability()
 
             return result
         except Exception as e:
@@ -343,6 +346,42 @@ class InjectionHandler:
                 self.connection.query(query, parameters=parameters, db="connect-python")
             except Exception as e:
                 print(f"Query create data flow relationship error: {e}")
+
+    def expandInjectionPathUsingAPOC(self):
+        query = '''
+            MATCH (source:Node {is_source: True})
+            WITH collect(source) AS startNodes
+            MATCH (terminator:Node {is_sink: True})
+            WITH startNodes, collect(terminator) AS terminatorNodes
+            OPTIONAL MATCH (blacklist:Node {is_sanitizer: True })
+            WITH startNodes, terminatorNodes, collect(blacklist) AS blacklistNodes
+            CALL apoc.path.spanningTree(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
+            YIELD path
+            RETURN path
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query expand path using APOC error: {e}")
+
+    def getSinkInjectionUsingAPOC(self):
+        query = '''
+            MATCH (source:Node {is_source: True})
+            WITH collect(source) AS startNodes
+            MATCH (terminator:Node {is_sink: True})
+            WITH startNodes, collect(terminator) AS terminatorNodes
+            MATCH (blacklist:Node {is_sanitizer: True })
+            WITH startNodes, terminatorNodes, collect(blacklist) AS blacklistNodes
+            CALL apoc.path.subgraphNodes(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>', bfs: False, includeStartNode: True})
+            YIELD node
+            RETURN node
+        '''
+
+        try:
+            self.connection.query(query, db="connect-python")
+        except Exception as e:
+            print(f"Query get sink injection using APOC error: {e}")
     
     def propagateTaint(self):
         query = '''
@@ -352,7 +391,7 @@ class InjectionHandler:
         '''
         self.connection.query(query, db="connect-python")
     
-    def appySanitizers(self):
+    def applySanitizers(self):
         query = '''
             MATCH (sanitizer{is_sanitizer: True})-[r:DATA_FLOW_TO]->(untainted)
             SET untainted.is_tainted=False
