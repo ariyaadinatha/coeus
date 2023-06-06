@@ -29,32 +29,3 @@ class IRPythonNode(IRNode):
         else:
             # a = "test" + x
             return parent.astChildren[0].content
-    
-    def isPartOfAssignment(self) -> bool:
-        if "statement" in self.type:
-            return False
-        
-        parent = self.parent
-        while parent is not None and not parent.isControlStatement():
-            if parent.type == "assignment":
-                return True
-            parent = parent.parent
-
-        return False
-    
-    def isPartOfCallExpression(self) -> bool:
-        parent = self.parent
-        while parent is not None and not parent.isControlStatement():
-            if parent.isCallExpression():
-                return True
-            parent = parent.parent
-
-        return False
-    
-    def getCallExpression(self) -> IRNode:
-        parent = self.parent
-
-        while not parent.isCallExpression():
-            parent = parent.parent
-
-        return parent
