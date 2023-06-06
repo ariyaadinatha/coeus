@@ -8,6 +8,7 @@ from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, 
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
+from neo4j.graph import Path
 import time
 import os
 import json
@@ -91,7 +92,7 @@ class InjectionHandler:
 
             astRoot.printChildren()
 
-    def taintAnalysis(self, apoc: bool):
+    def taintAnalysis(self, apoc: bool) -> Path:
         try:
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
@@ -361,7 +362,7 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            return self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query expand path using APOC error: {e}")
 

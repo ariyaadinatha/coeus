@@ -8,6 +8,7 @@ from utils.codehandler import CodeProcessor
 from utils.log import logger
 from dotenv import load_dotenv
 from datetime import datetime
+from neo4j.graph import Path
 import traceback
 import time
 import click
@@ -131,22 +132,20 @@ def injection(path, language, output, mode):
     logger.info("=============== Starting injection detection ===============")
     startTime = time.time()
 
-
-    # handler = InjectionHandler("./testcase/python/current", language)
-    # handler.deleteAllNodesAndRelationshipsByAPOC()
-    # handler.buildCompleteTree()
-
     try:
-        handler = InjectionHandler("./testcase/injection/command", language)
+        handler = InjectionHandler("./testcase/injection/taint_analysis", language)
         # handler = InjectionHandler("./testcase/python/current", "python")
-        handler = InjectionHandler("./testcase/python/pygoat", "python")
-        result = handler.taintAnalysis()
+        # handler = InjectionHandler("./testcase/python/pygoat", "python")
+        result = handler.taintAnalysis(apoc=True)
         vulnHandler = VulnerableHandler()
 
         finalRes = set()
-        for res in result:
-                key = (res['SourceId'], res['SinkId'])
+        for record in result:
+                pathResult: Path = record["path"]
+                startNode = pathResult.start_node
+                endNode = pathResult.end_node
 
+                key = (startNode.id, endNode.id)
                 if key not in finalRes:
                     finalRes.add(key)
                     vuln = Vulnerable(
@@ -155,9 +154,9 @@ def injection(path, language, output, mode):
                         "A03:2021", 
                         "High", 
                         None, 
-                        f"Input from {res['SourceContent']} could be passed to {res['SinkContent']} without going through sanitization process", 
-                        f"{res['SourceFile']} and {res['SinkFile']}", 
-                        f"{res['SourceStart']} and {res['SinkStart']}", 
+                        f"Input from {startNode['content']} could be passed to {endNode['content']} without going through sanitization process", 
+                        f"{startNode['filename']} and {endNode['filename']}", 
+                        f"{startNode['startPoint']} and {endNode['startPoint']}", 
                         datetime.today().strftime('%Y-%m-%d %H:%M:%S')
                         )
                     print(vuln)
@@ -175,6 +174,26 @@ def injection(path, language, output, mode):
     logger.info("=============== Finished injection detection ===============")
 
 cli.add_command(injection)
+
+@click.command(short_help='Build complete tree of source code')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
+def buildCompleteTree(path, language):
+    handler = InjectionHandler("./testcase/injection/taint_analysis", language)
+    handler.deleteAllNodesAndRelationshipsByAPOC()
+    handler.buildCompleteTree()
+
+cli.add_command(buildCompleteTree, name="build-complete")
+
+@click.command(short_help='Build data flow tree of source code')
+@click.option('--path', '-p', help='Path to source code')
+@click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
+def buildCompleteTree(path, language, output, mode):
+    handler = InjectionHandler("./testcase/injection/taint_analysis", language)
+    handler.deleteAllNodesAndRelationshipsByAPOC()
+    handler.buildDataFlowTree()
+
+cli.add_command(buildCompleteTree, name="build-data-flow")
 
 @click.command(short_help='Scan code for broken access control')
 @click.option('--path', '-p', help='Path to source code')
