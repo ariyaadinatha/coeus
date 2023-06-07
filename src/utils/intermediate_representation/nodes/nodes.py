@@ -108,6 +108,7 @@ class IRNode(ABC):
     
     def checkIsSink(self, sinks) -> bool:
         if self.parent == None: return False
+        if not self.isCallExpression(): return False
         for sink in sinks:
             if sink.lower() in self.content.lower():
                 return True
@@ -167,16 +168,10 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if "assignment" in parent.type:
-                print("parent should be assignment")
-                print(parent)
-
                 return True
             else:
                 parent = parent.parent
 
-        print("parent should not be assignment")
-        print(parent)
-        
         return False
     
     @abstractmethod
