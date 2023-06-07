@@ -132,7 +132,7 @@ class IRPhpConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and node.isPartOfAssignment():
+        if node.isIdentifier() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
             key = (node.content, node.scope)
             # check node in left hand side
             if node.isInLeftHandSide():
@@ -164,13 +164,6 @@ class IRPhpConverter(IRConverter):
         # a = x
         if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
-                print("node is value")
-                print(node)
-                if node.parent is not None:
-                    print(node.parent)
-                else:
-                    print("parent is None")
-                print(node.isPartOfAssignment())
                 identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
                 if key in symbolTable:
@@ -191,9 +184,12 @@ class IRPhpConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
+
+            # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
+            # connect identifier with the declared identifier
             if key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
