@@ -132,6 +132,9 @@ class IRPhpConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
+        # NOTE: could be detrimental for assignments that use call expression
+        # e.g. a = init(x, y)
+        # or not?????
         if node.isIdentifier() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
             key = (node.content, node.scope)
             # check node in left hand side
