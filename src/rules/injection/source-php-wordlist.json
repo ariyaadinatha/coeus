@@ -6,6 +6,7 @@
       "$_POST",
       "$_COOKIES",
       "$_ENV",
-      "$_FILEs"
+      "$_FILES",
+      "$_SESSION"
   ]
 }
