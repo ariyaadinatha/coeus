@@ -130,14 +130,9 @@ class IRNode(ABC):
     def isValueOfAssignment(self) -> bool:
         # a = x
         if self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name"):
-            print("right hand side")
-            print(self)
             return True
         # a = "test" + x
         if self.isPartOfAssignment() and self.isInRightHandSide():
-            print("part of assignment")
-            print(self)
-            print(self.node.prev_sibling)
             return True
         return False
     

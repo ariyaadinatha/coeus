@@ -158,7 +158,7 @@ class IRPhpConverter(IRConverter):
                     dfgParentId = symbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
-                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
+                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                     self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)

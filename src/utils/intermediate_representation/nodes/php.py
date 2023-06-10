@@ -20,7 +20,6 @@ class IRPhpNode(IRNode):
     
     def getIdentifierFromAssignment(self) -> str:
         parent = self.parent
-        print(parent)
         while "assignment_expression" not in parent.type:
             parent = parent.parent
         if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "variable_name":
