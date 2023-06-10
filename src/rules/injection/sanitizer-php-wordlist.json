@@ -1,12 +1,11 @@
 {
   "type": "wordlist",
   "wordlist": [
-      "html.escape",
-      "encode",
-      "flask.escape",
-      "django.utils.html.escape",
-      "shlex.quote",
-      "shlex.split",
-      "bleach.clean"
+      "escapeshellcmd",
+      "escapeshellarg",
+      "htmlspecialchars",
+      "filter_var",
+      "filter_input",
+      "htmlentities"
   ]
 }

@@ -18,16 +18,16 @@ class Vulnerable:
 
     def __str__(self):
         return f'''
-        found vulnerability!\n
-        {self.title}\n
-        {self.details}\n
-        {self.aliases}\n
-        {self.severity}\n
-        {self.confidence}\n
-        {self.evidence}\n
-        {self.files}\n
-        {self.line}\n
-        {self.date}\n
+        found vulnerability!
+        {self.title}
+        {self.details}
+        {self.aliases}
+        {self.severity}
+        {self.confidence}
+        {self.evidence}
+        {self.files}
+        {self.line}
+        {self.date}
         '''
 
     def getTitle(self):

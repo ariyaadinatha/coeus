@@ -133,7 +133,7 @@ def injection(path, language, output, mode):
     startTime = time.time()
 
     try:
-        handler = InjectionHandler("./testcase/injection/taint_analysis", language)
+        handler = InjectionHandler("./testcase/php/current", language)
         # handler = InjectionHandler("./testcase/python/current", "python")
         # handler = InjectionHandler("./testcase/python/pygoat", "python")
         result = handler.taintAnalysis(apoc=True)
@@ -145,7 +145,7 @@ def injection(path, language, output, mode):
                 startNode = pathResult.start_node
                 endNode = pathResult.end_node
 
-                key = (startNode.id, endNode.id)
+                key = (startNode.element_id, endNode.element_id)
                 if key not in finalRes:
                     finalRes.add(key)
                     vuln = Vulnerable(

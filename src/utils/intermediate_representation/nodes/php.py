@@ -10,10 +10,22 @@ class IRPhpNode(IRNode):
         super().__init__(node, filename, projectId, controlId, parent)
 
     def isCallExpression(self) -> bool:
-        return self.type == "member_call_expression" or self.type == "type_call_expression"
+        return "call_expression" in self.type
         
     def isInsideIfElseBranch(self) -> bool:
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PHP_CONTROL_SCOPE_IDENTIFIERS
+        
+    def isControlStatement(self) -> bool:
+        return self.type in PHP_CONTROL_SCOPE_IDENTIFIERS
     
-    def isPartOfAssignment(self) -> bool:
-        return self.parent is not None and self.parent.type == "assignment_expression"
+    def getIdentifierFromAssignment(self) -> str:
+        parent = self.parent
+        while "assignment_expression" not in parent.type:
+            parent = parent.parent
+        if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "variable_name":
+            return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
+        else:
+            # a = "test" + x
+            return parent.astChildren[0].content
+        
+    

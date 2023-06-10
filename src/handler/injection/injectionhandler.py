@@ -204,8 +204,7 @@ class InjectionHandler:
 
     def setRootLabel(self):
         query = '''
-            MATCH (n:Node)
-            WHERE n.type = "module"
+            MATCH (n) WHERE n.parent_id IS NULL
             SET n:Root
         '''
 

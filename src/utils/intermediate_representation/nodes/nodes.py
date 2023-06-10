@@ -102,21 +102,22 @@ class IRNode(ABC):
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
         for source in sources:
-            if source in self.content.lower():
+            if source.lower() in self.content.lower():
                 return True
         return False
     
     def checkIsSink(self, sinks) -> bool:
         if self.parent == None: return False
+        if not self.isCallExpression(): return False
         for sink in sinks:
-            if sink in self.content.lower():
+            if sink.lower() in self.content.lower():
                 return True
         return False
     
     def checkIsSanitizer(self, sanitizers) -> bool:
         if self.parent == None: return False
         for sanitizer in sanitizers:
-            if sanitizer in self.content.lower():
+            if sanitizer.lower() in self.content.lower():
                 return True
         return False
     
@@ -124,36 +125,62 @@ class IRNode(ABC):
         return self.node.prev_sibling is None
     
     def isInRightHandSide(self) -> bool:
-        return self.node.prev_sibling is not None
+        return self.node.prev_sibling is not None and self.node.prev_sibling.type != "$"
     
     def isValueOfAssignment(self) -> bool:
         # a = x
         if self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name"):
             return True
         # a = "test" + x
-        if self.isPartOfAssignment() and not self.isInLeftHandSide():
+        if self.isPartOfAssignment() and self.isInRightHandSide():
             return True
         return False
     
     def isIdentifier(self) -> bool:
         return self.type == "identifier" or self.type == "variable_name"
     
+    def getCallExpression(self):
+        parent = self.parent
+
+        while not parent.isCallExpression():
+            parent = parent.parent
+
+        return parent
+    
+    def isPartOfCallExpression(self) -> bool:
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if parent.isCallExpression():
+                return True
+            parent = parent.parent
+
+        return False
+    
+    def isPartOfAssignment(self) -> bool:
+        if "statement" in self.type:
+            return False
+        
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if "assignment" in parent.type:
+                return True
+            else:
+                parent = parent.parent
+
+        return False
+    
     @abstractmethod
     def isCallExpression(self) -> bool:
         pass
-    
-    @abstractmethod
-    def isPartOfAssignment(self) -> bool:
-        pass
 
     @abstractmethod
-    def isPartOfCallExpression(self) -> bool:
-        pass
-
-    @abstractmethod
-    def isInsideIfElseBranch(self) -> bool:
+    def isControlStatement(self) -> bool:
         pass
     
+    @abstractmethod
+    def getIdentifierFromAssignment(self) -> str:
+        pass
+
 # class to store all control flow related actions
 class ControlFlowEdge:
     def __init__(self, statementOrder: int, cfgParentId: str) -> None:
