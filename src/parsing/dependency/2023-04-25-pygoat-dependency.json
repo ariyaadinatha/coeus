@@ -1,0 +1,1333 @@
+[
+    {
+        "name": "sqlparse",
+        "version": "0.3.1",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/requirements.txt",
+        "details": "### Impact\nThe SQL parser contains a regular expression that is vulnerable to [ReDoS](https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS) (Regular Expression Denial of Service). The vulnerability may lead to Denial of Service (DoS).\n\n### Patches\nThis issues has been fixed in sqlparse 0.4.4.\n\n### Workarounds\nNone. \n\n### References\nThis issue was discovered and reported by GHSL team member [@erik-krogh (Erik Krogh Kristensen)](https://github.com/erik-krogh).\n- Commit that introduced the vulnerability: e75e35869473832a1eb67772b1adfee2db11b85a\n",
+        "aliases": [
+            "CVE-2023-30608"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:L/AC:L/PR:N/UI:R/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0.1.15"
+                    },
+                    {
+                        "fixed": "0.4.4"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "setuptools",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/setup.py",
+        "details": "Python Packaging Authority (PyPA)'s setuptools is a library designed to facilitate packaging Python projects. Setuptools version 65.5.0 and earlier could allow remote attackers to cause a denial of service by fetching malicious HTML from a PyPI package or custom PackageIndex page due to a vulnerable Regular Expression in `package_index`. This has been patched in version 65.5.1.",
+        "aliases": [
+            "CVE-2022-40897"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "65.5.1"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "setuptools",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/setup.py",
+        "details": "easy_install in setuptools before 0.7 uses HTTP to retrieve packages from the PyPI repository, and does not perform integrity checks on package contents, which allows man-in-the-middle attackers to execute arbitrary code via a crafted response to the default use of the product.",
+        "aliases": [
+            "CVE-2013-1633"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "0.7"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829",
+            "GHSA-cfj3-7x9c-4p3h"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830",
+            "GHSA-652x-xj99-gmcc"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "The resolve_redirects function in sessions.py in requests 2.1.0 through 2.5.3 allows remote attackers to conduct session fixation attacks via a cookie without a host value in a redirect.",
+        "aliases": [
+            "CVE-2015-2296"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/kennethreitz/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "3bd8afbff29e50b38f889b2f688785a669b9aafc"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1.0"
+                    },
+                    {
+                        "fixed": "2.6.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/apis.py",
+        "details": "The Requests package before 2.20.0 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074",
+            "GHSA-x84v-xcm2-53pg"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/requests/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "c45d7c49ea75133e52ab22a8e9e13173938e36ff"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django 2.0 before 2.0.3, 1.11 before 1.11.11, and 1.8 before 1.8.19. If django.utils.text.Truncator's chars() and words() methods were passed the html=True argument, they were extremely slow to evaluate certain inputs due to a catastrophic backtracking vulnerability in a regular expression. The chars() and words() methods are used to implement the truncatechars_html and truncatewords_html template filters, which were thus vulnerable.",
+        "aliases": [
+            "CVE-2018-7537"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:L"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.0"
+                    },
+                    {
+                        "fixed": "2.0.3"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django 2.2 before 2.2.28, 3.2 before 3.2.13, and 4.0 before 4.0.4. QuerySet.annotate(), aggregate(), and extra() methods are subject to SQL injection in column aliases via a crafted dictionary (with dictionary expansion) as the passed **kwargs.",
+        "aliases": [
+            "CVE-2022-28346"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.2"
+                    },
+                    {
+                        "fixed": "2.2.28"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in the Multipart Request Parser in Django 3.2 before 3.2.18, 4.0 before 4.0.10, and 4.1 before 4.1.7. Passing certain inputs (e.g., an excessive number of parts) to multipart forms could result in too many open files or memory exhaustion, and provided a potential vector for a denial-of-service attack.",
+        "aliases": [
+            "CVE-2023-24580"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "3.2.0"
+                    },
+                    {
+                        "fixed": "3.2.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django version 2.2 before 2.2.13 and 3.0 before 3.0.7. Query parameters generated by the Django admin ForeignKeyRawIdWidget were not properly URL encoded, leading to a possibility of an XSS attack.",
+        "aliases": [
+            "CVE-2020-13596"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.0.0"
+                    },
+                    {
+                        "fixed": "2.2.13"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "In Django 1.11.x before 1.11.18, 2.0.x before 2.0.10, and 2.1.x before 2.1.5, an Improper Neutralization of Special Elements in Output Used by a Downstream Component issue exists in django.views.defaults.page_not_found(), leading to content spoofing (in a 404 error page) if a user fails to recognize that a crafted URL has malicious content.",
+        "aliases": [
+            "CVE-2019-3498"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:U/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.11.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "Django 1.10 before 1.10.7, 1.9 before 1.9.13, and 1.8 before 1.8.18 relies on user input in some cases to redirect the user to an \"on success\" URL. The security check for these redirects (namely ``django.utils.http.is_safe_url()``) considered some numeric URLs \"safe\" when they shouldn't be, aka an open redirect vulnerability. Also, if a developer relies on ``is_safe_url()`` to provide safe redirect targets and puts such a URL into a link, they could suffer from an XSS attack.",
+        "aliases": [
+            "CVE-2017-7233"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "1.10"
+                    },
+                    {
+                        "fixed": "1.10.7"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "Django 1.11 before 1.11.29, 2.2 before 2.2.11, and 3.0 before 3.0.4 allows SQL Injection if untrusted data is used as a tolerance parameter in GIS functions and aggregates on Oracle. By passing a suitably crafted tolerance to GIS functions and aggregates on Oracle, it was possible to break escaping and inject malicious SQL.",
+        "aliases": [
+            "CVE-2020-9402"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.11.29"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "The verify_exists functionality in the URLField implementation in Django before 1.2.7 and 1.3.x before 1.3.1 relies on Python libraries that attempt access to an arbitrary URL with no timeout, which allows remote attackers to cause a denial of service (resource consumption) via a URL associated with (1) a slow response, (2) a completed TCP connection with no application data sent, or (3) a large amount of application data, a related issue to CVE-2011-1521.",
+        "aliases": [
+            "CVE-2011-4137"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "1.2.0"
+                    },
+                    {
+                        "fixed": "1.2.7"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django 2.2 before 2.2.26, 3.2 before 3.2.11, and 4.0 before 4.0.1. UserAttributeSimilarityValidator incurred significant overhead in evaluating a submitted password that was artificially large in relation to the comparison values. In a situation where access to user registration was unrestricted, this provided a potential vector for a denial-of-service attack.",
+        "aliases": [
+            "CVE-2021-45115"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.2.0"
+                    },
+                    {
+                        "fixed": "2.2.26"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "The get_image_dimensions function in the image-handling functionality in Django before 1.3.2 and 1.4.x before 1.4.1 uses a constant chunk size in all attempts to determine dimensions, which allows remote attackers to cause a denial of service (process or thread consumption) via a large TIFF image.",
+        "aliases": [
+            "CVE-2012-3444"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.3.2"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "django.middleware.common.CommonMiddleware in Django 1.11.x before 1.11.15 and 2.0.x before 2.0.8 has an Open Redirect.",
+        "aliases": [
+            "CVE-2018-14574"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:R/S:C/C:L/I:L/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "1.11.0"
+                    },
+                    {
+                        "fixed": "1.11.15"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "Django 1.1.x before 1.1.4 and 1.2.x before 1.2.5 does not properly validate HTTP requests that contain an X-Requested-With header, which makes it easier for remote attackers to conduct cross-site request forgery (CSRF) attacks via forged AJAX requests that leverage a \"combination of browser plugins and redirects,\" a related issue to CVE-2011-0447.",
+        "aliases": [
+            "CVE-2011-0696"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "1.1.0"
+                    },
+                    {
+                        "fixed": "1.1.4"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "Django before 2.2.24, 3.x before 3.1.12, and 3.2.x before 3.2.4 has a potential directory traversal via django.contrib.admindocs. Staff members could use the TemplateDetailView view to check the existence of arbitrary files. Additionally, if (and only if) the default admindocs templates have been customized by application developers to also show file contents, then not only the existence but also the file contents would have been exposed. In other words, there is directory traversal outside of the template root directories.",
+        "aliases": [
+            "CVE-2021-33203"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.2.24"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django 1.11 before 1.11.22, 2.1 before 2.1.10, and 2.2 before 2.2.3. An HTTP request is not redirected to HTTPS when the SECURE_PROXY_SSL_HEADER and SECURE_SSL_REDIRECT settings are used, and the proxy connects to Django via HTTPS. In other words, django.http.HttpRequest.scheme has incorrect behavior when a client uses HTTP.",
+        "aliases": [
+            "CVE-2019-12781"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "1.11.0"
+                    },
+                    {
+                        "fixed": "1.11.22"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in MultiPartParser in Django 2.2 before 2.2.27, 3.2 before 3.2.12, and 4.0 before 4.0.2. Passing certain inputs to multipart forms could result in an infinite loop when parsing files.",
+        "aliases": [
+            "CVE-2022-23833"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.2.0"
+                    },
+                    {
+                        "fixed": "2.2.27"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "django",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/forms.py",
+        "details": "An issue was discovered in Django 2.1 before 2.1.2, in which unprivileged users can read the password hashes of arbitrary accounts. The read-only password widget used by the Django Admin to display an obfuscated password hash was bypassed if a user has only the \"view\" permission (new in Django 2.1), resulting in display of the entire password hash to those users. This may result in a vulnerability for sites with legacy user accounts using insecure hashes.",
+        "aliases": [
+            "CVE-2018-16984"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:H/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1"
+                    },
+                    {
+                        "fixed": "2.1.2"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829",
+            "GHSA-cfj3-7x9c-4p3h"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830",
+            "GHSA-652x-xj99-gmcc"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "The resolve_redirects function in sessions.py in requests 2.1.0 through 2.5.3 allows remote attackers to conduct session fixation attacks via a cookie without a host value in a redirect.",
+        "aliases": [
+            "CVE-2015-2296"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/kennethreitz/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "3bd8afbff29e50b38f889b2f688785a669b9aafc"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1.0"
+                    },
+                    {
+                        "fixed": "2.6.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/views.py",
+        "details": "The Requests package before 2.20.0 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074",
+            "GHSA-x84v-xcm2-53pg"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/requests/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "c45d7c49ea75133e52ab22a8e9e13173938e36ff"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829",
+            "GHSA-cfj3-7x9c-4p3h"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830",
+            "GHSA-652x-xj99-gmcc"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "The resolve_redirects function in sessions.py in requests 2.1.0 through 2.5.3 allows remote attackers to conduct session fixation attacks via a cookie without a host value in a redirect.",
+        "aliases": [
+            "CVE-2015-2296"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/kennethreitz/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "3bd8afbff29e50b38f889b2f688785a669b9aafc"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1.0"
+                    },
+                    {
+                        "fixed": "2.6.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/soln.py",
+        "details": "The Requests package before 2.20.0 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074",
+            "GHSA-x84v-xcm2-53pg"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/requests/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "c45d7c49ea75133e52ab22a8e9e13173938e36ff"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829",
+            "GHSA-cfj3-7x9c-4p3h"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830",
+            "GHSA-652x-xj99-gmcc"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "The resolve_redirects function in sessions.py in requests 2.1.0 through 2.5.3 allows remote attackers to conduct session fixation attacks via a cookie without a host value in a redirect.",
+        "aliases": [
+            "CVE-2015-2296"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/kennethreitz/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "3bd8afbff29e50b38f889b2f688785a669b9aafc"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1.0"
+                    },
+                    {
+                        "fixed": "2.6.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/pygoat/introduction/playground/A6/utility.py",
+        "details": "The Requests package before 2.20.0 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074",
+            "GHSA-x84v-xcm2-53pg"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/requests/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "c45d7c49ea75133e52ab22a8e9e13173938e36ff"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    }
+]

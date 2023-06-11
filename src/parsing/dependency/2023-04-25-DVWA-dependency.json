@@ -1,0 +1,202 @@
+[
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "The Requests package through 2.19.1 before 2018-09-14 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain a netrc password by reading the Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1829",
+            "GHSA-cfj3-7x9c-4p3h"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "Requests (aka python-requests) before 2.3.0 allows remote servers to obtain sensitive information by reading the Proxy-Authorization header in a redirected request.",
+        "aliases": [
+            "CVE-2014-1830",
+            "GHSA-652x-xj99-gmcc"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.3.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "The resolve_redirects function in sessions.py in requests 2.1.0 through 2.5.3 allows remote attackers to conduct session fixation attacks via a cookie without a host value in a redirect.",
+        "aliases": [
+            "CVE-2015-2296"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/kennethreitz/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "3bd8afbff29e50b38f889b2f688785a669b9aafc"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "2.1.0"
+                    },
+                    {
+                        "fixed": "2.6.0"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "requests",
+        "version": "-",
+        "ecosystem": "PyPI",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/DVWA/tests/test_url.py",
+        "details": "The Requests package before 2.20.0 for Python sends an HTTP Authorization header to an http URI upon receiving a same-hostname https-to-http redirect, which makes it easier for remote attackers to discover credentials by sniffing the network.",
+        "aliases": [
+            "CVE-2018-18074",
+            "GHSA-x84v-xcm2-53pg"
+        ],
+        "severity": null,
+        "affected": [
+            {
+                "type": "GIT",
+                "repo": "https://github.com/requests/requests",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "c45d7c49ea75133e52ab22a8e9e13173938e36ff"
+                    }
+                ]
+            },
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "2.20.0"
+                    }
+                ]
+            }
+        ]
+    }
+]

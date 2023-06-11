@@ -1,0 +1,1046 @@
+[
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to allocate 100% CPU time on the target system depending on CPU type or parallel execution of such a payload resulting in a denial of service only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21341](https://x-stream.github.io/CVE-2021-21341.html).\n\n### Credits\nThe vulnerability was discovered and reported by threedr3am.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21341"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream, if using the version out of the box with Java runtime version 14 to 8 or with JavaFX installed. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39153](https://x-stream.github.io/CVE-2021-39153.html).\n\n### Credits\nCeclin and YXXX from the Tencent Security Response Center found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39153"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39149](https://x-stream.github.io/CVE-2021-39149.html).\n\n### Credits\nLai Han of NSFOCUS security team found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39149"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to execute arbitrary code only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21350](https://x-stream.github.io/CVE-2021-21350.html).\n\n### Credits\nThe vulnerability was discovered and reported by threedr3am.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21350"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to request data from internal resources that are not publicly available only by manipulating the processed input stream.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.15.\n\n### Workarounds\nThe reported vulnerability does not exist running Java 15 or higher.\n\nNo user is affected, who followed the recommendation to setup XStream's Security Framework with a whitelist! Anyone relying on XStream's default blacklist can immediately switch to a whilelist for the allowed types to avoid the vulnerability.\n\nUsers of XStream 1.4.14 or below who still insist to use XStream default blacklist - despite that clear recommendation - can use a workaround depending on their version in use.\n\nUsers of XStream 1.4.14 can simply add two lines to XStream's setup code:\n```Java\nxstream.denyTypes(new String[]{ \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\n\nUsers of XStream 1.4.14 to 1.4.13 can simply add three lines to XStream's setup code:\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\", \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\nUsers of XStream 1.4.12 to 1.4.7 who want to use XStream with a black list will have to setup such a list from scratch and deny at least the following types: _javax.imageio.ImageIO$ContainsFilter_, _java.beans.EventHandler_, _java.lang.ProcessBuilder_, _jdk.nashorn.internal.objects.NativeString.class_, _java.lang.Void_ and _void_ and deny several types by name pattern.\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\", \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class, \"jdk.nashorn.internal.objects.NativeString\", java.beans.EventHandler.class, java.lang.ProcessBuilder.class, java.lang.Void.class, void.class });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\$LazyIterator\", \"javax\\\\.crypto\\\\..*\", \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\nUsers of XStream 1.4.6 or below can register an own converter to prevent the unmarshalling of the currently know critical types of the Java runtime. It is in fact an updated version of the workaround for CVE-2013-7285:\n```Java\nxstream.registerConverter(new Converter() {\n  public boolean canConvert(Class type) {\n    return type != null && (type == java.beans.EventHandler.class || type == java.lang.ProcessBuilder.class\n        || type.getName().equals(\"javax.imageio.ImageIO$ContainsFilter\") || type.getName().equals(\"jdk.nashorn.internal.objects.NativeString\")\n        || type == java.lang.Void.class || void.class || Proxy.isProxy(type))\n        || type.getName().startsWith(\"javax.crypto.\") || type.getName().endsWith(\"$LazyIterator\") || type.getName().endsWith(\".ReadAllStream$FileStream\"));\n  }\n\n  public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n\n  public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n}, XStream.PRIORITY_LOW);\n```\n \n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2020-26258"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:C/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.15"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21346](https://x-stream.github.io/CVE-2021-21346.html).\n\n### Credits\nwh1t3p1g G5-RD6@IIE found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21346"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to occupy a thread that consumes maximum CPU time and will never return. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21348](https://x-stream.github.io/CVE-2021-21348.html).\n\n### Credits\nThe vulnerability was discovered and reported by threedr3am.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21348"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21344](https://x-stream.github.io/CVE-2021-21344.html).\n\n### Credits\n\u949f\u6f66\u8d35 (Liaogui Zhong) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21344"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. A user is only affected if using the version out of the box with JDK 1.7u21 or below.  However, this scenario can be adjusted easily to an external Xalan that works regardless of the version of the Java runtime. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39139](https://x-stream.github.io/CVE-2021-39139.html).\n\n### Credits\nLai Han of nsfocus security team found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39139"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39154](https://x-stream.github.io/CVE-2021-39154.html).\n\n### Credits\nka1n4t found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39154"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to allocate 100% CPU time on the target system depending on CPU type or parallel execution of such a payload resulting in a denial of service only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39140](https://x-stream.github.io/CVE-2021-39140.html).\n\n### Credits\nThe vulnerability was discovered and reported by Lai Han of nsfocus security team.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39140"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe processed stream at unmarshalling time contains type information to recreate the formerly written objects.  XStream creates therefore new instances based on these type information.  An attacker can manipulate the processed input stream and replace or inject objects, that result in the deletion of a file on the local host. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21343](https://x-stream.github.io/CVE-2021-21343.html).\n\n### Credits\n\u949f\u6f66\u8d35 (Liaogui Zhong) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21343"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker has sufficient rights to execute commands of the host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the Security Framework, you will have to use at least version 1.4.17.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-29505](https://x-stream.github.io/CVE-2021-29505.html).\n\n### Credits\n\nV3geB1rd, white hat hacker from Tencent Security Response Center found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Email us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-29505"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:U/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.17"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "XStream through 1.4.9, when a certain denyTypes workaround is not used, mishandles attempts to create an instance of the primitive type 'void' during unmarshalling, leading to a remote application crash, as demonstrated by an xstream.fromXML(\"<void/>\") call.",
+        "aliases": [
+            "CVE-2017-7957"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.10"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39145](https://x-stream.github.io/CVE-2021-39145.html).\n\n### Credits\n\u674e\u5b89\u8bfa (Li4n0) from Alibaba Cloud Security Team and Smi1e of DBAPPSecurity WEBIN Lab found and reported the issue independently to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39145"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to request data from internal resources that are not publicly available only by manipulating the processed input stream with a Java runtime version 14 to 8. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.18.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39150](https://x-stream.github.io/CVE-2021-39150.html).\n\n### Credits\nLai Han of NSFOCUS security team found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39150"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "Xstream API versions up to 1.4.6 and version 1.4.10, if the security framework has not been initialized, may allow a remote attacker to run arbitrary shell commands by manipulating the processed input stream when unmarshaling XML or any supported format. e.g. JSON.",
+        "aliases": [
+            "CVE-2013-7285"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.6"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to request data from internal resources that are not publicly available only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21349](https://x-stream.github.io/CVE-2021-21349.html).\n\n### Credits\nThe vulnerability was discovered and reported by threedr3am.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21349"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to terminate the application with a stack overflow error resulting in a denial of service only by manipulating the processed input stream.\n\n### Patches\nXStream 1.4.20 handles the stack overflow and raises an InputManipulationException instead.\n\n### Workarounds\nThe only solution is to catch the StackOverflowError in the client code calling XStream.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2022-40151](https://x-stream.github.io/CVE-2022-40151.html).\n\n### Credits\nThe vulnerability was discovered and reported by Henry Lin of the Google OSS-Fuzz team.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2022-40151"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.20"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39141](https://x-stream.github.io/CVE-2021-39141.html).\n\n### Credits\nCeclin and YXXX from the Tencent Security Response Center found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39141"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39147](https://x-stream.github.io/CVE-2021-39147.html).\n\n### Credits\nwh1t3p1g from TSRC (Tencent Security Response Center) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39147"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "It was found that xstream API version 1.4.10 before 1.4.11 introduced a regression for a previous deserialization flaw. If the security framework has not been initialized, it may allow a remote attacker to run arbitrary shell commands when unmarshalling XML or any supported format. e.g. JSON. (regression of CVE-2013-7285) ",
+        "aliases": [
+            "CVE-2019-10173"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.11"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39151](https://x-stream.github.io/CVE-2021-39151.html).\n\n### Credits\nSmi1e of DBAPPSecurity WEBIN Lab found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39151"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21351](https://x-stream.github.io/CVE-2021-21351.html).\n\n### Credits\nwh1t3p1g G5-RD6@IIE found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21351"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:H/UI:R/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe processed stream at unmarshalling time contains type information to recreate the formerly written objects. XStream creates therefore new instances based on these type information.  An attacker can manipulate the processed input stream and replace or inject objects, that result in a server-side forgery request. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21342](https://x-stream.github.io/CVE-2021-21342.html).\n\n### Credits\n\u949f\u6f66\u8d35 (Liaogui Zhong) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21342"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:U/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker has sufficient rights to execute commands of the host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21345](https://x-stream.github.io/CVE-2021-21345.html).\n\n### Credits\n\u949f\u6f66\u8d35 (Liaogui Zhong) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21345"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to terminate the application with a stack overflow error resulting in a denial of service only by manipulating the processed input stream.\n\n### Patches\nXStream 1.4.20 handles the stack overflow and raises an InputManipulationException instead.\n\n### Workarounds\nThe attack uses the hash code implementation for collections and maps to force recursive hash calculation causing a stack overflow. Following types of the Java runtime are affected:\n\n- java.util.HashMap\n- java.util.HashSet\n- java.util.Hashtable\n- java.util.LinkedHashMap\n- java.util.LinkedHashSet\n- Other third party collection implementations that use their element's hash code may also be affected\n\nA simple solution is to catch the StackOverflowError in the client code calling XStream.\n\nIf your object graph does not use referenced elements at all, you may simply set the NO_REFERENCE mode:\n```Java\nXStream xstream = new XStream();\nxstream.setMode(XStream.NO_REFERENCES);\n```\n\nIf your object graph contains neither a Hashtable, HashMap nor a HashSet (or one of the linked variants of it) then you can use the security framework to deny the usage of these types:\n```Java\nXStream xstream = new XStream();\nxstream.denyTypes(new Class[]{\n java.util.HashMap.class, java.util.HashSet.class, java.util.Hashtable.class, java.util.LinkedHashMap.class, java.util.LinkedHashSet.class\n});\n```\n\nUnfortunately these types are very common. If you only use HashMap or HashSet and your XML refers these only as default map or set, you may additionally change the default implementation of java.util.Map and java.util.Set at unmarshalling time::\n```Java\nxstream.addDefaultImplementation(java.util.TreeMap.class, java.util.Map.class);\nxstream.addDefaultImplementation(java.util.TreeSet.class, java.util.Set.class);\n```\nHowever, this implies that your application does not care about the implementation of the map and all elements are comparable.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2022-41966](https://x-stream.github.io/CVE-2022-41966.html).\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2022-41966"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:L/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.20"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker has sufficient rights to execute commands of the host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39144](https://x-stream.github.io/CVE-2021-39144.html).\n\n### Credits\n\nCeclin and YXXX from the Tencent Security Response Center found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Email us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39144"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to delete arbitrary know files on the host as log as the executing process has sufficient rights only by manipulating the processed input stream.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.15.\n\n### Workarounds\nThe reported vulnerability does only exist with a JAX-WS runtime on the classpath.\n\nNo user is affected, who followed the recommendation to setup XStream's Security Framework with a whitelist! Anyone relying on XStream's default blacklist can immediately switch to a whilelist for the allowed types to avoid the vulnerability.\n\nUsers of XStream 1.4.14 or below who still insist to use XStream default blacklist - despite that clear recommendation - can use a workaround depending on their version in use.\n\nUsers of XStream 1.4.14 can simply add two lines to XStream's setup code:\n```Java\nxstream.denyTypes(new String[]{ \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\n\nUsers of XStream 1.4.14 to 1.4.13 can simply add three lines to XStream's setup code:\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\", \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\nUsers of XStream 1.4.12 to 1.4.7 who want to use XStream with a black list will have to setup such a list from scratch and deny at least the following types: _javax.imageio.ImageIO$ContainsFilter_, _java.beans.EventHandler_, _java.lang.ProcessBuilder_, _jdk.nashorn.internal.objects.NativeString.class_, _java.lang.Void_ and _void_ and deny several types by name pattern.\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\", \"jdk.nashorn.internal.objects.NativeString\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class, \"jdk.nashorn.internal.objects.NativeString\", java.beans.EventHandler.class, java.lang.ProcessBuilder.class, java.lang.Void.class, void.class });\nxstream.denyTypesByRegExp(new String[]{ \".*\\\\$LazyIterator\", \"javax\\\\.crypto\\\\..*\", \".*\\\\.ReadAllStream\\\\$FileStream\" });\n```\nUsers of XStream 1.4.6 or below can register an own converter to prevent the unmarshalling of the currently know critical types of the Java runtime. It is in fact an updated version of the workaround for CVE-2013-7285:\n```Java\nxstream.registerConverter(new Converter() {\n  public boolean canConvert(Class type) {\n    return type != null && (type == java.beans.EventHandler.class || type == java.lang.ProcessBuilder.class\n        || type.getName().equals(\"javax.imageio.ImageIO$ContainsFilter\") || type.getName().equals(\"jdk.nashorn.internal.objects.NativeString\")\n        || type == java.lang.Void.class || void.class || Proxy.isProxy(type))\n        || type.getName().startsWith(\"javax.crypto.\") || type.getName().endsWith(\"$LazyIterator\") || type.getName().endsWith(\".ReadAllStream$FileStream\"));\n  }\n\n  public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n\n  public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n}, XStream.PRIORITY_LOW);\n```\n  \n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2020-26259"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.15"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to run arbitrary shell commands only by manipulating the processed input stream.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.14.\n\n### Workarounds\nNo user is affected, who followed the recommendation to setup XStream's Security Framework with a whitelist! Anyone relying on XStream's default blacklist can immediately switch to a whilelist for the allowed types to avoid the vulnerability.\n\nUsers of XStream 1.4.13 or below who still want to use XStream default blacklist can use a workaround depending on their version in use.\n\nUsers of XStream 1.4.13 can simply add two lines to XStream's setup code:\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class });\n```\nUsers of XStream 1.4.12 to 1.4.7 who want to use XStream with a black list will have to setup such a list from scratch and deny at least the following types: _javax.imageio.ImageIO$ContainsFilter_, _java.beans.EventHandler_, _java.lang.ProcessBuilder_, _java.lang.Void_ and _void_.\n```Java\nxstream.denyTypes(new String[]{ \"javax.imageio.ImageIO$ContainsFilter\" });\nxstream.denyTypes(new Class[]{ java.lang.ProcessBuilder.class, java.beans.EventHandler.class, java.lang.ProcessBuilder.class, java.lang.Void.class, void.class });\n```\nUsers of XStream 1.4.6 or below can register an own converter to prevent the unmarshalling of the currently know critical types of the Java runtime. It is in fact an updated version of the workaround for CVE-2013-7285:\n```Java\nxstream.registerConverter(new Converter() {\n  public boolean canConvert(Class type) {\n    return type != null && (type == java.beans.EventHandler.class || type == java.lang.ProcessBuilder.class || type == java.lang.Void.class || void.class || type.getName().equals(\"javax.imageio.ImageIO$ContainsFilter\") || Proxy.isProxy(type));\n  }\n\n  public Object unmarshal(HierarchicalStreamReader reader, UnmarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n\n  public void marshal(Object source, HierarchicalStreamWriter writer, MarshallingContext context) {\n    throw new ConversionException(\"Unsupported type due to security reasons.\");\n  }\n}, XStream.PRIORITY_LOW);\n```\n\n### Credits\nChen L found and reported the issue to XStream and provided the required information to reproduce it.  He was supported by Zhihong Tian and Hui Lu, both from Guangzhou University.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2020-26217](https://x-stream.github.io/CVE-2020-26217.html).\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2020-26217"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:R/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.14-jdk7"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39146](https://x-stream.github.io/CVE-2021-39146.html).\n\n### Credits\nCeclin and YXXX from the Tencent Security Response Center found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39146"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.16.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-21347](https://x-stream.github.io/CVE-2021-21347.html).\n\n### Credits\nThe vulnerability was discovered and reported by threedr3am.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)",
+        "aliases": [
+            "CVE-2021-21347"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:R/S:C/C:N/I:H/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.16"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to load and execute arbitrary code from a remote host only by manipulating the processed input stream. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nXStream 1.4.18 uses no longer a blacklist by default, since it cannot be secured for general purpose.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39148](https://x-stream.github.io/CVE-2021-39148.html).\n\n### Credits\nwh1t3p1g from TSRC (Tencent Security Response Center) found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39148"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "Multiple XML external entity (XXE) vulnerabilities in the (1) Dom4JDriver, (2) DomDriver, (3) JDomDriver, (4) JDom2Driver, (5) SjsxpDriver, (6) StandardStaxDriver, and (7) WstxDriver drivers in XStream before 1.4.9 allow remote attackers to read arbitrary files via a crafted XML document.",
+        "aliases": [
+            "CVE-2016-3674"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.0/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:N/A:N"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.9"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to allocate 100% CPU time on the target system depending on CPU type or parallel execution of such a payload resulting in a denial of service only by manipulating the processed input stream.\n\n### Patches\nXStream 1.4.19 monitors and accumulates the time it takes to add elements to collections and throws an exception if a set threshold is exceeded.\n\n### Workarounds\nThe attack uses the hash code implementation for collections and maps to force an exponential calculation time due to highly recursive structures with in the collection or map. Following types of the Java runtime are affected in Java versions available in December 2021:\n\n- java.util.HashMap\n- java.util.HashSet\n- java.util.Hashtable\n- java.util.LinkedHashMap\n- java.util.LinkedHashSet\n- java.util.Stack (older Java revisions only)\n- java.util.Vector (older Java revisions only)\n- Other third party collection implementations that use their element's hash code may also be affected\n\nIf your object graph does not use referenced elements at all, you may simply set the NO_REFERENCE mode:\n```Java\nXStream xstream = new XStream();\nxstream.setMode(XStream.NO_REFERENCES);\n```\n\nIf your object graph contains neither a Hashtable, HashMap nor a HashSet (or one of the linked variants of it) then you can use the security framework to deny the usage of these types:\n```Java\nXStream xstream = new XStream();\nxstream.denyTypes(new Class[]{\n java.util.HashMap.class, java.util.HashSet.class, java.util.Hashtable.class, java.util.LinkedHashMap.class, java.util.LinkedHashSet.class\n});\n```\n\nUnfortunately these types are very common. If you only use HashMap or HashSet and your XML refers these only as default map or set, you may additionally change the default implementation of java.util.Map and java.util.Set at unmarshalling time::\n```Java\nxstream.addDefaultImplementation(java.util.TreeMap.class, java.util.Map.class);\nxstream.addDefaultImplementation(java.util.TreeSet.class, java.util.Set.class);\n```\nHowever, this implies that your application does not care about the implementation of the map and all elements are comparable.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-43859](https://x-stream.github.io/CVE-2021-43859.html).\n\n### Credits\nThe vulnerability was discovered and reported by r00t4dm at Cloud-Penetrating Arrow Lab.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-43859"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.19"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "name": "com.thoughtworks.xstream:xstream",
+        "version": "1.4.5",
+        "ecosystem": "Maven",
+        "fileLocation": "/home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml",
+        "details": "### Impact\nThe vulnerability may allow a remote attacker to request data from internal resources that are not publicly available only by manipulating the processed input stream with a Java runtime version 14 to 8. No user is affected, who followed the recommendation to setup XStream's security framework with a whitelist limited to the minimal required types.\n\n### Patches\nIf you rely on XStream's default blacklist of the [Security Framework](https://x-stream.github.io/security.html#framework), you will have to use at least version 1.4.18.\n\n### Workarounds\nSee [workarounds](https://x-stream.github.io/security.html#workaround) for the different versions covering all CVEs.\n\n### References\nSee full information about the nature of the vulnerability and the steps to reproduce it in XStream's documentation for [CVE-2021-39152](https://x-stream.github.io/CVE-2021-39152.html).\n\n### Credits\nm0d9 of the Security Team of Alibaba Cloud found and reported the issue to XStream and provided the required information to reproduce it.\n\n### For more information\nIf you have any questions or comments about this advisory:\n* Open an issue in [XStream](https://github.com/x-stream/xstream/issues)\n* Contact us at [XStream Google Group](https://groups.google.com/group/xstream-user)\n",
+        "aliases": [
+            "CVE-2021-39152"
+        ],
+        "severity": [
+            {
+                "type": "CVSS_V3",
+                "score": "CVSS:3.1/AV:N/AC:H/PR:L/UI:N/S:C/C:H/I:H/A:H"
+            }
+        ],
+        "affected": [
+            {
+                "type": "ECOSYSTEM",
+                "events": [
+                    {
+                        "introduced": "0"
+                    },
+                    {
+                        "fixed": "1.4.18"
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,13 @@
+{
+  "hello-dependency": {
+    "version": "1.0.0",
+    "requires": {
+      "example-dependency": {
+        "version": "1.0.0"
+      }
+    }
+  },
+  "example-dependency": {
+    "version": "2.0.0"
+  }
+}

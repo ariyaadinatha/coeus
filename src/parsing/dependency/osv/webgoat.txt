@@ -1,0 +1,43 @@
+Scanning dir WebGoat/
+Scanning /home/caffeine/Documents/Code/vulnerable-app/WebGoat/ at commit cbf2e153d93a9abba89b7ee8e6d18c298f3a767f
+Scanned /home/caffeine/Documents/Code/vulnerable-app/WebGoat/pom.xml file and found 36 packages
++-------------------------------------+-----------+----------------------------------+---------+-----------------+
+| OSV URL (ID IN BOLD)                | ECOSYSTEM | PACKAGE                          | VERSION | SOURCE          |
++-------------------------------------+-----------+----------------------------------+---------+-----------------+
+| https://osv.dev/GHSA-2p3x-qw9c-25hh | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-2q8x-2p7f-574v | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-3ccq-5vw3-2p6x | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-43gc-mjxg-gvrq | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-4cch-wxpw-8p28 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-4hrm-m67v-5cxr | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-56p8-3fh9-4cvq | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-59jw-jqf4-3wq3 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-64xx-cq4q-mf44 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-6w62-hx7r-mw68 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-6wf9-jmg9-vxcc | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-74cv-f58x-f9wf | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-7chv-rrw6-w6fc | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-7hwc-46rm-65jh | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-8jrj-525p-826v | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-cxfm-5m4g-x7xp | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-f554-x222-wgf7 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-f6hm-88x3-mfjv | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-f8cc-g7j8-xxpm | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-g5w6-mrj7-75h2 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-h7v4-7xg3-hxcc | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-hf23-9pf7-388p | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-hph2-m3g5-xxv4 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-hrcp-8f3q-4w2c | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-hvv8-336g-rx3m | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-hwpc-8xqv-jvj4 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-j563-grx4-pjpv | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-j9h8-phrw-h4fh | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-jfvx-7wrx-43fh | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-mw36-7c6c-q4q2 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-p8pq-r894-fm8f | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-qpfq-ph7r-qv6f | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-qrx8-8545-4wg2 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-rgh3-987h-wpmw | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-rmr5-cpv2-vgjf | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
+| https://osv.dev/GHSA-xw4p-crpj-vjx2 | Maven     | com.thoughtworks.xstream:xstream | 1.4.5   | WebGoat/pom.xml |
++-------------------------------------+-----------+----------------------------------+---------+-----------------+

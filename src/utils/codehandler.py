@@ -105,8 +105,8 @@ class FileHandler:
                         try:
                             pomDict = xmltodict.parse(content)["project"]
 
-                            with open(f"java-dependency.json", "w") as fileRes:
-                                fileRes.write(json.dumps(pomDict, indent=4))
+                            # with open(f"java-dependency.json", "w") as fileRes:
+                            #     fileRes.write(json.dumps(pomDict, indent=4))
 
                             javaDependencyDict = pomDict["dependencyManagement"]["dependencies"]["dependency"]
                             dependencyDict = {"dependencies": []}
@@ -141,12 +141,44 @@ class FileHandler:
                             logger.error(f"Error: {repr(e)}")
                             # tb = traceback.format_exc()
                             # logger.error(f"Error: {repr(e)}\n{tb}")
-
                     else:
                         dependencyDict = json.loads(content)
+
+                        # # testing
+                        # bruh = dependencyDict["packages"]
+                        # for i in bruh.keys():
+                        # #   print(i)
+                        #     split = i.split("/")
+                        #     if  split[0] == "node_modules":
+                        #         newDict = {f"{split[-1]}": bruh[i]}
+                        #         print(newDict)
+
+
+                        # print(dependencyDict["packages"])
                     
                     dependencyList = (dependencyDict[rules["pattern"]["expression"][0]])
+                    # print(f"total dep : {len(dependencyList)}")
+                    # print("s")
+
                     self.dependencyParser(dependencyList, pattern, dependencyHandler, filePath, ecosystem, mode)
+
+                    # if fileName == "package-lock.json":
+                    #     try:
+                    #         newDepList = {}
+                    #         nodeModules = dependencyDict["packages"]
+                    #         for i in nodeModules.keys():
+                    #             split = i.split("/")
+                    #             if  split[0] == "node_modules":
+                    #                 # print("adding new dep")
+                    #                 newDict = {f"{split[-1]}": nodeModules[i]}
+                    #                 print(newDict)
+                    #                 newDepList.update(newDict)
+                    #                 # print(f"total new : {len(dependencyList)}")
+                    #         self.dependencyParser(newDepList, pattern, dependencyHandler, filePath, ecosystem, mode)
+                    #     except Exception as e:
+                    #         logger.error(f"Error : {repr(e)}, {filePath}")
+
+
                     logger.info(f"Completed pattern matching for {fileName}")
                     
             except Exception as e:

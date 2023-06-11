@@ -98,10 +98,11 @@ class DependencyHandler:
         try:
             logger.info(f"Total dependencies: {len(self.getDependencies())}")
             logger.info("Scanning dependency vulnerabilities...")
-            
             for dependency in self.getDependencies():
+                # logger.info(f"Scanning: {dependency.getName()}:{dependency.getVersion()}")
                 result = self.scanDependency(dependency)
                 if result:
+                    # logger.info("Vuln!")
                     # print(result.__dict__)
                     for vuln in result["vulns"]:
                         parsedRes = self.parseDependencyResult(vuln)
