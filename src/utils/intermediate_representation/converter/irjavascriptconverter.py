@@ -1,7 +1,7 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.javascript import IRJavascriptNode
+from utils.intermediate_representation.nodes.irjavascriptnode import IRJavascriptNode
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid

@@ -1,7 +1,7 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.java import IRJavaNode
+from utils.intermediate_representation.nodes.irjavanode import IRJavaNode
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import JAVA_CONTROL_SCOPE_IDENTIFIERS, JAVA_DATA_SCOPE_IDENTIFIERS
 import uuid

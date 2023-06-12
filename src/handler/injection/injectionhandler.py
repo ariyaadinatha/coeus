@@ -1,9 +1,9 @@
 from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.intermediate_representation.converter.python import IRPythonConverter
-from utils.intermediate_representation.converter.javascript import IRJavascriptConverter
-from utils.intermediate_representation.converter.java import IRJavaConverter
-from utils.intermediate_representation.converter.php import IRPhpConverter
+from utils.intermediate_representation.converter.irpythonconverter import IRPythonConverter
+from utils.intermediate_representation.converter.irjavascriptconverter import IRJavascriptConverter
+from utils.intermediate_representation.converter.irjavaconverter import IRJavaConverter
+from utils.intermediate_representation.converter.irphpconverter import IRPhpConverter
 from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable

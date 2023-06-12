@@ -1,12 +1,13 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.php import IRPhpNode
+from utils.intermediate_representation.nodes.irpythonnode import IRPythonNode
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.constant.intermediate_representation import PHP_CONTROL_SCOPE_IDENTIFIERS, PHP_DATA_SCOPE_IDENTIFIERS
+from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
+from abc import ABC, abstractmethod
 
-class IRPhpConverter(IRConverter):
+class IRPythonConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
@@ -28,17 +29,19 @@ class IRPhpConverter(IRConverter):
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRPythonNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
-            node, parent = queue.pop(0)
+            currentPayload = queue.pop(0)
+            node: Node = currentPayload[0]
+            parent: IRNode = currentPayload[1]
 
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPhpNode(node, filename, projectId, parent)
+            convertedNode = IRPythonNode(node, filename, projectId, parent=parent)
 
             # add current node as child to parent node
             # else set root node
@@ -56,25 +59,28 @@ class IRPhpConverter(IRConverter):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+            currPayload = queue.pop(0)
+            currNode: IRNode = currPayload[0]
+            statementOrder: int = currPayload[0]
+            cfgParentId: str = currPayload[0]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
+            if currNode.isControlStatement() :
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
+                            # connect if true statements with if statement and skip block node
+                            if currNode.isControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, 'if_child')
+                            # connect else statements with if statement and skip block node
+                            elif currNode.isDivergingControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, 'if_child')
             
             statementOrder = 0
             # handles the next statement relationship
@@ -88,9 +94,44 @@ class IRPhpConverter(IRConverter):
                 else:
                     queue.append((child, 0, None))
 
+    def addDataFlowEdgesDFS(self, root: IRNode, filename: str):
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(root, filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.astChildren:
+                if not self.isIgnoredType(child):
+                    if node.type == "if_statement":
+                        # assign controlId to differentiate scope between control branches
+                        child.controlId = controlId
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
+
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRPythonNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -122,9 +163,9 @@ class IRPhpConverter(IRConverter):
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRPhpNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRPhpNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
@@ -132,10 +173,7 @@ class IRPhpConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        # NOTE: could be detrimental for assignments that use call expression
-        # e.g. a = init(x, y)
-        # or not?????
-        if node.isIdentifier() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
             if node.isInLeftHandSide():
@@ -187,12 +225,9 @@ class IRPhpConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
-
-            # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
-            # connect identifier with the declared identifier
             if key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
@@ -205,15 +240,15 @@ class IRPhpConverter(IRConverter):
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
-        scopeIdentifiers = PHP_DATA_SCOPE_IDENTIFIERS
-        controlScopeIdentifiers = PHP_CONTROL_SCOPE_IDENTIFIERS
+        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
+        controlScopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
         currentIdentifier = ""
 
         # add new scope for children if this node is class, function, module, and if-else branch
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
-                if child.type == "variable_name":
+                if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
         elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
@@ -226,6 +261,7 @@ class IRPhpConverter(IRConverter):
             currScope += f"\{currentIdentifier}"
 
         return currScope
+    
     def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         for targetScope in scopeDatabase:
             targetDataScope = self.getDataScope(targetScope)
@@ -318,7 +354,7 @@ class IRPhpConverter(IRConverter):
                         nodeCall.addDataFlowEdge(dataType, node.id)
     
     def isControlScope(self, scope: str) -> bool:
-        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PHP_CONTROL_SCOPE_IDENTIFIERS
+        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
     
     def getControlId(self, scope: str) -> str:
         return scope[-32:] if self.isControlScope(scope) else ""
