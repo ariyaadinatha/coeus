@@ -34,12 +34,14 @@ class IRPythonConverter(IRConverter):
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
-            node, parent = queue.pop(0)
+            currentPayload = queue.pop(0)
+            node: Node = currentPayload[0]
+            parent: IRNode = currentPayload[1]
 
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPythonNode(node, filename, projectId, parent)
+            convertedNode = IRPythonNode(node, filename, projectId, parent=parent)
 
             # add current node as child to parent node
             # else set root node
@@ -57,25 +59,28 @@ class IRPythonConverter(IRConverter):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+            currPayload = queue.pop(0)
+            currNode: IRNode = currPayload[0]
+            statementOrder: int = currPayload[0]
+            cfgParentId: str = currPayload[0]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
+            if currNode.isControlStatement() :
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
+                            # connect if true statements with if statement and skip block node
+                            if currNode.isControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, 'if_child')
+                            # connect else statements with if statement and skip block node
+                            elif currNode.isDivergingControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, 'if_child')
             
             statementOrder = 0
             # handles the next statement relationship
@@ -88,6 +93,41 @@ class IRPythonConverter(IRConverter):
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
+
+    def addDataFlowEdgesDFS(self, root: IRNode, filename: str):
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(root, filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.astChildren:
+                if not self.isIgnoredType(child):
+                    if node.type == "if_statement":
+                        # assign controlId to differentiate scope between control branches
+                        child.controlId = controlId
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
