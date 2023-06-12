@@ -308,13 +308,14 @@ class InjectionHandler:
             parameters = {
                 "id": node.id,
                 "cfg_parent_id": edge.cfgParentId,
-                "statement_order": edge.statementOrder
+                "statement_order": edge.statementOrder,
+                "control_type": edge.controlType
             }
 
             query = '''
                     MATCH (child:Node), (parent:Node)
                     WHERE child.id = $id AND parent.id = $cfg_parent_id
-                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order}]-(parent)
+                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order, control_type: $control_type}]-(parent)
                     SET child:ControlNode
                     SET parent:ControlNode
                 '''

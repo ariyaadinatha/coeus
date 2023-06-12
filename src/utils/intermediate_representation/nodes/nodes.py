@@ -176,6 +176,10 @@ class IRNode(ABC):
     @abstractmethod
     def isControlStatement(self) -> bool:
         pass
+
+    @abstractmethod
+    def isDivergingControlStatement(self) -> bool:
+        pass
     
     @abstractmethod
     def getIdentifierFromAssignment(self) -> str:
@@ -183,10 +187,11 @@ class IRNode(ABC):
 
 # class to store all control flow related actions
 class ControlFlowEdge:
-    def __init__(self, statementOrder: int, cfgParentId: str) -> None:
+    def __init__(self, statementOrder: int, cfgParentId: str, controlType: str = 'next_statement') -> None:
         self.cfgId = uuid.uuid4().hex
         self.statementOrder = statementOrder
         self.cfgParentId = cfgParentId
+        self.controlType = controlType
 
 # clas to store all variables and their values
 class DataFlowEdge:
