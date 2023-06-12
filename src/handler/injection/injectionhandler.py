@@ -192,6 +192,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("creating unique constraint for id")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query create constraint error: {e}")
@@ -209,6 +210,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("setting root label")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query set root label error: {e}")
@@ -221,6 +223,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("setting source label")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query set root label error: {e}")
@@ -233,6 +236,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("setting sink label")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query set root label error: {e}")
@@ -245,6 +249,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("setting sanitizer label")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query set root label error: {e}")
@@ -281,6 +286,7 @@ class InjectionHandler:
             })'''
         
         try:
+            print("inserting node")
             self.connection.query(query, parameters, db="connect-python")
         except Exception as e:
             print(f"Query insert node error: {e}")
@@ -292,6 +298,7 @@ class InjectionHandler:
                 CREATE (parent)-[:AST_PARENT_TO]->(child)
             '''
         try:
+            print("creating AST relationship")
             self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query create AST relationship error: {e}")
@@ -313,6 +320,7 @@ class InjectionHandler:
                 '''
 
             try:
+                print("creating control flow relationship")
                 self.connection.query(query, parameters=parameters, db="connect-python")
             except Exception as e:
                 print(f"Query create control flow relationship error: {e}")
@@ -343,6 +351,7 @@ class InjectionHandler:
                 '''
 
             try:
+                print("creating data flow relationship")
                 self.connection.query(query, parameters=parameters, db="connect-python")
             except Exception as e:
                 print(f"Query create data flow relationship error: {e}")
@@ -361,6 +370,7 @@ class InjectionHandler:
         '''
 
         try:
+            print("expanding injection path using APOC")
             return self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query expand path using APOC error: {e}")
@@ -437,6 +447,7 @@ class InjectionHandler:
             MATCH (n) DETACH DELETE (n)
         '''
         try:
+            print("deleting all nodes and relationship")
             return self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query delete all nodes and relationships error: {e}")
@@ -446,6 +457,7 @@ class InjectionHandler:
             CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'DETACH DELETE n', {batchSize:1000})
         '''
         try:
+            print("deleting all nodes and relationship using APOC")
             return self.connection.query(query, db="connect-python")
         except Exception as e:
             print(f"Query delete all nodes and relationships error: {e}")
