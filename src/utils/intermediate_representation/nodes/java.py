@@ -10,13 +10,25 @@ class IRJavaNode(IRNode):
         super().__init__(node, filename, projectId, controlId, parent)
 
     def isCallExpression(self) -> bool:
-        return self.type == "method_invocation"
+        return "invocation" in self.type
         
     def isInsideIfElseBranch(self) -> bool:
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in JAVA_CONTROL_SCOPE_IDENTIFIERS
     
-    def isPartOfAssignment(self) -> bool:
-        if self.parent is not None:
-            if self.parent.type == "assignment_expression" or self.parent.type == "variable_declarator":
-                return True
-        return False
+    def isControlStatement(self) -> bool:
+        return self.type in JAVA_CONTROL_SCOPE_IDENTIFIERS
+    
+    def getIdentifierFromAssignment(self) -> str:
+        # a = x
+        # a = "test" + x
+        parent = self.parent
+        while parent.type != "assignment":
+            parent = parent.parent
+
+            if parent is None:
+                return None
+        if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
+            return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
+        else:
+            # a = "test" + x
+            return parent.astChildren[0].content

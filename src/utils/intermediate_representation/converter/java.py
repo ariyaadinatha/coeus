@@ -3,7 +3,7 @@ from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
 from utils.intermediate_representation.nodes.java import IRJavaNode
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
+from utils.constant.intermediate_representation import JAVA_CONTROL_SCOPE_IDENTIFIERS, JAVA_DATA_SCOPE_IDENTIFIERS
 import uuid
 from abc import ABC, abstractmethod
 
@@ -156,15 +156,25 @@ class IRJavaConverter(IRConverter):
                     dfgParentId = symbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
-                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
+                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                     self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
-        # handle value of an assignment but is not identifier
-        if node.isInRightHandSide() and node.isPartOfAssignment():
+        # handle value of an assignment
+        # a = x
+        if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
-                identifier = node.node.prev_sibling.prev_sibling.text.decode("UTF-8")
+                identifier = node.getIdentifierFromAssignment()
+                key = (identifier, node.scope)
+                if key in symbolTable:
+                    dfgParentId = symbolTable[key][-1]
+                    dataType = "value"
+                    node.addDataFlowEdge(dataType, dfgParentId)
+        # a = "test" + x
+        elif node.isPartOfAssignment() and not node.isPartOfCallExpression():
+            if node.isValueOfAssignment():
+                identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
                 if key in symbolTable:
                     dfgParentId = symbolTable[key][-1]
@@ -172,30 +182,26 @@ class IRJavaConverter(IRConverter):
                     node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.isIdentifier() and not node.isPartOfAssignment():
+        if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
+            nodeCall = node.getCallExpression()
+            nodeCall.addDataFlowEdge(dataType, node.id)
+
             if key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
-                # handle variable in argument list in function
-                # when arguments (identifier type) is child of argument_list and child of child of call expression
-                # handle when arguments is child of child of child of call expression
-                if node.parent.parent.isCallExpression() or node.parent.parent.parent.isCallExpression():
-                    nodeCall: IRNode = node.parent.parent if node.parent.parent.isCallExpression() else node.parent.parent.parent
-                    for child in nodeCall.astChildren:
-                        if child.isIdentifier():
-                            child.addDataFlowEdge(dataType, node.id)
+
             if node.isInsideIfElseBranch():
-                self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, symbolTable)
+                self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
             else:
                 self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
-        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
-        controlScopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        scopeIdentifiers = JAVA_DATA_SCOPE_IDENTIFIERS
+        controlScopeIdentifiers = JAVA_CONTROL_SCOPE_IDENTIFIERS
         currentIdentifier = ""
 
         # add new scope for children if this node is class, function, module, and if-else branch
@@ -216,21 +222,27 @@ class IRJavaConverter(IRConverter):
 
         return currScope
     
-    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, symbolTable):
-        previousScope = node.scope.rpartition("\\")[0]
-        previousKey = (node.content, previousScope)
-        # check previous key exists in symbol table
-        # and check no key exists yet in current scope
-        if previousKey in symbolTable and key not in symbolTable:
-            dfgParentId = symbolTable[previousKey][-1]
-            node.addDataFlowEdge(dataType, dfgParentId)
+    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+        for targetScope in scopeDatabase:
+            targetDataScope = self.getDataScope(targetScope)
+            currentDataScope = self.getDataScope(node.scope)
+
+            if targetDataScope != currentDataScope:
+                continue
+
+            targetKey = (node.content, targetScope)
+            # check previous key exists in symbol table
+            # and check no key exists yet in current scope
+            if targetKey in symbolTable and key not in symbolTable:
+                dfgParentId = symbolTable[targetKey][-1]
+                node.addDataFlowEdge(dataType, dfgParentId)
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # iterate through every scope registered
         for scope in scopeDatabase:
             if scope != None and scope.rpartition("\\")[0] == node.scope and self.isControlScope(scope):
                 controlKey = (node.content, scope)
-                if controlKey in symbolTable:
+                if controlKey in symbolTable and key in symbolTable:
                     outsideId = symbolTable[key][-1]
                     insideId = symbolTable[controlKey][-1]
                     outsideOrder = visitedList.index(outsideId)
@@ -243,8 +255,9 @@ class IRJavaConverter(IRConverter):
                         dfgParentId = symbolTable[controlKey][-1]
                         node.addDataFlowEdge(dataType, dfgParentId)
                         # handle variable in argument list in function
-                        if node.parent.parent.type == "call":
-                            node.parent.parent.addDataFlowEdge(dataType, node.id)
+                        if node.isPartOfCallExpression():
+                            nodeCall = node.getCallExpression()
+                            nodeCall.addDataFlowEdge(dataType, node.id)
 
     # only for languages that don't have scopes in if else blocks
     # looking at you python
@@ -286,7 +299,7 @@ class IRJavaConverter(IRConverter):
                         node.parent.parent.addDataFlowEdge(dataType, node.id)
     
     def isControlScope(self, scope: str) -> bool:
-        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in JAVA_CONTROL_SCOPE_IDENTIFIERS
     
     def getControlId(self, scope: str) -> str:
         return scope[-32:] if self.isControlScope(scope) else ""
