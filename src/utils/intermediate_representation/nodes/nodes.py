@@ -90,8 +90,8 @@ class IRNode(ABC):
       self.isTainted = self.isSource
       self.scope = scope
     
-    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
-      edge = ControlFlowEdge(statementOrder, cfgParentId)
+    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None], controlType: str='next_statement'):
+      edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
       self.controlFlowEdges.append(edge)
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):

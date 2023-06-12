@@ -11,19 +11,6 @@ class IRPythonConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
-    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-
-        return irRoot
-    
-    def createCompleteTree(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createAstTree(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
-
-        return irRoot
-
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
@@ -94,7 +81,7 @@ class IRPythonConverter(IRConverter):
                 else:
                     queue.append((child, 0, None))
 
-    def addDataFlowEdgesDFS(self, root: IRNode, filename: str):
+    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
         # to keep track of all visited nodes
         visited = set()
         # to keep track of order of visited nodes
@@ -104,7 +91,7 @@ class IRPythonConverter(IRConverter):
         # to keep track of scopes
         scopeDatabase = set()
         # for dfs
-        stack: list[tuple(IRNode, str)] = [(root, filename)]
+        stack: list[tuple(IRNode, str)] = [(root, root.filename)]
 
         while stack:
             payload = stack.pop()
