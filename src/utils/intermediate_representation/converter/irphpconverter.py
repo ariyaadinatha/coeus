@@ -19,7 +19,7 @@ class IRPhpConverter(IRConverter):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTreeDFS(irRoot)
 
         return irRoot
 
@@ -30,15 +30,18 @@ class IRPhpConverter(IRConverter):
         projectId = uuid.uuid4().hex
         irRoot = IRPhpNode(root, filename, projectId)
 
+        # list of tuple of node and their parent
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
-            node, parent = queue.pop(0)
+            currentPayload = queue.pop(0)
+            node: Node = currentPayload[0]
+            parent: IRNode = currentPayload[1]
 
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPhpNode(node, filename, projectId, parent)
+            convertedNode = IRPhpNode(node, filename, projectId, parent=parent)
 
             # add current node as child to parent node
             # else set root node
@@ -56,30 +59,33 @@ class IRPhpConverter(IRConverter):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+            currPayload = queue.pop(0)
+            currNode: IRNode = currPayload[0]
+            statementOrder: int = currPayload[1]
+            cfgParentId: str = currPayload[2]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
-            # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
+            # handle control statement (if-else, for, while, etc.)
+            if currNode.isControlStatement() or currNode.isDivergingControlStatement():
                 for child in currNode.astChildren:
-                    if child.type == "block":
+                    if child.type == "compound_statement":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
+                            # connect if true statements with control statement and skip block node
+                            if currNode.isControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+                            # connect else statements with control consequence statement and skip block node
+                            elif currNode.isDivergingControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
             
             statementOrder = 0
             # handles the next statement relationship
             # TODO: handle for, while, try, catch, etc. control
-            currCfgParent = None if currNode.type != "module" else currNode.id
+            currCfgParent = None if currNode.type != "program" else currNode.id
             for child in currNode.astChildren:
                 if "statement" in child.type:
                     statementOrder += 1
@@ -87,6 +93,41 @@ class IRPhpConverter(IRConverter):
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
+
+    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(root, root.filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.astChildren:
+                if not self.isIgnoredType(child):
+                    if node.isControlStatement():
+                        # assign controlId to differentiate scope between control branches
+                        child.controlId = controlId
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
@@ -216,11 +257,9 @@ class IRPhpConverter(IRConverter):
                 if child.type == "variable_name":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
-        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
-                if node.controlId != None:
-                    currentIdentifier = f"{node.type}{node.controlId}"
-                else:
-                    currentIdentifier = f"{node.type}{uuid.uuid4().hex}"
+        # add new scope for children if this node is child of a control statement
+        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.isControlStatement():
+                currentIdentifier = f"{node.type}{uuid.uuid4().hex}"
 
         if currentIdentifier != "":
             currScope += f"\{currentIdentifier}"

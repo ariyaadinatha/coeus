@@ -1,6 +1,6 @@
 from tree_sitter import Node
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.constant.intermediate_representation import PHP_CONTROL_SCOPE_IDENTIFIERS
+from utils.constant.intermediate_representation import PHP_CONTROL_SCOPE_IDENTIFIERS, PHP_CONTROL_STATEMENTS, PHP_DIVERGE_CONTROL_STATEMENTS
 from typing import Union
 import uuid
 
@@ -16,7 +16,10 @@ class IRPhpNode(IRNode):
         return self.scope != None and len(self.scope.rpartition("\\")[2]) > 32 and self.scope.rpartition("\\")[2][:-32] in PHP_CONTROL_SCOPE_IDENTIFIERS
         
     def isControlStatement(self) -> bool:
-        return self.type in PHP_CONTROL_SCOPE_IDENTIFIERS
+        return self.type in PHP_CONTROL_STATEMENTS
+    
+    def isDivergingControlStatement(self) -> bool:
+        return self.type in PHP_DIVERGE_CONTROL_STATEMENTS
     
     def getIdentifierFromAssignment(self) -> str:
         parent = self.parent
