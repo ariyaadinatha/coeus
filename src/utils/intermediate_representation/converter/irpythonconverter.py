@@ -111,7 +111,7 @@ class IRPythonConverter(IRConverter):
             
             for child in node.astChildren:
                 if not self.isIgnoredType(child):
-                    if node.type == "if_statement":
+                    if node.isControlStatement():
                         # assign controlId to differentiate scope between control branches
                         child.controlId = controlId
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
@@ -238,7 +238,7 @@ class IRPythonConverter(IRConverter):
                 if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
-        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
+        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.isControlStatement():
                 if node.controlId != None:
                     currentIdentifier = f"{node.type}{node.controlId}"
                 else:
