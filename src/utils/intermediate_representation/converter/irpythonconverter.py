@@ -238,6 +238,7 @@ class IRPythonConverter(IRConverter):
                 if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
+        # add new scope for children if this node is child of a control statement
         elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.isControlStatement():
                 if node.controlId != None:
                     currentIdentifier = f"{node.type}{node.controlId}"
