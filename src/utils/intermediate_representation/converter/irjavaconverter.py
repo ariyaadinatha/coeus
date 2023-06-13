@@ -68,14 +68,17 @@ class IRJavaConverter(IRConverter):
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.isControlStatement() and not currNode.isElseIfBranch():
+            if currNode.isControlStatement() or currNode.isDivergingControlStatement() and not currNode.isElseIfBranch():
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
                             # connect if true statements with control statement and skip block node
+                            if currNode.isControlStatement():
                             # !!!: depends on lower node
-                            blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+                            elif currNode.isDivergingControlStatement():
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
             # handle else if
             elif currNode.isInElseIfBranch() and currNode.isFirstStatementInBlock():
                 if currNode.parent.node.prev_sibling.type == "else":
