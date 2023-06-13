@@ -78,11 +78,12 @@ class IRJavaConverter(IRConverter):
                             blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
             # handle else if
             elif currNode.isInElseIfBranch() and currNode.isFirstStatementInBlock():
-                print("branch else if")
-                print(currNode)
-                print(currNode.node.prev_sibling)
+                if currNode.parent.node.prev_sibling.type == "else":
+                    controlType = "else_clause_child"
+                else:
+                    controlType = "else_if_clause_child"
                 rootIfStatement: IRJavaNode = currNode.getRootIfStatement()
-                currNode.addControlFlowEdge(1, rootIfStatement.id, "else_if_clause_child")
+                currNode.addControlFlowEdge(1, rootIfStatement.id, controlType)
             
             statementOrder = 0
             # handles the next statement relationship
