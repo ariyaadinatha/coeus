@@ -48,14 +48,14 @@ class IRPythonConverter(IRConverter):
         while len(queue) != 0:
             currPayload = queue.pop(0)
             currNode: IRNode = currPayload[0]
-            statementOrder: int = currPayload[0]
-            cfgParentId: str = currPayload[0]
+            statementOrder: int = currPayload[1]
+            cfgParentId: str = currPayload[2]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.isControlStatement() :
+            if currNode.isControlStatement() or currNode.isDivergingControlStatement():
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
