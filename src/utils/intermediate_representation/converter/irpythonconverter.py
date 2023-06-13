@@ -54,20 +54,20 @@ class IRPythonConverter(IRConverter):
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
-            # handle if statement
+            # handle control statement (if-else, for, while, etc.)
             if currNode.isControlStatement() or currNode.isDivergingControlStatement():
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement and skip block node
+                            # connect if true statements with control statement and skip block node
                             if currNode.isControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, 'if_child')
-                            # connect else statements with if statement and skip block node
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+                            # connect else statements with control consequence statement and skip block node
                             elif currNode.isDivergingControlStatement():
                                 # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, 'if_child')
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
             
             statementOrder = 0
             # handles the next statement relationship
