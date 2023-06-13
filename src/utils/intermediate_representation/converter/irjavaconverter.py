@@ -20,7 +20,7 @@ class IRJavaConverter(IRConverter):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTreeDFS(irRoot)
 
         return irRoot
 
@@ -34,12 +34,14 @@ class IRJavaConverter(IRConverter):
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
-            node, parent = queue.pop(0)
+            currentPayload = queue.pop(0)
+            node: Node = currentPayload[0]
+            parent: IRNode = currentPayload[1]
 
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRJavaNode(node, filename, projectId, parent)
+            convertedNode = IRJavaNode(node, filename, projectId, parent=parent)
 
             # add current node as child to parent node
             # else set root node
@@ -53,34 +55,38 @@ class IRJavaConverter(IRConverter):
 
         return irRoot
 
-    def addControlFlowEdgesToTree(self, root: IRNode):
-        queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+    def addControlFlowEdgesToTree(self, root: IRJavaNode):
+        queue: list[tuple(IRJavaNode, int, IRJavaNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+            currPayload = queue.pop(0)
+            currNode: IRJavaNode = currPayload[0]
+            statementOrder: int = currPayload[1]
+            cfgParentId: str = currPayload[2]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
+            if currNode.isControlStatement() and not currNode.isElseIfBranch():
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
+                            # connect if true statements with control statement and skip block node
+                            # !!!: depends on lower node
+                            blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+            # handle else if
+            elif currNode.isInElseIfBranch() and currNode.isFirstStatementInBlock():
+                print("branch else if")
+                print(currNode)
+                print(currNode.node.prev_sibling)
+                rootIfStatement: IRJavaNode = currNode.getRootIfStatement()
+                currNode.addControlFlowEdge(1, rootIfStatement.id, "else_if_clause_child")
             
             statementOrder = 0
             # handles the next statement relationship
-            # TODO: handle for, while, try, catch, etc. control
-            currCfgParent = None if currNode.type != "module" else currNode.id
+            currCfgParent = None if currNode.type != "program" else currNode.id
             for child in currNode.astChildren:
                 if "statement" in child.type or "declaration" in child.type:
                     statementOrder += 1
@@ -88,6 +94,41 @@ class IRJavaConverter(IRConverter):
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
+
+    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(root, root.filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.astChildren:
+                if not self.isIgnoredType(child):
+                    if node.isControlStatement():
+                        # assign controlId to differentiate scope between control branches
+                        child.controlId = controlId
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
 
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex

@@ -22,5 +22,7 @@ PHP_DATA_SCOPE_IDENTIFIERS = ("function_definition", "class_declaration")
 '''
 java
 '''
-JAVA_DATA_SCOPE_IDENTIFIERS = ("class_declaration", "method_declaration")
 JAVA_CONTROL_SCOPE_IDENTIFIERS = ("block", "elif_clause", "else_clause")
+JAVA_CONTROL_STATEMENTS = ("if_statement", "for_statement", "while_statement", "try_statement")
+JAVA_DIVERGE_CONTROL_STATEMENTS = ("else_clause")
+JAVA_DATA_SCOPE_IDENTIFIERS = ("class_declaration", "method_declaration")
