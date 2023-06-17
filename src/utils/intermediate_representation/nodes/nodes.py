@@ -179,7 +179,7 @@ class IRNode(ABC):
         
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
-            if "assignment" in parent.type or "declarator" in parent.type:
+            if "assignment" in parent.type or "declarator" in parent.type or "declaration" in parent.type:
                 return True
             else:
                 parent = parent.parent

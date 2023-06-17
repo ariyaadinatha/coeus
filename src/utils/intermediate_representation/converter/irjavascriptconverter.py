@@ -100,6 +100,8 @@ class IRJavascriptConverter(IRConverter):
         symbolTable = {}
         # to keep track of scopes
         scopeDatabase = set()
+        # to keep track of block scoped variables
+        blockScopedSymbolTable = {}
         # for dfs
         stack: list[tuple(IRNode, str)] = [(root, root.filename)]
 
@@ -115,7 +117,7 @@ class IRJavascriptConverter(IRConverter):
             # do the ting
             node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
             scope = self.determineScopeNode(node, scope)
-            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
             
             controlId = uuid.uuid4().hex
             
@@ -136,6 +138,8 @@ class IRJavascriptConverter(IRConverter):
         visitedList = []
         # to keep track of variables
         symbolTable = {}
+        # to keep track of block scoped variables
+        blockScopedSymbolTable = {}
         # to keep track of scopes
         scopeDatabase = set()
         # for dfs
@@ -153,7 +157,7 @@ class IRJavascriptConverter(IRConverter):
             # do the ting
             node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
             scope = self.determineScopeNode(node, scope)
-            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
             
             controlId = uuid.uuid4().hex
             
@@ -168,7 +172,7 @@ class IRJavascriptConverter(IRConverter):
         
         return irRoot
 
-    def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+    def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # handle variable assignment and reassignment
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
@@ -182,10 +186,16 @@ class IRJavascriptConverter(IRConverter):
                     # register node id to symbol table
                     symbolTable[key].append(node.id)
                 else:
-                    # assignment of a new variable
-                    dataType = "assignment"
-                    node.addDataFlowEdge(dataType, None)
-                    symbolTable[key] = [node.id]
+                # assignment of a new variable
+                    # handle block scope assignment
+                    if node.isBlockScopeVariableInAssignment():
+                        dataType = "assignment"
+                        node.addDataFlowEdge(dataType, None)
+                        blockScopedSymbolTable[key] = [node.id]
+                    else:
+                        dataType = "assignment"
+                        node.addDataFlowEdge(dataType, None)
+                        symbolTable[key] = [node.id]
             else:
                 # reference of an existing variable as value of another variable
                 dataType = "referenced"
@@ -196,14 +206,20 @@ class IRJavascriptConverter(IRConverter):
                     self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
                     self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
-                    self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+                    self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
         # handle value of an assignment but is not identifier
         if node.isInRightHandSide() and node.isPartOfAssignment():
             if node.isValueOfAssignment():
                 identifier = node.node.prev_sibling.prev_sibling.text.decode("UTF-8")
                 key = (identifier, node.scope)
-                if key in symbolTable:
+                # handle block scope
+                if key in blockScopedSymbolTable:
+                    dfgParentId = blockScopedSymbolTable[key][-1]
+                    dataType = "value"
+                    node.addDataFlowEdge(dataType, dfgParentId)
+                # handle standard scope
+                elif key in symbolTable:
                     dfgParentId = symbolTable[key][-1]
                     dataType = "value"
                     node.addDataFlowEdge(dataType, dfgParentId)
@@ -218,15 +234,18 @@ class IRJavascriptConverter(IRConverter):
                 nodeCall = node.getBinaryExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
-            if key in symbolTable:
+            if key in blockScopedSymbolTable:
+                dfgParentId = blockScopedSymbolTable[key][-1]
+                node.addDataFlowEdge(dataType, dfgParentId)
+            elif key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
 
             if node.isInsideIfElseBranch():
-                self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+                self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
                 self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
             else:
-                self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+                self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
@@ -253,22 +272,29 @@ class IRJavascriptConverter(IRConverter):
 
         return currScope
     
-    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         for targetScope in scopeDatabase:
             targetDataScope = self.getDataScope(targetScope)
             currentDataScope = self.getDataScope(node.scope)
 
-            if targetDataScope != currentDataScope:
+            # for block scoped vars
+            if not self.isInSameBlockScope(targetScope, node.scope) or targetDataScope != currentDataScope:
                 continue
 
-            targetKey = (node.content, targetScope)
-            # check previous key exists in symbol table
-            # and check no key exists yet in current scope
-            if targetKey in symbolTable and key not in symbolTable:
-                dfgParentId = symbolTable[targetKey][-1]
-                node.addDataFlowEdge(dataType, dfgParentId)
+            if self.isInSameBlockScope(targetScope, node.scope):
+                targetKey = (node.content, targetScope)
+                if targetKey in blockScopedSymbolTable and key not in blockScopedSymbolTable:
+                    dfgParentId = blockScopedSymbolTable[targetKey][-1]
+                    node.addDataFlowEdge(dataType, dfgParentId) 
+            else:
+                targetKey = (node.content, targetScope)
+                # check previous key exists in symbol table
+                # and check no key exists yet in current scope
+                if targetKey in symbolTable and key not in symbolTable:
+                    dfgParentId = symbolTable[targetKey][-1]
+                    node.addDataFlowEdge(dataType, dfgParentId)
 
-    def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+    def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # iterate through every scope registered
         currentDataScope = self.getDataScope(node.scope)
         for scope in scopeDatabase:
@@ -301,6 +327,39 @@ class IRJavascriptConverter(IRConverter):
             # and make sure last inside occurance of variable is BEFORE current occurance
             if outsideOrder < insideOrder and insideOrder < currentOrder:
                 dfgParentId = symbolTable[controlKey][-1]
+                node.addDataFlowEdge(dataType, dfgParentId)
+                # handle variable in argument list in function
+                if node.isPartOfCallExpression():
+                    nodeCall = node.getCallExpression()
+                    nodeCall.addDataFlowEdge(dataType, node.id)
+
+        # iterate for block scope variables
+        for blockScope in scopeDatabase:
+            if not self.isInSameBlockScope(blockScope, node.scope):
+                continue
+
+            if not self.isControlScope(blockScope):
+                continue
+
+            controlKey = (node.content, blockScope)
+            if controlKey in blockScopedSymbolTable:
+                insideId = blockScopedSymbolTable[controlKey][-1]
+            else:
+                continue
+
+            if key in blockScopedSymbolTable:
+                outsideId = blockScopedSymbolTable[key][-1]
+                outsideOrder = visitedList.index(outsideId)
+            else:
+                outsideOrder = -1
+
+            insideOrder = visitedList.index(insideId)
+            currentOrder = visitedList.index(node.id)
+
+            # make sure last outside occurance of variable is BEFORE if statement OR there is no outside occurance
+            # and make sure last inside occurance of variable is BEFORE current occurance
+            if outsideOrder < insideOrder and insideOrder < currentOrder:
+                dfgParentId = blockScopedSymbolTable[controlKey][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
                 # handle variable in argument list in function
                 if node.isPartOfCallExpression():

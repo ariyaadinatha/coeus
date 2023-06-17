@@ -65,3 +65,6 @@ class IRJavascriptNode(IRNode):
     
     def isFirstStatementInBlock(self) -> IRNode:
         return self.node.prev_sibling.type == "{"
+    
+    def isBlockScopeVariableInAssignment(self) -> IRNode:
+        return self.isIdentifier() and self.parent.parent.type == "lexical_declaration"
