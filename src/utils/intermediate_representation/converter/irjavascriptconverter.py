@@ -3,7 +3,7 @@ from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
 from utils.intermediate_representation.nodes.irjavascriptnode import IRJavascriptNode
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
+from utils.constant.intermediate_representation import JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS, JAVASCRIPT_DATA_SCOPE_IDENTIFIERS
 import uuid
 from abc import ABC, abstractmethod
 
@@ -222,10 +222,13 @@ class IRJavascriptConverter(IRConverter):
                     node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.isIdentifier() and node.isPartOfCallExpression():
+        if node.isIdentifier() and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
             key = (node.content, node.scope)
             dataType = "called"
-            nodeCall = node.getCallExpression()
+            if node.isPartOfCallExpression():
+                nodeCall = node.getCallExpression()
+            else:
+                nodeCall = node.getBinaryExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in symbolTable:
@@ -240,11 +243,11 @@ class IRJavascriptConverter(IRConverter):
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
-        scopeIdentifiers = PYTHON_DATA_SCOPE_IDENTIFIERS
-        controlScopeIdentifiers = PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        scopeIdentifiers = JAVASCRIPT_DATA_SCOPE_IDENTIFIERS
+        controlScopeIdentifiers = JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS
         currentIdentifier = ""
 
-        # add new scope for children if this node is class, function, module, and if-else branch
+        # add new scope for children if this node is class, function, module, and control branch
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
@@ -252,25 +255,31 @@ class IRJavascriptConverter(IRConverter):
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
         # add new scope for children if this node is child of a control statement
-        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
-                if node.controlId != None:
-                    currentIdentifier = f"{node.type}{node.controlId}"
-                else:
-                    currentIdentifier = f"{node.type}{uuid.uuid4().hex}"
+        elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.isControlStatement():
+            if node.controlId != None:
+                currentIdentifier = f"{node.type}{node.controlId}"
+            else:
+                currentIdentifier = f"{node.type}{uuid.uuid4().hex}"
 
         if currentIdentifier != "":
             currScope += f"\{currentIdentifier}"
 
         return currScope
     
-    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, symbolTable):
-        previousScope = node.scope.rpartition("\\")[0]
-        previousKey = (node.content, previousScope)
-        # check previous key exists in symbol table
-        # and check no key exists yet in current scope
-        if previousKey in symbolTable and key not in symbolTable:
-            dfgParentId = symbolTable[previousKey][-1]
-            node.addDataFlowEdge(dataType, dfgParentId)
+    def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+        for targetScope in scopeDatabase:
+            targetDataScope = self.getDataScope(targetScope)
+            currentDataScope = self.getDataScope(node.scope)
+
+            if targetDataScope != currentDataScope:
+                continue
+
+            targetKey = (node.content, targetScope)
+            # check previous key exists in symbol table
+            # and check no key exists yet in current scope
+            if targetKey in symbolTable and key not in symbolTable:
+                dfgParentId = symbolTable[targetKey][-1]
+                node.addDataFlowEdge(dataType, dfgParentId)
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # iterate through every scope registered
@@ -278,7 +287,10 @@ class IRJavascriptConverter(IRConverter):
             if scope != None and scope.rpartition("\\")[0] == node.scope and self.isControlScope(scope):
                 controlKey = (node.content, scope)
                 if controlKey in symbolTable:
-                    outsideId = symbolTable[key][-1]
+                    if key in symbolTable:
+                        outsideId = symbolTable[key][-1]
+                    else:
+                        return
                     insideId = symbolTable[controlKey][-1]
                     outsideOrder = visitedList.index(outsideId)
                     insideOrder = visitedList.index(insideId)
@@ -296,17 +308,21 @@ class IRJavascriptConverter(IRConverter):
     # only for languages that don't have scopes in if else blocks
     # looking at you python
     def connectDataFlowEdgeToInsideFromInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+        currentDataScope = self.getDataScope(node.scope)
+
         # iterate through every scope registered
         for scope in scopeDatabase:
             if scope == None:
                 continue
 
+            targetDataScope = self.getDataScope(node.scope)
+            # check data scope is identical
+            if targetDataScope != currentDataScope:
+                continue
+
             targetGlobalScope, _, targetControlScope = scope.rpartition("\\")
             currentGlobalScope, _, currentControlScope = node.scope.rpartition("\\")
 
-            # check global scope is identical
-            if targetGlobalScope != currentGlobalScope:
-                continue
             # check both scope is inside control branch
             if not self.isControlScope(scope) or not self.isControlScope(node.scope):
                 continue
@@ -315,8 +331,8 @@ class IRJavascriptConverter(IRConverter):
                 continue
 
             controlKey = (node.content, scope)
-            outsideKey = (node.content, targetGlobalScope)
-            if controlKey in symbolTable:
+            outsideKey = (node.content, targetDataScope)
+            if controlKey in symbolTable and outsideKey in symbolTable:
                 outsideId = symbolTable[outsideKey][-1]
                 insideId = symbolTable[controlKey][-1]
                 outsideOrder = visitedList.index(outsideId)
@@ -329,11 +345,12 @@ class IRJavascriptConverter(IRConverter):
                     dfgParentId = symbolTable[controlKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
-                    if node.parent.parent.type == "call":
-                        node.parent.parent.addDataFlowEdge(dataType, node.id)
+                    if node.isPartOfCallExpression():
+                        nodeCall = node.getCallExpression()
+                        nodeCall.addDataFlowEdge(dataType, node.id)
     
     def isControlScope(self, scope: str) -> bool:
-        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
+        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS
     
     def getControlId(self, scope: str) -> str:
         return scope[-32:] if self.isControlScope(scope) else ""

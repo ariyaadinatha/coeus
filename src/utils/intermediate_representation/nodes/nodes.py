@@ -147,10 +147,27 @@ class IRNode(ABC):
 
         return parent
     
+    def getBinaryExpression(self):
+        parent = self.parent
+
+        while not parent.isBinaryExpression():
+            parent = parent.parent
+
+        return parent
+    
     def isPartOfCallExpression(self) -> bool:
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isCallExpression():
+                return True
+            parent = parent.parent
+
+        return False
+    
+    def isPartOfBinaryExpression(self) -> bool:
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if parent.isBinaryExpression():
                 return True
             parent = parent.parent
 
@@ -168,6 +185,10 @@ class IRNode(ABC):
                 parent = parent.parent
 
         return False
+    
+    @abstractmethod
+    def isBinaryExpression(self) -> bool:
+        pass
     
     @abstractmethod
     def isCallExpression(self) -> bool:

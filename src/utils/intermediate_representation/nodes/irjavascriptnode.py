@@ -9,6 +9,9 @@ class IRJavascriptNode(IRNode):
     def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
         super().__init__(node, filename, projectId, controlId, parent)
 
+    def isBinaryExpression(self) -> bool:
+        return self.type == "binary_expression"
+
     def isCallExpression(self) -> bool:
         return self.type == "call_expression"
         
