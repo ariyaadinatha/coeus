@@ -10,6 +10,9 @@ PYTHON_DATA_SCOPE_IDENTIFIERS = ("class_definition", "function_definition")
 javascript
 '''
 JAVASCRIPT_CONTROL_SCOPE_IDENTIFIERS = ("statement_block", "elif_clause", "else_clause")
+JAVASCRIPT_CONTROL_STATEMENTS = ("if_statement", "for_statement", "for_in_statement", "while_statement", "try_statement")
+JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS = ("else_clause", "catch_clause", "finally_clause")
+JAVASCRIPT_DATA_SCOPE_IDENTIFIERS = ("class_declaration", "method_declaration")
 
 '''
 php
