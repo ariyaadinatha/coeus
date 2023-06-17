@@ -90,8 +90,8 @@ class IRNode(ABC):
       self.isTainted = self.isSource
       self.scope = scope
     
-    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None]):
-      edge = ControlFlowEdge(statementOrder, cfgParentId)
+    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None], controlType: str='next_statement'):
+      edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
       self.controlFlowEdges.append(edge)
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
@@ -162,7 +162,7 @@ class IRNode(ABC):
         
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
-            if "assignment" in parent.type:
+            if "assignment" in parent.type or "declarator" in parent.type:
                 return True
             else:
                 parent = parent.parent
@@ -176,6 +176,10 @@ class IRNode(ABC):
     @abstractmethod
     def isControlStatement(self) -> bool:
         pass
+
+    @abstractmethod
+    def isDivergingControlStatement(self) -> bool:
+        pass
     
     @abstractmethod
     def getIdentifierFromAssignment(self) -> str:
@@ -183,10 +187,11 @@ class IRNode(ABC):
 
 # class to store all control flow related actions
 class ControlFlowEdge:
-    def __init__(self, statementOrder: int, cfgParentId: str) -> None:
+    def __init__(self, statementOrder: int, cfgParentId: str, controlType: str = 'next_statement') -> None:
         self.cfgId = uuid.uuid4().hex
         self.statementOrder = statementOrder
         self.cfgParentId = cfgParentId
+        self.controlType = controlType
 
 # clas to store all variables and their values
 class DataFlowEdge:

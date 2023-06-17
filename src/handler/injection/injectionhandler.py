@@ -1,15 +1,15 @@
 from utils.neo4j import Neo4jConnection
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.intermediate_representation.converter.python import IRPythonConverter
-from utils.intermediate_representation.converter.javascript import IRJavascriptConverter
-from utils.intermediate_representation.converter.java import IRJavaConverter
-from utils.intermediate_representation.converter.php import IRPhpConverter
+from utils.intermediate_representation.converter.irpythonconverter import IRPythonConverter
+from utils.intermediate_representation.converter.irjavascriptconverter import IRJavascriptConverter
+from utils.intermediate_representation.converter.irjavaconverter import IRJavaConverter
+from utils.intermediate_representation.converter.irphpconverter import IRPhpConverter
 from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from datetime import datetime
 from neo4j.graph import Path
-import time
+import traceback
 import os
 import json
 
@@ -20,6 +20,7 @@ class InjectionHandler:
         except Exception as e:
             print("Failed to create the driver:", e)
         
+        self.dbName = os.getenv('DB_NAME')
         self.vulnHandler = VulnerableHandler()
         self.projectPath = projectPath
         self.language = language
@@ -85,7 +86,7 @@ class InjectionHandler:
             sourceCode = fh.readFile(codePath)
             code = CodeProcessor(self.language, sourceCode)
             root = code.getRootNode()
-            astRoot = self.converter.createCompleteTreeDFS(root, codePath)
+            astRoot = self.converter.createCompleteTree(root, codePath)
             self.insertAllNodesToNeo4j(astRoot)
             self.insertAllRelationshipsToNeo4j(astRoot)
             self.setLabels()
@@ -192,9 +193,10 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            print("creating unique constraint for id")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query create constraint error: {e}")
+            print(f"Query create constraint error: {traceback.print_exc()}")
 
     def setLabels(self):
         self.setRootLabel()
@@ -209,9 +211,10 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            print("setting root label")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query set root label error: {e}")
+            print(f"Query set root label error: {traceback.print_exc()}")
 
     def setSourceLabel(self):
         query = '''
@@ -221,9 +224,10 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            print("setting source label")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query set root label error: {e}")
+            print(f"Query set root label error: {traceback.print_exc()}")
     
     def setSinkLabel(self):
         query = '''
@@ -233,9 +237,10 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            print("setting sink label")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query set root label error: {e}")
+            print(f"Query set root label error: {traceback.print_exc()}")
         
     def setSanitizerLabel(self):
         query = '''
@@ -245,9 +250,10 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            print("setting sanitizer label")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query set root label error: {e}")
+            print(f"Query set root label error: {traceback.print_exc()}")
 
     def insertNodeToNeo4j(self, node: IRNode):
         parameters = {
@@ -281,9 +287,10 @@ class InjectionHandler:
             })'''
         
         try:
-            self.connection.query(query, parameters, db="connect-python")
+            print("inserting node")
+            self.connection.query(query, parameters, db=self.dbName)
         except Exception as e:
-            print(f"Query insert node error: {e}")
+            print(f"Query insert node error: {traceback.print_exc()}")
     
     def createASTRelationship(self):
         query = '''
@@ -292,30 +299,33 @@ class InjectionHandler:
                 CREATE (parent)-[:AST_PARENT_TO]->(child)
             '''
         try:
-            self.connection.query(query, db="connect-python")
+            print("creating AST relationship")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query create AST relationship error: {e}")
+            print(f"Query create AST relationship error: {traceback.print_exc()}")
 
     def createControlFlowRelationship(self, node: IRNode):
         for edge in node.controlFlowEdges:
             parameters = {
                 "id": node.id,
                 "cfg_parent_id": edge.cfgParentId,
-                "statement_order": edge.statementOrder
+                "statement_order": edge.statementOrder,
+                "control_type": edge.controlType
             }
 
             query = '''
                     MATCH (child:Node), (parent:Node)
                     WHERE child.id = $id AND parent.id = $cfg_parent_id
-                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order}]-(parent)
+                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order, control_type: $control_type}]-(parent)
                     SET child:ControlNode
                     SET parent:ControlNode
                 '''
 
             try:
-                self.connection.query(query, parameters=parameters, db="connect-python")
+                print("creating control flow relationship")
+                self.connection.query(query, parameters=parameters, db=self.dbName)
             except Exception as e:
-                print(f"Query create control flow relationship error: {e}")
+                print(f"Query create control flow relationship error: {traceback.print_exc()}")
 
     def createDataFlowRelationship(self, node: IRNode):
         for edge in node.dataFlowEdges:
@@ -343,9 +353,10 @@ class InjectionHandler:
                 '''
 
             try:
-                self.connection.query(query, parameters=parameters, db="connect-python")
+                print("creating data flow relationship")
+                self.connection.query(query, parameters=parameters, db=self.dbName)
             except Exception as e:
-                print(f"Query create data flow relationship error: {e}")
+                print(f"Query create data flow relationship error: {traceback.print_exc()}")
 
     def expandInjectionPathUsingAPOC(self):
         query = '''
@@ -361,9 +372,10 @@ class InjectionHandler:
         '''
 
         try:
-            return self.connection.query(query, db="connect-python")
+            print("expanding injection path using APOC")
+            return self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query expand path using APOC error: {e}")
+            print(f"Query expand path using APOC error: {traceback.print_exc()}")
 
     def getSinkInjectionUsingAPOC(self):
         query = '''
@@ -379,9 +391,9 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query get sink injection using APOC error: {e}")
+            print(f"Query get sink injection using APOC error: {traceback.print_exc()}")
     
     def propagateTaint(self):
         query = '''
@@ -389,7 +401,7 @@ class InjectionHandler:
             SET tainted.is_tainted=True, tainted:Tainted
             return source, r, tainted
         '''
-        self.connection.query(query, db="connect-python")
+        self.connection.query(query, db=self.dbName)
     
     def applySanitizers(self):
         query = '''
@@ -400,9 +412,9 @@ class InjectionHandler:
         '''
 
         try:
-            self.connection.query(query, db="connect-python")
+            self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query insert node error: {e}")
+            print(f"Query insert node error: {traceback.print_exc()}")
 
     def getPathInjectionVulnerability(self):
         query = '''
@@ -410,9 +422,9 @@ class InjectionHandler:
             RETURN n1, vuln, n2
         '''
         try:
-            return self.connection.query(query, db="connect-python")
+            return self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query get path injection error: {e}")
+            print(f"Query get path injection error: {traceback.print_exc()}")
     
     def getSourceAndSinkInjectionVulnerability(self):
         query = '''
@@ -428,24 +440,26 @@ class InjectionHandler:
             sink.startPoint as SinkStart
         '''
         try:
-            return self.connection.query(query, db="connect-python")
+            return self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query get source and sink injection error: {e}")
+            print(f"Query get source and sink injection error: {traceback.print_exc()}")
     
     def deleteAllNodesAndRelationships(self):
         query = '''
             MATCH (n) DETACH DELETE (n)
         '''
         try:
-            return self.connection.query(query, db="connect-python")
+            print("deleting all nodes and relationship")
+            return self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query delete all nodes and relationships error: {e}")
+            print(f"Query delete all nodes and relationships error: {traceback.print_exc()}")
 
     def deleteAllNodesAndRelationshipsByAPOC(self):
         query = '''
             CALL apoc.periodic.iterate('MATCH (n) RETURN n', 'DETACH DELETE n', {batchSize:1000})
         '''
         try:
-            return self.connection.query(query, db="connect-python")
+            print("deleting all nodes and relationship using APOC")
+            return self.connection.query(query, db=self.dbName)
         except Exception as e:
-            print(f"Query delete all nodes and relationships error: {e}")
+            print(f"Query delete all nodes and relationships error: {traceback.print_exc()}")

@@ -1,12 +1,13 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.php import IRPhpNode
+from utils.intermediate_representation.nodes.irjavanode import IRJavaNode
 from utils.intermediate_representation.converter.converter import IRConverter
-from utils.constant.intermediate_representation import PHP_CONTROL_SCOPE_IDENTIFIERS, PHP_DATA_SCOPE_IDENTIFIERS
+from utils.constant.intermediate_representation import JAVA_CONTROL_SCOPE_IDENTIFIERS, JAVA_DATA_SCOPE_IDENTIFIERS
 import uuid
+from abc import ABC, abstractmethod
 
-class IRPhpConverter(IRConverter):
+class IRJavaConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
@@ -19,7 +20,7 @@ class IRPhpConverter(IRConverter):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTreeDFS(irRoot)
 
         return irRoot
 
@@ -28,17 +29,19 @@ class IRPhpConverter(IRConverter):
         # create new AST node for each tree-sitter node
 
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRJavaNode(root, filename, projectId)
 
         queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
 
         while len(queue) != 0:
-            node, parent = queue.pop(0)
+            currentPayload = queue.pop(0)
+            node: Node = currentPayload[0]
+            parent: IRNode = currentPayload[1]
 
             if self.isIgnoredType(node):
                 continue
 
-            convertedNode = IRPhpNode(node, filename, projectId, parent)
+            convertedNode = IRJavaNode(node, filename, projectId, parent=parent)
 
             # add current node as child to parent node
             # else set root node
@@ -51,46 +54,89 @@ class IRPhpConverter(IRConverter):
                 queue.append((child, convertedNode))
 
         return irRoot
-    
-    def addControlFlowEdgesToTree(self, root: IRNode):
-        queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+
+    def addControlFlowEdgesToTree(self, root: IRJavaNode):
+        queue: list[tuple(IRJavaNode, int, IRJavaNode)] = [(root, 0, None)]
 
         while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+            currPayload = queue.pop(0)
+            currNode: IRJavaNode = currPayload[0]
+            statementOrder: int = currPayload[1]
+            cfgParentId: str = currPayload[2]
 
             if statementOrder != 0:
                 currNode.addControlFlowEdge(statementOrder, cfgParentId)
 
             # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
+            if currNode.isControlStatement() or currNode.isDivergingControlStatement() and not currNode.isElseIfBranch():
                 for child in currNode.astChildren:
                     if child.type == "block":
                         blockNode = child
                         if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
+                            # connect if true statements with control statement and skip block node
+                            if currNode.isControlStatement():
+                            # !!!: depends on lower node
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
+                            elif currNode.isDivergingControlStatement():
+                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
+            # handle else if
+            elif currNode.isInElseIfBranch() and currNode.isFirstStatementInBlock():
+                if currNode.parent.node.prev_sibling.type == "else":
+                    controlType = "else_clause_child"
+                else:
+                    controlType = "else_if_clause_child"
+                rootIfStatement: IRJavaNode = currNode.getRootIfStatement()
+                currNode.addControlFlowEdge(1, rootIfStatement.id, controlType)
             
             statementOrder = 0
             # handles the next statement relationship
-            # TODO: handle for, while, try, catch, etc. control
-            currCfgParent = None if currNode.type != "module" else currNode.id
+            currCfgParent = None if currNode.type != "program" else currNode.id
             for child in currNode.astChildren:
-                if "statement" in child.type:
+                if "statement" in child.type or "declaration" in child.type:
                     statementOrder += 1
                     queue.append((child, statementOrder, currCfgParent))
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
 
+    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(root, root.filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.astChildren:
+                if not self.isIgnoredType(child):
+                    if node.isControlStatement():
+                        # assign controlId to differentiate scope between control branches
+                        child.controlId = controlId
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
+
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
         projectId = uuid.uuid4().hex
-        irRoot = IRPhpNode(root, filename, projectId)
+        irRoot = IRJavaNode(root, filename, projectId)
 
         # to keep track of all visited nodes
         visited = set()
@@ -122,9 +168,9 @@ class IRPhpConverter(IRConverter):
             for child in node.node.children:
                 if not self.isIgnoredType(child):
                     if node.type == "if_statement":
-                        irChild = IRPhpNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                        irChild = IRJavaNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
                     else:
-                        irChild = IRPhpNode(child, node.filename, node.projectId, parent=node)
+                        irChild = IRJavaNode(child, node.filename, node.projectId, parent=node)
                     node.astChildren.append(irChild)
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
         
@@ -132,10 +178,7 @@ class IRPhpConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        # NOTE: could be detrimental for assignments that use call expression
-        # e.g. a = init(x, y)
-        # or not?????
-        if node.isIdentifier() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
             if node.isInLeftHandSide():
@@ -187,12 +230,9 @@ class IRPhpConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
-
-            # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
-            # connect identifier with the declared identifier
             if key in symbolTable:
                 dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
@@ -205,17 +245,18 @@ class IRPhpConverter(IRConverter):
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
-        scopeIdentifiers = PHP_DATA_SCOPE_IDENTIFIERS
-        controlScopeIdentifiers = PHP_CONTROL_SCOPE_IDENTIFIERS
+        scopeIdentifiers = JAVA_DATA_SCOPE_IDENTIFIERS
+        controlScopeIdentifiers = JAVA_CONTROL_SCOPE_IDENTIFIERS
         currentIdentifier = ""
 
         # add new scope for children if this node is class, function, module, and if-else branch
         if node.type in scopeIdentifiers:
             for child in node.node.children:
                 # get the class, function, or module name
-                if child.type == "variable_name":
+                if child.type == "identifier":
                     # store name to pass down to the children
                     currentIdentifier = child.text.decode("utf-8")
+        # add new scope for children if this node is child of a control statement
         elif node.type in controlScopeIdentifiers and node.parent is not None and node.parent.type == "if_statement":
                 if node.controlId != None:
                     currentIdentifier = f"{node.type}{node.controlId}"
@@ -226,6 +267,7 @@ class IRPhpConverter(IRConverter):
             currScope += f"\{currentIdentifier}"
 
         return currScope
+    
     def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         for targetScope in scopeDatabase:
             targetDataScope = self.getDataScope(targetScope)
@@ -265,32 +307,18 @@ class IRPhpConverter(IRConverter):
 
     # only for languages that don't have scopes in if else blocks
     # looking at you python
-    # connect between two nodes, both of which are inside a control branch
-    # where current node is referencing or calling the other node
-    # check with outside 
-    '''
-    a = x
-    if ...:
-        a = "test"
-    if ...:
-        print(a)
-    '''
     def connectDataFlowEdgeToInsideFromInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
-        currentDataScope = self.getDataScope(node.scope)
-
         # iterate through every scope registered
         for scope in scopeDatabase:
             if scope == None:
                 continue
 
-            targetDataScope = self.getDataScope(node.scope)
-            # check data scope is identical
-            if targetDataScope != currentDataScope:
-                continue
-
             targetGlobalScope, _, targetControlScope = scope.rpartition("\\")
             currentGlobalScope, _, currentControlScope = node.scope.rpartition("\\")
 
+            # check global scope is identical
+            if targetGlobalScope != currentGlobalScope:
+                continue
             # check both scope is inside control branch
             if not self.isControlScope(scope) or not self.isControlScope(node.scope):
                 continue
@@ -299,8 +327,8 @@ class IRPhpConverter(IRConverter):
                 continue
 
             controlKey = (node.content, scope)
-            outsideKey = (node.content, targetDataScope)
-            if controlKey in symbolTable and outsideKey in symbolTable:
+            outsideKey = (node.content, targetGlobalScope)
+            if controlKey in symbolTable:
                 outsideId = symbolTable[outsideKey][-1]
                 insideId = symbolTable[controlKey][-1]
                 outsideOrder = visitedList.index(outsideId)
@@ -313,12 +341,11 @@ class IRPhpConverter(IRConverter):
                     dfgParentId = symbolTable[controlKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
-                    if node.isPartOfCallExpression():
-                        nodeCall = node.getCallExpression()
-                        nodeCall.addDataFlowEdge(dataType, node.id)
+                    if node.parent.parent.type == "call":
+                        node.parent.parent.addDataFlowEdge(dataType, node.id)
     
     def isControlScope(self, scope: str) -> bool:
-        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PHP_CONTROL_SCOPE_IDENTIFIERS
+        return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in JAVA_CONTROL_SCOPE_IDENTIFIERS
     
     def getControlId(self, scope: str) -> str:
         return scope[-32:] if self.isControlScope(scope) else ""

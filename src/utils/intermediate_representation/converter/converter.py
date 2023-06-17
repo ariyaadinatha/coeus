@@ -20,38 +20,13 @@ class IRConverter(ABC):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTree(irRoot)
+        self.addDataFlowEdgesToTreeDFS(irRoot)
 
         return irRoot
 
+    @abstractmethod
     def createAstTree(self, root: Node, filename: str) -> IRNode:
-        # iterate through root until the end using BFS
-        # create new AST node for each tree-sitter node
-
-        projectId = uuid.uuid4().hex
-        irRoot = IRNode(root, filename, projectId)
-
-        queue: list[tuple(IRNode, Union[IRNode, None])] = [(root, None)]
-
-        while len(queue) != 0:
-            node, parent = queue.pop(0)
-
-            if self.isIgnoredType(node):
-                continue
-
-            convertedNode = IRNode(node, filename, projectId, parent)
-
-            # add current node as child to parent node
-            # else set root node
-            if parent is not None:
-                parent.astChildren.append(convertedNode)
-            else:
-                irRoot = convertedNode
-
-            for child in node.children:
-                queue.append((child, convertedNode))
-
-        return irRoot
+        pass
     
     '''
         ide buat optimisasi graf
@@ -83,83 +58,17 @@ class IRConverter(ABC):
         sekarang fokus ke data flow
     '''
 
+    @abstractmethod
     def addControlFlowEdgesToTree(self, root: IRNode):
-        queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+        pass
 
-        while len(queue) != 0:
-            currNode, statementOrder, cfgParentId = queue.pop(0)
+    @abstractmethod
+    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+        pass
 
-            if statementOrder != 0:
-                currNode.addControlFlowEdge(statementOrder, cfgParentId)
-
-            # handle if statement
-            if currNode.type == "if_statement" or currNode.type == "else_clause" or currNode.type == "elif_clause":
-                for child in currNode.astChildren:
-                    if child.type == "block":
-                        blockNode = child
-                        if len(blockNode.astChildren) != 0:
-                            # connect if true statements with if statement
-                            if currNode.type == "if_statement":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id)
-                            # connect else statements with if statement
-                            elif currNode.type == "else_clause" or currNode.type == "elif_clause":
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId)
-            
-            statementOrder = 0
-            # handles the next statement relationship
-            # TODO: handle for, while, try, catch, etc. control
-            currCfgParent = None if currNode.type != "module" else currNode.id
-            for child in currNode.astChildren:
-                if "statement" in child.type:
-                    statementOrder += 1
-                    queue.append((child, statementOrder, currCfgParent))
-                    currCfgParent = child.id
-                else:
-                    queue.append((child, 0, None))
-
+    @abstractmethod
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
-        projectId = uuid.uuid4().hex
-        irRoot = IRNode(root, filename, projectId)
-
-        # to keep track of all visited nodes
-        visited = set()
-        # to keep track of order of visited nodes
-        visitedList = []
-        # to keep track of variables
-        symbolTable = {}
-        # to keep track of scopes
-        scopeDatabase = set()
-        # for dfs
-        stack: list[tuple(IRNode, str)] = [(irRoot, filename)]
-
-        while stack:
-            payload = stack.pop()
-            node: IRNode = payload[0]
-            scope: str = payload[1]
-
-            visited.add(node.id)
-            visitedList.append(node.id)
-            scopeDatabase.add(scope)
-
-            # do the ting
-            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
-            scope = self.determineScopeNode(node, scope)
-            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
-            
-            controlId = uuid.uuid4().hex
-            
-            for child in node.node.children:
-                if not self.isIgnoredType(child):
-                    if node.type == "if_statement":
-                        irChild = IRNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
-                    else:
-                        irChild = IRNode(child, node.filename, node.projectId, parent=node)
-                    node.astChildren.append(irChild)
-            stack.extend(reversed([(child, scope) for child in node.astChildren]))
-        
-        return irRoot
+        pass
 
     @abstractmethod
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
