@@ -11,19 +11,6 @@ class IRJavascriptConverter(IRConverter):
     def __init__(self, sources, sinks, sanitizers) -> None:
         IRConverter.__init__(self, sources, sinks, sanitizers)
 
-    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-
-        return irRoot
-    
-    def createCompleteTree(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createAstTree(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTreeDFS(irRoot)
-
-        return irRoot
-
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
         # create new AST node for each tree-sitter node
