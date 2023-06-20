@@ -133,9 +133,16 @@ def injection(path, language, output, mode):
     startTime = time.time()
 
     try:
-        handler = InjectionHandler("./testcase/php/current", language)
+        # handler = InjectionHandler("../../DVWA", language)
         # handler = InjectionHandler("./testcase/python/current", "python")
+        # handler = InjectionHandler("./testcase/injection/taint_analysis", "python")
         # handler = InjectionHandler("./testcase/python/pygoat", "python")
+        # handler = InjectionHandler("./testcase/php/current", "php")
+        # handler = InjectionHandler("./testcase/java/current", "java")
+        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        # handler = InjectionHandler("../../PyGoat", language)
+        # handler = InjectionHandler("../../NodeGoat", "javascript")
+        handler = InjectionHandler("./testcase/javascript/current", "javascript")
         result = handler.taintAnalysis(apoc=True)
         vulnHandler = VulnerableHandler()
 
@@ -156,7 +163,8 @@ def injection(path, language, output, mode):
                         None, 
                         f"Input from {startNode['content']} could be passed to {endNode['content']} without going through sanitization process", 
                         f"{startNode['filename']} and {endNode['filename']}", 
-                        f"{startNode['startPoint']} and {endNode['startPoint']}", 
+                        # compensate for row and col starting value 0
+                        f"{[startNode['startPoint'][0]+1, startNode['startPoint'][1]+1]} and {[endNode['startPoint'][0]+1, endNode['startPoint'][1]+1]}", 
                         datetime.today().strftime('%Y-%m-%d %H:%M:%S')
                         )
                     print(vuln)
@@ -179,7 +187,7 @@ cli.add_command(injection)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
 def buildCompleteTree(path, language):
-    handler = InjectionHandler("./testcase/injection/taint_analysis", language)
+    handler = InjectionHandler(path, language)
     handler.deleteAllNodesAndRelationshipsByAPOC()
     handler.buildCompleteTree()
 
