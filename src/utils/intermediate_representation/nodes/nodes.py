@@ -159,7 +159,7 @@ class IRNode(ABC):
         return False
     
     def isIdentifier(self) -> bool:
-        return self.type == "identifier" or self.type == "variable_name"
+        return "identifier" in self.type or self.type == "variable_name"
     
     def getCallExpression(self):
         parent = self.parent
