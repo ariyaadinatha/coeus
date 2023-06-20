@@ -177,9 +177,15 @@ class IRJavascriptConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide():
+            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
                 # reassignment of an existing variable
-                if key in symbolTable:
+                if key in blockScopedSymbolTable:
+                    dataType = "reassignment"
+                    dfgParentId = blockScopedSymbolTable[key][-1]
+                    node.addDataFlowEdge(dataType, None)
+                    # register node id to symbol table
+                    blockScopedSymbolTable[key].append(node.id)
+                elif key in symbolTable:
                     dataType = "reassignment"
                     dfgParentId = symbolTable[key][-1]
                     node.addDataFlowEdge(dataType, None)
@@ -199,19 +205,22 @@ class IRJavascriptConverter(IRConverter):
             else:
                 # reference of an existing variable as value of another variable
                 dataType = "referenced"
-                if key in symbolTable:
+                if key in blockScopedSymbolTable:
+                    dfgParentId = blockScopedSymbolTable[key][-1]
+                    node.addDataFlowEdge(dataType, dfgParentId)
+                elif key in symbolTable:
                     dfgParentId = symbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
-                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType,  symbolTable)
+                    self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
                     self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
                 else:
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
-        # handle value of an assignment but is not identifier
-        if node.isInRightHandSide() and node.isPartOfAssignment():
+        # handle value of an assignment
+        if node.isPartOfAssignment():
             if node.isValueOfAssignment():
-                identifier = node.node.prev_sibling.prev_sibling.text.decode("UTF-8")
+                identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
                 # handle block scope
                 if key in blockScopedSymbolTable:
