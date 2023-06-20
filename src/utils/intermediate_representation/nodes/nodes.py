@@ -122,7 +122,25 @@ class IRNode(ABC):
         return False
     
     def isInLeftHandSide(self) -> bool:
-        return self.node.prev_sibling is None
+        if self.node.prev_sibling is not None:
+            return False
+        
+        siblings = self.node.parent.children
+
+        i = 0
+        while len(siblings) != 0:
+            # if loop find self node first, is in left hand side
+            # if loop find equal operator first, is in right hand side
+            if siblings[i].text.decode("utf-8") == self.content:
+                return True
+            if siblings[i].text.decode("utf-8") == "=":
+                return False
+            
+        return False
+    
+    def isDirectlyInvolvedInAssignment(self) -> bool:
+        if "assignment" in self.parent.type or "declarator" in self.parent.type or "declaration" in self.parent.type:
+            return True
     
     def isInRightHandSide(self) -> bool:
         return self.node.prev_sibling is not None and self.node.prev_sibling.type != "$"
@@ -132,7 +150,11 @@ class IRNode(ABC):
         if self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name"):
             return True
         # a = "test" + x
-        if self.isPartOfAssignment() and self.isInRightHandSide():
+        if self.isPartOfAssignment():
+            if self.isDirectlyInvolvedInAssignment() and self.isInRightHandSide():
+                return True
+            elif self.isDirectlyInvolvedInAssignment():
+                return False
             return True
         return False
     
@@ -174,7 +196,7 @@ class IRNode(ABC):
         return False
     
     def isPartOfAssignment(self) -> bool:
-        if "statement" in self.type:
+        if "statement" in self.type or "assignment" in self.type or "declarator" in self.type or "declaration" in self.type:
             return False
         
         parent = self.parent
