@@ -177,7 +177,7 @@ class IRJavascriptConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
+            if (node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or (node.isPartOfDestructuringAssignment()):
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
@@ -219,19 +219,33 @@ class IRJavascriptConverter(IRConverter):
 
         # handle value of an assignment
         if node.isPartOfAssignment():
-            if node.isValueOfAssignment():
+            if node.isValueOfAssignment() and not node.isPartOfDestructuringAssignment():
                 identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                # handle block scope
-                if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
-                # handle standard scope
-                elif key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                if type(identifier) is list:
+                    for id in identifier:
+                        key = (id, node.scope)
+                        # handle block scope
+                        if key in blockScopedSymbolTable:
+                            dfgParentId = blockScopedSymbolTable[key][-1]
+                            dataType = "value"
+                            node.addDataFlowEdge(dataType, dfgParentId)
+                        # handle standard scope
+                        elif key in symbolTable:
+                            dfgParentId = symbolTable[key][-1]
+                            dataType = "value"
+                            node.addDataFlowEdge(dataType, dfgParentId)
+                else:
+                    key = (identifier, node.scope)
+                    # handle block scope
+                    if key in blockScopedSymbolTable:
+                        dfgParentId = blockScopedSymbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
+                    # handle standard scope
+                    elif key in symbolTable:
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
         if node.isIdentifier() and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):

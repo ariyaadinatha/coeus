@@ -24,6 +24,9 @@ class IRJavascriptNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
     
+    def isPartOfDestructuringAssignment(self) -> bool:
+        return "identifier" in self.type and "pattern" in self.parent.type
+    
     def getIdentifierFromAssignment(self) -> str:
         # a = x
         # a = "test" + x
@@ -33,7 +36,11 @@ class IRJavascriptNode(IRNode):
 
             if parent is None:
                 return None
-        if self.node.prev_sibling is not None and self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
+        # handle destructuring
+        if ("pattern" in parent.node.children[0].type):
+            identifiers = [identifier.text.decode("utf-8") for identifier in parent.node.children[0].children]
+            return identifiers
+        elif self.node.prev_sibling is not None and self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
             return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
         else:
             # a = "test" + x

@@ -223,6 +223,10 @@ class IRNode(ABC):
     @abstractmethod
     def isDivergingControlStatement(self) -> bool:
         pass
+
+    @abstractmethod
+    def isPartOfDestructuringAssignment(self) -> bool:
+        pass
     
     @abstractmethod
     def getIdentifierFromAssignment(self) -> str:
