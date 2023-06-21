@@ -221,6 +221,10 @@ class IRNode(ABC):
         pass
 
     @abstractmethod
+    def isArgumentOfAFunction(self) -> str:
+        pass
+
+    @abstractmethod
     def isDivergingControlStatement(self) -> bool:
         pass
     

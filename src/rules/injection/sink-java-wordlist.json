@@ -2,9 +2,6 @@
   "type": "wordlist",
   "wordlist": [
     "prepareCall",
-    "prepareCall",
-    "prepareCall",
-    "prepareStatement",
     "addBatch",
     "execute",
     "executeQuery",
@@ -18,9 +15,8 @@
     "query",
     "queryResource",
     "connect",
-    "print",
-    "println",
     "write",
+    "print",
     "sendRedirect",
     "getRequestDispatcher",
     "setValue"

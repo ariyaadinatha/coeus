@@ -9,6 +9,9 @@ class IRJavaNode(IRNode):
     def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
         super().__init__(node, filename, projectId, controlId, parent)
 
+    def isBinaryExpression(self) -> bool:
+        return self.type == "binary_expression"
+
     def isCallExpression(self) -> bool:
         return "invocation" in self.type
         
@@ -21,16 +24,28 @@ class IRJavaNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVA_DIVERGE_CONTROL_STATEMENTS
     
+    def isArgumentOfAFunction(self) -> str:
+        if "annotation" in self.parent.type:
+            return False
+        
+        parent = self.parent
+        while parent is not None and "declaration" not in parent.type and "statement" not in parent.type:
+            if parent.type == "formal_parameters":
+                return True
+            parent = parent.parent
+
+        return False
+    
     def getIdentifierFromAssignment(self) -> str:
         # a = x
         # a = "test" + x
         parent = self.parent
-        while parent.type != "assignment":
+        while "assignment" not in parent.type and "declarator" not in parent.type:
             parent = parent.parent
 
             if parent is None:
                 return None
-        if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
+        if self.node.prev_sibling is not None and self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
             return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
         else:
             # a = "test" + x
