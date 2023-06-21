@@ -198,14 +198,8 @@ class IRJavaConverter(IRConverter):
         # handle value of an assignment
         # a = x
         if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
-            print('rhs')
-            print(node)
             if node.isValueOfAssignment():
-                print('value')
-                print(node)
                 identifier = node.getIdentifierFromAssignment()
-                print('identifier')
-                print(identifier)
                 key = (identifier, node.scope)
                 if key in blockScopedSymbolTable:
                     dfgParentId = blockScopedSymbolTable[key][-1]

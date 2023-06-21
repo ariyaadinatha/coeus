@@ -33,7 +33,7 @@ class IRJavaNode(IRNode):
 
             if parent is None:
                 return None
-        if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
+        if self.node.prev_sibling is not None and self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
             return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
         else:
             # a = "test" + x
