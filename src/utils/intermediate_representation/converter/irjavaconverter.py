@@ -166,6 +166,18 @@ class IRJavaConverter(IRConverter):
         return irRoot
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
+        # handle function parameters
+        if node.isIdentifier() and node.isArgumentOfAFunction():
+            key = (node.content, node.scope)
+            dataType = "assignment"
+            node.addDataFlowEdge(dataType, None)
+            blockScopedSymbolTable[key] = [node.id]
+
+            # handle declaration of source in function
+            # ex: public AttackResult attack(@RequestParam String userId)
+            if (node.parent.node.children[0].text.decode("utf-8") == "@RequestParam"):
+                node.isSource = True
+
         # handle variable assignment and reassignment
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)

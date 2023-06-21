@@ -24,6 +24,18 @@ class IRJavaNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVA_DIVERGE_CONTROL_STATEMENTS
     
+    def isArgumentOfAFunction(self) -> str:
+        if "annotation" in self.parent.type:
+            return False
+        
+        parent = self.parent
+        while parent is not None and "declaration" not in parent.type and "statement" not in parent.type:
+            if parent.type == "formal_parameters":
+                return True
+            parent = parent.parent
+
+        return False
+    
     def getIdentifierFromAssignment(self) -> str:
         # a = x
         # a = "test" + x
