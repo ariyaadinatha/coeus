@@ -67,8 +67,6 @@ class InjectionHandler:
             self.insertDataFlowRelationshipsToNeo4j(astRoot)
             self.setLabels()
 
-            astRoot.printChildren()
-
     def buildCompleteTree(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
@@ -90,8 +88,6 @@ class InjectionHandler:
             self.insertAllNodesToNeo4j(astRoot)
             self.insertAllRelationshipsToNeo4j(astRoot)
             self.setLabels()
-
-            astRoot.printChildren()
 
     def taintAnalysis(self, apoc: bool) -> Path:
         try:
@@ -366,7 +362,7 @@ class InjectionHandler:
             WITH startNodes, collect(terminator) AS terminatorNodes
             OPTIONAL MATCH (blacklist:Node {is_sanitizer: True })
             WITH startNodes, terminatorNodes, collect(blacklist) AS blacklistNodes
-            CALL apoc.path.spanningTree(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
+            CALL apoc.path.expandConfig(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
             YIELD path
             RETURN path
         '''
