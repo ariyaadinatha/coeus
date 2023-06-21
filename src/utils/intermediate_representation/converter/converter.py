@@ -116,3 +116,13 @@ class IRConverter(ABC):
             dataScope, _, _ = dataScope.rpartition("\\")
             
         return dataScope
+    
+    def isInSameBlockScope(self, refScope: str, scope: str) -> bool:
+        dataScope = scope
+
+        while dataScope.find("\\") != -1:
+            if dataScope == refScope:
+                return True
+            dataScope, _, _ = dataScope.rpartition("\\")
+
+        return False
