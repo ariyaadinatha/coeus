@@ -7,6 +7,7 @@ from utils.intermediate_representation.converter.irphpconverter import IRPhpConv
 from utils.intermediate_representation.nodes.nodes import IRNode, DataFlowEdge, ControlFlowEdge
 from utils.codehandler import FileHandler, CodeProcessor
 from utils.vulnhandler import VulnerableHandler, Vulnerable
+from utils.constant.code import EXTENSION_ALIAS
 from datetime import datetime
 from neo4j.graph import Path
 import traceback
@@ -67,43 +68,50 @@ class InjectionHandler:
             self.insertDataFlowRelationshipsToNeo4j(astRoot)
             self.setLabels()
 
-    def buildCompleteTree(self):
+    def buildCompleteTree(self, fileHandler: FileHandler, codePath: str):
+        sourceCode = fileHandler.readFile(codePath)
+        code = CodeProcessor(self.language, sourceCode)
+        root = code.getRootNode()
+        astRoot = self.converter.createCompleteTree(root, codePath)
+        self.insertAllNodesToNeo4j(astRoot)
+        self.insertAllRelationshipsToNeo4j(astRoot)
+
+    def buildCompleteProject(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
-
-        extensionAlias = {
-        "python": "py",
-        "java": "java",
-        "javascript": "js",
-        "php": "php",
-        }
         
         for codePath in fh.getCodeFilesPath():
-            if codePath.split('.')[-1] != extensionAlias[self.language]:
-                continue
-            sourceCode = fh.readFile(codePath)
-            code = CodeProcessor(self.language, sourceCode)
-            root = code.getRootNode()
-            astRoot = self.converter.createCompleteTree(root, codePath)
-            self.insertAllNodesToNeo4j(astRoot)
-            self.insertAllRelationshipsToNeo4j(astRoot)
-            self.setLabels()
+                if codePath.split('.')[-1] != EXTENSION_ALIAS[self.language]:
+                    continue
+
+                self.buildCompleteTree(fh, codePath)
 
     def taintAnalysis(self, apoc: bool) -> Path:
         try:
+            result = []
+            
             self.createUniqueConstraint()
+            self.setLabels()
             self.deleteAllNodesAndRelationshipsByAPOC()
-            self.buildCompleteTree()
-            if apoc:
-                result = self.expandInjectionPathUsingAPOC()
-            else:
-                self.propagateTaint()
-                self.applySanitizers()
-                result = self.getSourceAndSinkInjectionVulnerability()
+            
+            fh = FileHandler()
+            fh.getAllFilesFromRepository(self.projectPath)
+
+            for codePath in fh.getCodeFilesPath():
+                if codePath.split('.')[-1] != EXTENSION_ALIAS[self.language]:
+                    continue
+            
+                self.buildCompleteTree(fh, codePath)
+                if apoc:
+                    result = self.expandInjectionPathUsingAPOC()
+                else:
+                    self.propagateTaint()
+                    self.applySanitizers()
+                    result.append(self.getSourceAndSinkInjectionVulnerability())
 
             return result
         except Exception as e:
-            print(e)
+            print(traceback.print_exc())
             self.deleteAllNodesAndRelationshipsByAPOC()
             raise
 
