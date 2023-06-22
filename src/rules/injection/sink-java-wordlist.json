@@ -9,6 +9,7 @@
     "exec",
     "loadLibrary",
     "load",
+    "output",
     "compile",
     "evaluate",
     "query",
