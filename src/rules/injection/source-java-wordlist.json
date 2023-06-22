@@ -11,7 +11,7 @@
       "getContextPath",
       "getCookies",
       "getHeader",
-      "getHeadeNames",
+      "getHeaderNames",
       "getMethod",
       "getPathInfo",
       "getQueryString",
