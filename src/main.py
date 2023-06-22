@@ -142,7 +142,8 @@ def injection(path, language, output, mode):
         # handler = InjectionHandler("./testcase/javascript/current", "javascript")
         # handler = InjectionHandler("../../PyGoat", language)
         # handler = InjectionHandler("../../NodeGoat", "javascript")
-        handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        handler = InjectionHandler("./../../WebGoat", "java")
+        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
         result = handler.taintAnalysis(apoc=True)
         vulnHandler = VulnerableHandler()
 
@@ -186,12 +187,12 @@ cli.add_command(injection)
 @click.command(short_help='Build complete tree of source code')
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
-def buildCompleteTree(path, language):
+def buildCompleteProject(path, language):
     handler = InjectionHandler(path, language)
     handler.deleteAllNodesAndRelationshipsByAPOC()
-    handler.buildCompleteTree()
+    handler.buildCompleteProject()
 
-cli.add_command(buildCompleteTree, name="build-complete")
+cli.add_command(buildCompleteProject, name="build-complete")
 
 @click.command(short_help='Build data flow tree of source code')
 @click.option('--path', '-p', help='Path to source code')
