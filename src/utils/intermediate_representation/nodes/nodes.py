@@ -220,6 +220,8 @@ class IRNode(ABC):
     def isControlStatement(self) -> bool:
         pass
 
+    # to handle source declared in parameter in Java
+    # ex: @RequestParam userId
     @abstractmethod
     def isArgumentOfAFunction(self) -> str:
         pass
