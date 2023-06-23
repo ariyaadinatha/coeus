@@ -226,6 +226,8 @@ class IRPythonConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
+
+            # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
@@ -376,7 +378,10 @@ class IRPythonConverter(IRConverter):
                 # make sure last outside occurance of variable is BEFORE if statement
                 # and make sure last inside occurance of variable is BEFORE current occurance
                 if outsideOrder < insideOrder and insideOrder < currentOrder:
-                    dfgParentId = symbolTable[controlKey][-1]
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
+                    else:
+                        dfgParentId = symbolTable[controlKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
                     if node.isPartOfCallExpression():
