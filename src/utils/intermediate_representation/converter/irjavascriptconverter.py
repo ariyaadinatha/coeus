@@ -283,6 +283,9 @@ class IRJavascriptConverter(IRConverter):
     
     def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         for targetScope in scopeDatabase:
+            if targetScope == node.scope:
+                continue
+            
             targetDataScope = self.getDataScope(targetScope)
             currentDataScope = self.getDataScope(node.scope)
 
