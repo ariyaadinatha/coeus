@@ -287,28 +287,45 @@ class IRPythonConverter(IRConverter):
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # iterate through every scope registered
+        currentDataScope = self.getDataScope(node.scope)
         for scope in scopeDatabase:
-            if scope != None and scope.rpartition("\\")[0] == node.scope and self.isControlScope(scope):
-                controlKey = (node.content, scope)
-                if controlKey in symbolTable and key in symbolTable:
-                    outsideId = symbolTable[key][-1]
-                    insideId = symbolTable[controlKey][-1]
-                    outsideOrder = visitedList.index(outsideId)
-                    insideOrder = visitedList.index(insideId)
-                    currentOrder = visitedList.index(node.id)
+            if scope == None:
+                continue
 
-                    # make sure last outside occurance of variable is BEFORE if statement
-                    # and make sure last inside occurance of variable is BEFORE current occurance
-                    if outsideOrder < insideOrder and insideOrder < currentOrder:
-                        if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
-                            dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
-                        else:
-                            dfgParentId = symbolTable[controlKey][-1]
-                        node.addDataFlowEdge(dataType, dfgParentId)
-                        # handle variable in argument list in function
-                        if node.isPartOfCallExpression():
-                            nodeCall = node.getCallExpression()
-                            nodeCall.addDataFlowEdge(dataType, node.id)
+            targetDataScope = self.getDataScope(scope)
+            if targetDataScope != currentDataScope:
+                continue
+
+            if not self.isControlScope(scope):
+                continue
+            
+            controlKey = (node.content, scope)
+            if controlKey in symbolTable:
+                insideId = symbolTable[controlKey][-1]
+            else:
+                continue
+
+            if key in symbolTable:
+                outsideId = symbolTable[key][-1]
+                outsideOrder = visitedList.index(outsideId)
+            else:
+                outsideOrder = -1
+
+                insideOrder = visitedList.index(insideId)
+                currentOrder = visitedList.index(node.id)
+
+                # make sure last outside occurance of variable is BEFORE if statement
+                # and make sure last inside occurance of variable is BEFORE current occurance
+                if outsideOrder < insideOrder and insideOrder < currentOrder:
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
+                    else:
+                        dfgParentId = symbolTable[controlKey][-1]
+                    node.addDataFlowEdge(dataType, dfgParentId)
+                    # handle variable in argument list in function
+                    if node.isPartOfCallExpression():
+                        nodeCall = node.getCallExpression()
+                        nodeCall.addDataFlowEdge(dataType, node.id)
 
     # only for languages that don't have scopes in if else blocks
     # looking at you python
