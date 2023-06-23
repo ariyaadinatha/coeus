@@ -283,7 +283,6 @@ class IRPhpConverter(IRConverter):
                     '''
                     if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
                         dfgParentId = symbolTable[targetKey][-1]
-                        print(dfgParentId)
                         node.addDataFlowEdge(dataType, dfgParentId)
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
