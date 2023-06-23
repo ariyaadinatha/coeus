@@ -21,6 +21,13 @@ class IRPythonNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in PYTHON_DIVERGE_CONTROL_STATEMENTS
     
+    # TODO: implement this func to add parameters to symbol table
+    def isArgumentOfAFunction(self) -> str:
+        return super().isArgumentOfAFunction()
+    
+    def isBinaryExpression(self) -> bool:
+        return self.type == "binary_operator"
+    
     def getIdentifierFromAssignment(self) -> str:
         # a = x
         # a = "test" + x
@@ -30,7 +37,7 @@ class IRPythonNode(IRNode):
 
             if parent is None:
                 return None
-        if self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
+        if self.node.prev_sibling is not None and self.node.prev_sibling.prev_sibling is not None and self.node.prev_sibling.type == "=" and self.node.prev_sibling.prev_sibling.type == "identifier":
             return self.node.prev_sibling.prev_sibling.text.decode("UTF-8")
         else:
             # a = "test" + x

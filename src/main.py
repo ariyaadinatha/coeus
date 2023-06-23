@@ -134,7 +134,7 @@ def injection(path, language, output, mode):
 
     try:
         # handler = InjectionHandler("../../DVWA", language)
-        # handler = InjectionHandler("./testcase/python/current", "python")
+        handler = InjectionHandler("./testcase/python/current", "python")
         # handler = InjectionHandler("./testcase/injection/taint_analysis", "python")
         # handler = InjectionHandler("./testcase/python/pygoat", "python")
         # handler = InjectionHandler("./testcase/php/current", "php")
@@ -142,34 +142,34 @@ def injection(path, language, output, mode):
         # handler = InjectionHandler("./testcase/javascript/current", "javascript")
         # handler = InjectionHandler("../../PyGoat", language)
         # handler = InjectionHandler("../../NodeGoat", "javascript")
-        handler = InjectionHandler("./../../WebGoat", "java")
+        # handler = InjectionHandler("./../../WebGoat", "java")
         # handler = InjectionHandler("./testcase/javascript/current", "javascript")
         result = handler.taintAnalysis(apoc=True)
         vulnHandler = VulnerableHandler()
 
         finalRes = set()
         for record in result:
-                pathResult: Path = record["path"]
-                startNode = pathResult.start_node
-                endNode = pathResult.end_node
+            pathResult: Path = record["path"]
+            startNode = pathResult.start_node
+            endNode = pathResult.end_node
 
-                key = (startNode.element_id, endNode.element_id)
-                if key not in finalRes:
-                    finalRes.add(key)
-                    vuln = Vulnerable(
-                        "Injection vulnerability", 
-                        "application is vulnerable to unsafe input injection", 
-                        "A03:2021", 
-                        "High", 
-                        None, 
-                        f"Input from {startNode['content']} could be passed to {endNode['content']} without going through sanitization process", 
-                        f"{startNode['filename']} and {endNode['filename']}", 
-                        # compensate for row and col starting value 0
-                        f"{[startNode['startPoint'][0]+1, startNode['startPoint'][1]+1]} and {[endNode['startPoint'][0]+1, endNode['startPoint'][1]+1]}", 
-                        datetime.today().strftime('%Y-%m-%d %H:%M:%S')
-                        )
-                    print(vuln)
-                    vulnHandler.addVulnerable(vuln)
+            key = (startNode.element_id, endNode.element_id)
+            if key not in finalRes:
+                finalRes.add(key)
+                vuln = Vulnerable(
+                    "Injection vulnerability", 
+                    "application is vulnerable to unsafe input injection", 
+                    "A03:2021", 
+                    "High", 
+                    None, 
+                    f"Input from {startNode['content']} could be passed to {endNode['content']} without going through sanitization process", 
+                    f"{startNode['filename']} and {endNode['filename']}", 
+                    # compensate for row and col starting value 0
+                    f"{[startNode['startPoint'][0]+1, startNode['startPoint'][1]+1]} and {[endNode['startPoint'][0]+1, endNode['startPoint'][1]+1]}", 
+                    datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+                    )
+                print(vuln)
+                vulnHandler.addVulnerable(vuln)
             
         fileNameOutput = path.split("/")[-1]
         vulnHandler.dumpVulnerabilities("result")
