@@ -133,17 +133,22 @@ def injection(path, language, output, mode):
     startTime = time.time()
 
     try:
-        # handler = InjectionHandler("../../DVWA", language)
-        handler = InjectionHandler("./testcase/python/current", "python")
-        # handler = InjectionHandler("./testcase/injection/taint_analysis", "python")
-        # handler = InjectionHandler("./testcase/python/pygoat", "python")
-        # handler = InjectionHandler("./testcase/php/current", "php")
+        '''
+        current
+        '''
+        # handler = InjectionHandler("./testcase/python/current", "python")
+        handler = InjectionHandler("./testcase/php/current", "php")
         # handler = InjectionHandler("./testcase/java/current", "java")
         # handler = InjectionHandler("./testcase/javascript/current", "javascript")
+
+        '''
+        testing
+        '''
+        # handler = InjectionHandler("../../DVWA", language)
         # handler = InjectionHandler("../../PyGoat", language)
         # handler = InjectionHandler("../../NodeGoat", "javascript")
         # handler = InjectionHandler("./../../WebGoat", "java")
-        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        
         result = handler.taintAnalysis(apoc=True)
         vulnHandler = VulnerableHandler()
 
