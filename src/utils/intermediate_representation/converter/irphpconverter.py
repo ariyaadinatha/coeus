@@ -196,32 +196,12 @@ class IRPhpConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment
-        # a = x
-        if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 identifier = node.getIdentifierFromAssignment()
                 key = (identifier, node.scope)
                 if key in symbolTable:
-                    # handle variable used for its own value
-                    # ex: test = test + "hahaha"
-                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
-                        dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
-                    else:
-                        dfgParentId = symbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
-        # a = "test" + x
-        elif node.isPartOfAssignment() and not node.isPartOfCallExpression():
-            if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                if key in symbolTable:
-                    # handle variable used for its own value
-                    # ex: test = test + "hahaha"
-                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
-                        dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
-                    else:
-                        dfgParentId = symbolTable[key][-1]
+                    dfgParentId = symbolTable[key][-1]
                     dataType = "value"
                     node.addDataFlowEdge(dataType, dfgParentId)
 
