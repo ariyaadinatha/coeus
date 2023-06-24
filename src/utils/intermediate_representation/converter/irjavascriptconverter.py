@@ -181,7 +181,6 @@ class IRJavascriptConverter(IRConverter):
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
-                    dfgParentId = blockScopedSymbolTable[key][-1]
                     node.addDataFlowEdge(dataType, None)
                     # register node id to symbol table
                     blockScopedSymbolTable[key].append(node.id)
@@ -206,10 +205,16 @@ class IRJavascriptConverter(IRConverter):
                 # reference of an existing variable as value of another variable
                 dataType = "referenced"
                 if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
+                    else:
+                        dfgParentId = blockScopedSymbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 elif key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
+                    else:
+                        dfgParentId = symbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
                     self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
@@ -244,10 +249,20 @@ class IRJavascriptConverter(IRConverter):
             nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
-                dfgParentId = blockScopedSymbolTable[key][-1]
+                # handle variable used for its own value
+                # ex: test = test + "hahaha"
+                if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
+                else:
+                    dfgParentId = blockScopedSymbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
             elif key in symbolTable:
-                dfgParentId = symbolTable[key][-1]
+                # handle variable used for its own value
+                # ex: test = test + "hahaha"
+                if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
+                else:
+                    dfgParentId = symbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
 
             if node.isInsideIfElseBranch():
@@ -293,18 +308,52 @@ class IRJavascriptConverter(IRConverter):
             if not self.isInSameBlockScope(targetScope, node.scope) or targetDataScope != currentDataScope:
                 continue
 
-            if self.isInSameBlockScope(targetScope, node.scope):
-                targetKey = (node.content, targetScope)
-                if targetKey in blockScopedSymbolTable and key not in blockScopedSymbolTable:
+            targetKey = (node.content, targetScope)
+            # check target key is in block scoped symbol table
+            # if exist, no need to check standard symbol table
+            # because block scope should overrule standard declaration
+            if self.isInSameBlockScope(targetScope, node.scope) and targetKey in blockScopedSymbolTable:
+                if key not in blockScopedSymbolTable:
                     dfgParentId = blockScopedSymbolTable[targetKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId) 
+                elif key in blockScopedSymbolTable and len(blockScopedSymbolTable[key]) <= 1:
+                    # handle variable is used for its own assignment
+                    '''
+                    test = "test"
+                    if True:
+                        test = test.split("")
+                    '''
+                    '''
+                    test = "test"
+                    if True:
+                        test = call(test)
+                    '''
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = blockScopedSymbolTable[targetKey][-1]
+                        node.addDataFlowEdge(dataType, dfgParentId)
             else:
                 targetKey = (node.content, targetScope)
                 # check previous key exists in symbol table
                 # and check no key exists yet in current scope
-                if targetKey in symbolTable and key not in symbolTable:
-                    dfgParentId = symbolTable[targetKey][-1]
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                if targetKey in symbolTable:
+                    if key not in symbolTable:
+                        dfgParentId = symbolTable[targetKey][-1]
+                        node.addDataFlowEdge(dataType, dfgParentId)
+                    elif key in symbolTable and len(symbolTable[key]) <= 1:
+                        # handle variable is used for its own assignment
+                        '''
+                        test = "test"
+                        if True:
+                            test = test.split("")
+                        '''
+                        '''
+                        test = "test"
+                        if True:
+                            test = call(test)
+                        '''
+                        if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                            dfgParentId = symbolTable[targetKey][-1]
+                            node.addDataFlowEdge(dataType, dfgParentId)
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # iterate through every scope registered
@@ -338,7 +387,10 @@ class IRJavascriptConverter(IRConverter):
             # make sure last outside occurance of variable is BEFORE if statement OR there is no outside occurance
             # and make sure last inside occurance of variable is BEFORE current occurance
             if outsideOrder < insideOrder and insideOrder < currentOrder:
-                dfgParentId = symbolTable[controlKey][-1]
+                if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
+                else:
+                    dfgParentId = symbolTable[controlKey][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
                 # handle variable in argument list in function
                 if node.isPartOfCallExpression():
@@ -371,8 +423,10 @@ class IRJavascriptConverter(IRConverter):
             # make sure last outside occurance of variable is BEFORE if statement OR there is no outside occurance
             # and make sure last inside occurance of variable is BEFORE current occurance
             if outsideOrder < insideOrder and insideOrder < currentOrder:
-                dfgParentId = blockScopedSymbolTable[controlKey][-1]
-                node.addDataFlowEdge(dataType, dfgParentId)
+                if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
+                else:
+                    dfgParentId = symbolTable[controlKey][-1]
                 # handle variable in argument list in function
                 if node.isPartOfCallExpression():
                     nodeCall = node.getCallExpression()
@@ -415,7 +469,10 @@ class IRJavascriptConverter(IRConverter):
                 # make sure last outside occurance of variable is BEFORE if statement
                 # and make sure last inside occurance of variable is BEFORE current occurance
                 if outsideOrder < insideOrder and insideOrder < currentOrder:
-                    dfgParentId = symbolTable[controlKey][-1]
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = symbolTable[controlKey][-2] if len(symbolTable[controlKey]) > 1 else None
+                    else:
+                        dfgParentId = symbolTable[controlKey][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                     # handle variable in argument list in function
                     if node.isPartOfCallExpression():

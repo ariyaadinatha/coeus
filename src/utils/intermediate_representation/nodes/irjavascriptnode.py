@@ -9,9 +9,6 @@ class IRJavascriptNode(IRNode):
     def __init__(self, node: Node, filename: str, projectId: str, controlId=None, parent=None) -> None:
         super().__init__(node, filename, projectId, controlId, parent)
 
-    def isBinaryExpression(self) -> bool:
-        return self.type == "binary_expression"
-
     def isCallExpression(self) -> bool:
         return self.type == "call_expression"
         
@@ -23,6 +20,13 @@ class IRJavascriptNode(IRNode):
     
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
+    
+    # TODO: implement this func to add parameters to symbol table
+    def isArgumentOfAFunction(self) -> str:
+        return super().isArgumentOfAFunction()
+    
+    def isBinaryExpression(self) -> bool:
+        return self.type == "binary_expression"
     
     def getIdentifierFromAssignment(self) -> str:
         # a = x
