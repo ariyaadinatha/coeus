@@ -178,7 +178,7 @@ class IRNode(ABC):
                     childNode = assignmentChildNode.node
                     while childNode is not None and childNode.type != "=":
                         childNode = childNode.prev_sibling
-                    return childNode is not None and childNode.type != "="
+                    return childNode is not None and childNode.type == "="
                 else:
                     assignmentChildNode = assignmentChildNode.parent
             return False
