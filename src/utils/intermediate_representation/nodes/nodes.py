@@ -151,7 +151,7 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isAssignmentStatement():
-                if "pattern" in parent.node.children[0].type:
+                if "pattern" in parent.node.children[0].type or "list_literal" in parent.node.children[0].type:
                     return True
                 return False
             else:
@@ -238,7 +238,7 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isAssignmentStatement():
-                if "pattern" in parent.node.children[0].type:
+                if "pattern" in parent.node.children[0].type or "list_literal" in parent.node.children[0].type:
                     patternNode = parent.node.children[0]
                     return [identifier.text.decode("utf-8") for identifier in patternNode.children]
                 return None
