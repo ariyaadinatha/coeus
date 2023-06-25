@@ -182,7 +182,7 @@ class IRJavaConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide():
+            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
@@ -200,7 +200,10 @@ class IRJavaConverter(IRConverter):
                 # reference of an existing variable as value of another variable
                 dataType = "referenced"
                 if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
+                    else:
+                        dfgParentId = blockScopedSymbolTable[key][-1]
                     node.addDataFlowEdge(dataType, dfgParentId)
                 if node.isInsideIfElseBranch():
                     self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
@@ -228,18 +231,22 @@ class IRJavaConverter(IRConverter):
                     node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.isIdentifier() and node.isPartOfCallExpression():
+        if node.isIdentifier() and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
             key = (node.content, node.scope)
             dataType = "called"
             if node.isPartOfCallExpression():
                 nodeCall = node.getCallExpression()
             else:
-                # TODO: check multiple binary expression
                 nodeCall = node.getBinaryExpression()
             nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
-                dfgParentId = blockScopedSymbolTable[key][-1]
+                # handle variable used for its own value
+                # ex: test = test + "hahaha"
+                if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
+                else:
+                    dfgParentId = blockScopedSymbolTable[key][-1]
                 node.addDataFlowEdge(dataType, dfgParentId)
 
             if node.isInsideIfElseBranch():
@@ -287,11 +294,26 @@ class IRJavaConverter(IRConverter):
             if not self.isInSameBlockScope(targetScope, node.scope) or targetDataScope != currentDataScope:
                 continue
 
-            if self.isInSameBlockScope(targetScope, node.scope):
-                targetKey = (node.content, targetScope)
-                if targetKey in blockScopedSymbolTable and key not in blockScopedSymbolTable:
+            targetKey = (node.content, targetScope)
+            if self.isInSameBlockScope(targetScope, node.scope) and targetKey in blockScopedSymbolTable:
+                if key not in blockScopedSymbolTable:
                     dfgParentId = blockScopedSymbolTable[targetKey][-1]
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                    node.addDataFlowEdge(dataType, dfgParentId) 
+                elif key in blockScopedSymbolTable and len(blockScopedSymbolTable[key]) <= 1:
+                    # handle variable is used for its own assignment
+                    '''
+                    test = "test"
+                    if True:
+                        test = test.split("")
+                    '''
+                    '''
+                    test = "test"
+                    if True:
+                        test = call(test)
+                    '''
+                    if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                        dfgParentId = blockScopedSymbolTable[targetKey][-1]
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
     def connectDataFlowEdgeToInsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # iterate for block scope variables
