@@ -160,10 +160,10 @@ class IRPythonConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and node.isPartOfAssignment():
+        if node.isIdentifier() and node.isPartOfAssignment() and not node.isValueOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
+            if (node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment():
                 # reassignment of an existing variable
                 if key in symbolTable:
                     dataType = "reassignment"
@@ -193,14 +193,17 @@ class IRPythonConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment
-        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isPartOfAssignment():
             if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                if key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                # handle standard assignment and destructuring assignment
+                identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
+
+                for id in identifier:
+                    key = (id, node.scope)
+                    if key in symbolTable:
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
         if node.isIdentifier() and node.isPartOfCallExpression():

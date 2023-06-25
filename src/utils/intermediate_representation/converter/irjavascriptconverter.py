@@ -174,7 +174,7 @@ class IRJavascriptConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and node.isPartOfAssignment():
+        if node.isIdentifier() and node.isPartOfAssignment() and not node.isValueOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
             if (node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment():
