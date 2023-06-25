@@ -137,18 +137,20 @@ class IRNode(ABC):
                 return False
             
         return False
+
+    def isAssignmentStatement(self) -> bool:
+        return "assignment" in self.type or "declarator" in self.type or "declaration" in self.type
     
     def isDirectlyInvolvedInAssignment(self) -> bool:
-        if "assignment" in self.parent.type or "declarator" in self.parent.type or "declaration" in self.parent.type:
-            return True
+        return self.parent.isAssignmentStatement()
         
     def isPartOfPatternAssignment(self) -> bool:
-        if "statement" in self.type or "assignment" in self.type or "declarator" in self.type or "declaration" in self.type:
+        if self.isAssignmentStatement():
             return False
         
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
-            if "assignment" in parent.type or "declarator" in parent.type or "declaration" in parent.type:
+            if parent.isAssignmentStatement():
                 if "pattern" in parent.node.children[0].type:
                     return True
                 return False
@@ -162,15 +164,24 @@ class IRNode(ABC):
     
     def isValueOfAssignment(self) -> bool:
         # a = x
-        if self.isInRightHandSide() and self.node.prev_sibling.type == "=" and (self.node.prev_sibling.prev_sibling.type == "identifier" or self.node.prev_sibling.prev_sibling.type == "variable_name"):
+        if self.isInRightHandSide() and self.isDirectlyInvolvedInAssignment():
             return True
         # a = "test" + x
-        if self.isPartOfAssignment():
-            if self.isDirectlyInvolvedInAssignment() and self.isInRightHandSide():
-                return True
-            elif self.isDirectlyInvolvedInAssignment():
-                return False
-            return True
+        elif self.isPartOfAssignment():
+            assignmentChildNode = self.parent
+
+            while assignmentChildNode is not None and not assignmentChildNode.isControlStatement():
+                if assignmentChildNode.parent is None:
+                    return False
+                
+                if assignmentChildNode.parent.isAssignmentStatement():
+                    childNode = assignmentChildNode.node
+                    while childNode is not None and childNode.type != "=":
+                        childNode = childNode.prev_sibling
+                    return childNode is not None and childNode.type != "="
+                else:
+                    assignmentChildNode = assignmentChildNode.parent
+            return False
         return False
     
     def isIdentifier(self) -> bool:
@@ -211,17 +222,30 @@ class IRNode(ABC):
         return False
     
     def isPartOfAssignment(self) -> bool:
-        if "statement" in self.type or "assignment" in self.type or "declarator" in self.type or "declaration" in self.type:
+        if self.isAssignmentStatement():
             return False
         
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
-            if "assignment" in parent.type or "declarator" in parent.type or "declaration" in parent.type:
+            if parent.isAssignmentStatement():
                 return True
             else:
                 parent = parent.parent
 
         return False
+    
+    def getIdentifiersFromPatternAssignment(self) -> str:
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if parent.isAssignmentStatement():
+                if "pattern" in parent.node.children[0].type:
+                    patternNode = parent.node.children[0]
+                    return [identifier.text.decode("utf-8") for identifier in patternNode.children]
+                return None
+            else:
+                parent = parent.parent
+
+        return None
     
     @abstractmethod
     def isBinaryExpression(self) -> bool:
