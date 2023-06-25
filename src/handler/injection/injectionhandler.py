@@ -91,7 +91,6 @@ class InjectionHandler:
             result = []
             
             self.createUniqueConstraint()
-            self.setLabels()
             self.deleteAllNodesAndRelationshipsByAPOC()
             
             fh = FileHandler()
@@ -102,6 +101,7 @@ class InjectionHandler:
                     continue
             
                 self.buildCompleteTree(fh, codePath)
+                self.setLabels()
                 if apoc:
                     result = self.expandInjectionPathUsingAPOC()
                 else:
@@ -223,7 +223,7 @@ class InjectionHandler:
     def setSourceLabel(self):
         query = '''
             MATCH (n:Node)
-            WHERE n.is_source = True
+            WHERE n.is_source = true
             SET n:Source
         '''
 
@@ -236,7 +236,7 @@ class InjectionHandler:
     def setSinkLabel(self):
         query = '''
             MATCH (n:Node)
-            WHERE n.is_sink = True
+            WHERE n.is_sink = true
             SET n:Sink
         '''
 
@@ -249,7 +249,7 @@ class InjectionHandler:
     def setSanitizerLabel(self):
         query = '''
             MATCH (n:Node)
-            WHERE n.is_sanitizer = True
+            WHERE n.is_sanitizer = true
             SET n:Sanitizer
         '''
 
