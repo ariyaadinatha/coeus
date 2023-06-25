@@ -160,10 +160,10 @@ class IRPythonConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and node.isPartOfAssignment() and not node.isValueOfAssignment():
+        if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if (node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment():
+            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment()) and not node.isValueOfAssignment():
                 # reassignment of an existing variable
                 if key in symbolTable:
                     dataType = "reassignment"
