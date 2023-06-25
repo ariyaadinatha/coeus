@@ -177,7 +177,7 @@ class IRJavascriptConverter(IRConverter):
         if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
+            if (node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment():
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
@@ -225,18 +225,21 @@ class IRJavascriptConverter(IRConverter):
         # handle value of an assignment
         if node.isPartOfAssignment():
             if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                # handle block scope
-                if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
-                # handle standard scope
-                elif key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                # handle standard assignment and destructuring assignment
+                identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
+
+                for id in identifier:
+                    key = (id, node.scope)
+                    # handle block scope
+                    if key in blockScopedSymbolTable:
+                        dfgParentId = blockScopedSymbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
+                    # handle standard scope
+                    elif key in symbolTable:
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
         if node.isIdentifier() and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
