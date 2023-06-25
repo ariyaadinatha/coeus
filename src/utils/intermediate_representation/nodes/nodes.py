@@ -141,6 +141,21 @@ class IRNode(ABC):
     def isDirectlyInvolvedInAssignment(self) -> bool:
         if "assignment" in self.parent.type or "declarator" in self.parent.type or "declaration" in self.parent.type:
             return True
+        
+    def isPartOfPatternAssignment(self) -> bool:
+        if "statement" in self.type or "assignment" in self.type or "declarator" in self.type or "declaration" in self.type:
+            return False
+        
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if "assignment" in parent.type or "declarator" in parent.type or "declaration" in parent.type:
+                if "pattern" in parent.node.children[0].type:
+                    return True
+                return False
+            else:
+                parent = parent.parent
+
+        return False
     
     def isInRightHandSide(self) -> bool:
         return self.node.prev_sibling is not None and self.node.prev_sibling.type != "$"
