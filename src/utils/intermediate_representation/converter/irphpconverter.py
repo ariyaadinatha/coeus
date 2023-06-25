@@ -163,10 +163,10 @@ class IRPhpConverter(IRConverter):
         # NOTE: could be detrimental for assignments that use call expression
         # e.g. a = init(x, y)
         # or not?????
-        if node.isIdentifier() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isIdentifier() and node.isPartOfAssignment():
             key = (node.content, node.scope)
             # check node in left hand side
-            if node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment():
+            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment()) and not node.isValueOfAssignment():
                 # reassignment of an existing variable
                 if key in symbolTable:
                     dataType = "reassignment"
@@ -180,6 +180,7 @@ class IRPhpConverter(IRConverter):
                     symbolTable[key] = [node.id]
             else:
                 # reference of an existing variable as value of another variable
+                print('referenced')
                 dataType = "referenced"
                 if key in symbolTable:
                     # handle variable used for its own value
@@ -196,14 +197,17 @@ class IRPhpConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment
-        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isPartOfAssignment():
             if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                if key in symbolTable:
-                    dfgParentId = symbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                # handle standard assignment and destructuring assignment
+                identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
+
+                for id in identifier:
+                    key = (id, node.scope)
+                    if key in symbolTable:
+                        dfgParentId = symbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
         if node.isIdentifier() and node.isPartOfCallExpression():
@@ -251,6 +255,7 @@ class IRPhpConverter(IRConverter):
             currScope += f"\{currentIdentifier}"
 
         return currScope
+
     def connectDataFlowEdgeToOutsideIfElseBranch(self, node: IRNode, key: tuple, dataType: str, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         for targetScope in scopeDatabase:
             if targetScope == node.scope:
