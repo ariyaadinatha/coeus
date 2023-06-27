@@ -3,3 +3,7 @@ matplotlib==3.7.0
 requests==2.28.2
 tree-sitter==0.20.1
 xmltodict==0.13.0
+neo4j==5.6.0
+virtualenv==20.7.2
+python_dotenv==1.0.0
+neo4j-driver==5.9.0
