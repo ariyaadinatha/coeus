@@ -3,6 +3,7 @@
   "wordlist": [
       "res.send",
       "res.write",
+      "res.render",
       "vm.runInContext",
       "vm.runInNewContext",
       "vm.compileFunction",
