@@ -242,7 +242,7 @@ class IRJavascriptConverter(IRConverter):
                         node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if (node.isIdentifier() or node.isAttribute()) and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
+        if (node.isIdentifier() or node.isAttribute() or node.isCallExpression()) and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
             key = (node.content, node.scope)
             dataType = "called"
             if node.isPartOfCallExpression():

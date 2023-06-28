@@ -210,7 +210,7 @@ class IRPhpConverter(IRConverter):
                         node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if (node.isIdentifier() or node.isAttribute()) and node.isPartOfCallExpression():
+        if (node.isIdentifier() or node.isAttribute() or node.isCallExpression()) and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
 
