@@ -1,0 +1,1 @@
+cart.append("<p>We have charged credit card:" + field1 + "<br />");
