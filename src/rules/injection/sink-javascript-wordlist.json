@@ -12,6 +12,7 @@
       "exec",
       "spawn",
       "connection.query",
+      "sequelize.query",
       "innerHTML"
   ]
 }
