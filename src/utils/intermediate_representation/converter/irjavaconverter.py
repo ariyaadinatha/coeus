@@ -211,24 +211,18 @@ class IRJavaConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
         # handle value of an assignment
-        # a = x
-        if node.isInRightHandSide() and node.isPartOfAssignment() and not node.isPartOfCallExpression():
+        if node.isPartOfAssignment():
             if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
-        # a = "test" + x
-        elif node.isPartOfAssignment() and not node.isPartOfCallExpression():
-            if node.isValueOfAssignment():
-                identifier = node.getIdentifierFromAssignment()
-                key = (identifier, node.scope)
-                if key in blockScopedSymbolTable:
-                    dfgParentId = blockScopedSymbolTable[key][-1]
-                    dataType = "value"
-                    node.addDataFlowEdge(dataType, dfgParentId)
+                # handle standard assignment and destructuring assignment
+                identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
+
+                for id in identifier:
+                    key = (id, node.scope)
+                    # handle block scope
+                    if key in blockScopedSymbolTable:
+                        dfgParentId = blockScopedSymbolTable[key][-1]
+                        dataType = "value"
+                        node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
         if (node.isIdentifier() or node.isAttribute() or node.isCallExpression()) and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
