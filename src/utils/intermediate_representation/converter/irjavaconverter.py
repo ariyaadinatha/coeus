@@ -232,7 +232,11 @@ class IRJavaConverter(IRConverter):
                 nodeCall = node.getCallExpression()
             else:
                 nodeCall = node.getBinaryExpression()
-            nodeCall.addDataFlowEdge(dataType, node.id)
+            if node.isNodeCallingMethodOfItself():
+                node.addDataFlowEdge(dataType, nodeCall.id)
+                # TODO: still need to handle relationship between this node and the assignment/reassignment node, instead of the assignment node providing data flow to this node, it should be backwards
+            else:
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
                 # handle variable used for its own value

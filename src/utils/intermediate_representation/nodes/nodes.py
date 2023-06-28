@@ -58,6 +58,11 @@ class IRNode(ABC):
         indent = ' ' * depth
 
         print(f'{indent}{self}')
+        # tree sitter children
+        if len(self.node.children) != 0:
+            print(f'{indent}{self.node.children}')
+        # for child in self.node.children:
+        #     print(f'{indent}{child.text.decode("utf-8")}')
         # control flow info
         # for control in node.controlFlowEdges:
         #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
@@ -235,6 +240,9 @@ class IRNode(ABC):
                 parent = parent.parent
 
         return False
+    
+    def isNodeCallingMethodOfItself(self) -> bool:
+        return self.isIdentifier() and self.isPartOfCallExpression() and self.node.prev_sibling is None and self.node.next_sibling.type == "." and self.node.next_sibling.next_sibling.type == "identifier"
     
     def getIdentifiersFromPatternAssignment(self) -> str:
         parent = self.parent
