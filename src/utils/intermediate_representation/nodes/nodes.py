@@ -187,6 +187,9 @@ class IRNode(ABC):
     def isIdentifier(self) -> bool:
         return "identifier" in self.type or self.type == "variable_name"
     
+    def isAttribute(self) -> bool:
+        return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
+    
     def getCallExpression(self):
         parent = self.parent
 
