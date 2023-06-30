@@ -6,6 +6,7 @@
       "htmlspecialchars",
       "filter_var",
       "filter_input",
-      "htmlentities"
+      "htmlentities",
+      "mysqli_real_escape_string"
   ]
 }
