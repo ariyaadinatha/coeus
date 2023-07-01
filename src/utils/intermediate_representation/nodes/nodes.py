@@ -107,9 +107,8 @@ class IRNode(ABC):
     
     def checkIsSink(self, sinks) -> bool:
         if self.parent == None: return False
-        if not self.isCallExpression() or not self.isPartOfCallExpression(): return False
         for sink in sinks:
-            if sink.lower() in self.content.lower():
+            if sink.lower() in self.content.lower() and (self.isCallExpression() or self.isPartOfCallExpression()):
                 return True
         return False
     
