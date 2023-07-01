@@ -223,7 +223,7 @@ class IRJavascriptConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
         # handle value of an assignment
-        if node.isPartOfAssignment():
+        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 # handle standard assignment and destructuring assignment
                 identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
