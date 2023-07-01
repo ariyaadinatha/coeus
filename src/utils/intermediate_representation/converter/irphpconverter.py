@@ -180,7 +180,6 @@ class IRPhpConverter(IRConverter):
                     symbolTable[key] = [node.id]
             else:
                 # reference of an existing variable as value of another variable
-                print('referenced')
                 dataType = "referenced"
                 if key in symbolTable:
                     # handle variable used for its own value
