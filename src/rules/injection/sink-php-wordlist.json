@@ -6,6 +6,7 @@
       "system",
       "mysqli_query",
       "mssql_query",
+      "query",
       "echo",
       "unserialize"
   ]
