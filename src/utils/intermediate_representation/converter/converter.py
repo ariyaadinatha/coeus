@@ -11,18 +11,12 @@ class IRConverter(ABC):
         self.sinks = sinks
         self.sanitizers = sanitizers
         self.functionSymbolTable = {}
-
-    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-
-        return irRoot
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.addControlFlowEdgesToTree(irRoot)
         self.registerFunctionsToSymbolTable(irRoot)
-        self.addDataFlowEdgesToTreeDFS(irRoot)
+        self.addDataFlowEdgesToTree(irRoot)
 
         return irRoot
 
@@ -65,7 +59,7 @@ class IRConverter(ABC):
         pass
 
     @abstractmethod
-    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+    def addDataFlowEdgesToTree(self, root: IRNode):
         pass
 
     def registerFunctionsToSymbolTable(self, root: IRNode):
