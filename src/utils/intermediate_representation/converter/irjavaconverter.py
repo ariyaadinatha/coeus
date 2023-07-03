@@ -86,7 +86,7 @@ class IRJavaConverter(IRConverter):
                 else:
                     queue.append((child, 0, None))
 
-    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+    def addDataFlowEdgesToTree(self, root: IRNode):
         # to keep track of all visited nodes
         visited = set()
         # to keep track of order of visited nodes
