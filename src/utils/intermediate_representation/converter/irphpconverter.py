@@ -180,7 +180,6 @@ class IRPhpConverter(IRConverter):
                     symbolTable[key] = [node.id]
             else:
                 # reference of an existing variable as value of another variable
-                print('referenced')
                 dataType = "referenced"
                 if key in symbolTable:
                     # handle variable used for its own value
@@ -197,7 +196,7 @@ class IRPhpConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
 
         # handle value of an assignment
-        if node.isPartOfAssignment():
+        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 # handle standard assignment and destructuring assignment
                 identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
@@ -210,7 +209,7 @@ class IRPhpConverter(IRConverter):
                         node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.isIdentifier() and node.isPartOfCallExpression():
+        if (node.isIdentifier() or node.isAttribute() or node.isCallExpression()) and node.isPartOfCallExpression():
             key = (node.content, node.scope)
             dataType = "called"
 

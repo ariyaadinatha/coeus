@@ -4,9 +4,10 @@
       "shell_exec",
       "exec",
       "system",
-      "query",
       "mysqli_query",
       "mssql_query",
-      "echo"
+      "->query",
+      "echo",
+      "unserialize"
   ]
 }

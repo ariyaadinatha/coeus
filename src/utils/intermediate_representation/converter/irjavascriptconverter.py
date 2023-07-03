@@ -223,7 +223,7 @@ class IRJavascriptConverter(IRConverter):
                     self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
 
         # handle value of an assignment
-        if node.isPartOfAssignment():
+        if node.isPartOfAssignment() and not node.isPartOfCallExpression():
             if node.isValueOfAssignment():
                 # handle standard assignment and destructuring assignment
                 identifier = [node.getIdentifierFromAssignment()] if not node.isPartOfPatternAssignment() else node.getIdentifiersFromPatternAssignment()
@@ -242,7 +242,7 @@ class IRJavascriptConverter(IRConverter):
                         node.addDataFlowEdge(dataType, dfgParentId)
 
         # handle variable called as argument in function
-        if node.isIdentifier() and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
+        if (node.isIdentifier() or node.isAttribute() or node.isCallExpression()) and (node.isPartOfCallExpression() or node.isPartOfBinaryExpression()):
             key = (node.content, node.scope)
             dataType = "called"
             if node.isPartOfCallExpression():

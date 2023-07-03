@@ -5,6 +5,7 @@
       "$_GET",
       "$_POST",
       "$_COOKIES",
+      "$_COOKIE",
       "$_ENV",
       "$_FILES",
       "$_SESSION"
