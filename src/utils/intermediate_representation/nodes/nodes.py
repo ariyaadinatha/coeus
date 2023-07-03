@@ -93,8 +93,8 @@ class IRNode(ABC):
         edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
         self.controlFlowEdges.append(edge)
 
-    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
-        edge = DataFlowEdge(dataType, dfgParentId)
+    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None], parameterOrder: int = 0):
+        edge = DataFlowEdge(dataType, dfgParentId, parameterOrder)
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
 
@@ -187,6 +187,12 @@ class IRNode(ABC):
     
     def isAttribute(self) -> bool:
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
+
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        return "identifier" in self.type and self.parent.type == "function_definition"
+    
+    def isFunctionDefinition(self) -> bool:
+        return self.type == "function_definition"
     
     def getCallExpression(self):
         parent = self.parent
@@ -195,6 +201,15 @@ class IRNode(ABC):
             parent = parent.parent
 
         return parent
+    
+    def getFunctionIdentifierFromFunctionCall(self) -> str:
+        call = self.getCallExpression()
+
+        for child in call.astChildren:
+            if child.isIdentifier():
+                return child.content
+    
+        return None
     
     def getBinaryExpression(self):
         parent = self.parent
@@ -248,6 +263,23 @@ class IRNode(ABC):
 
         return None
     
+    def getOrderOfParametersInFunction(self) -> int:
+        if not (self.isArgumentOfAFunctionDefinition() or self.isArgumentOfAFunctionCall()):
+            return 0
+        
+        parameters = self.parent.astChildren
+        for index, node in enumerate(parameters):
+            if node.id == self.id:
+                return index
+        
+        return 0
+    
+    # node is function definition
+    def getParameters(self) -> list:
+        for child in self.astChildren:
+            if child.type == "parameters":
+                return child.astChildren
+
     @abstractmethod
     def isBinaryExpression(self) -> bool:
         pass
@@ -260,10 +292,14 @@ class IRNode(ABC):
     def isControlStatement(self) -> bool:
         pass
 
-    # to handle source declared in parameter in Java
-    # ex: @RequestParam userId
+    # argument of function definition
     @abstractmethod
-    def isArgumentOfAFunction(self) -> str:
+    def isArgumentOfAFunctionDefinition(self) -> str:
+        pass
+
+    # argument of function call
+    @abstractmethod
+    def isArgumentOfAFunctionCall(self) -> str:
         pass
 
     @abstractmethod
@@ -284,8 +320,9 @@ class ControlFlowEdge:
 
 # clas to store all variables and their values
 class DataFlowEdge:
-    def __init__(self, dataType: str, dfgParentId:  Union[str, None]) -> None:
-      # determine whether node is a variable or variable value
-      self.dfgId = uuid.uuid4().hex
-      self.dfgParentId = dfgParentId
-      self.dataType = dataType
+    def __init__(self, dataType: str, dfgParentId:  Union[str, None], parameterOrder: int = 0) -> None:
+        # determine whether node is a variable or variable value
+        self.dfgId = uuid.uuid4().hex
+        self.dfgParentId = dfgParentId
+        self.dataType = dataType
+        self.parameterOrder = parameterOrder

@@ -339,10 +339,10 @@ class InjectionHandler:
                     "data_type": edge.dataType
                 }
             
-            if edge.dataType == "value" or edge.dataType == "reassignment":
+            if edge.dataType == "value" or edge.dataType == "reassignment" or edge.dataType == "passed":
                 query = '''
                         MATCH (child:Node), (parent:Node)
-                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'value' OR $data_type = 'reassignment')
+                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'value' OR $data_type = 'reassignment' OR $data_type = 'passed')
                         MERGE (child)-[r:DATA_FLOW_TO{data_type: $data_type}]->(parent)
                         SET child:DataNode
                         SET parent:DataNode
