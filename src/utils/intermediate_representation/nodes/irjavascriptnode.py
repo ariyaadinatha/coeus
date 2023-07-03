@@ -22,8 +22,8 @@ class IRJavascriptNode(IRNode):
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
     
     # TODO: implement this func to add parameters to symbol table
-    def isArgumentOfAFunction(self) -> str:
-        return super().isArgumentOfAFunction()
+    def isArgumentOfAFunctionDefinition(self) -> str:
+        return super().isArgumentOfAFunctionDefinition()
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_expression"

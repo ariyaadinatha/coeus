@@ -158,12 +158,18 @@ class IRPythonConverter(IRConverter):
         
         return irRoot
 
+    def setNodeCallEdges(self, node: IRNode):
+        if node.isIdentifierOfFunctionDefinition():
+            key = node.content
+            parameters = node.parent.getParameters()
+            self.functionSymbolTable[key] = [parameter.id for parameter in parameters]
+
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and node.isPartOfAssignment():
+        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition()):
             key = (node.content, node.scope)
             # check node in left hand side
-            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment()) and not node.isValueOfAssignment():
+            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not node.isValueOfAssignment():
                 # reassignment of an existing variable
                 if key in symbolTable:
                     dataType = "reassignment"
@@ -228,6 +234,16 @@ class IRPythonConverter(IRConverter):
                 self.connectDataFlowEdgeToInsideFromInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
             else:
                 self.connectDataFlowEdgeToInsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
+
+        # handle variable as argument in function call and connect to argument in function definition
+        if node.isArgumentOfAFunctionCall():
+                key = node.getFunctionIdentifierFromFunctionCall()
+                print(key)
+                parameterOrder = node.getOrderOfParametersInFunction()
+                print(parameterOrder)
+                if key in self.functionSymbolTable:
+                    parameters = self.functionSymbolTable[key]
+                    node.addDataFlowEdge("passed", parameters[parameterOrder])
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope

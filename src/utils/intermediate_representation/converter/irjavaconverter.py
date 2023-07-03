@@ -167,7 +167,7 @@ class IRJavaConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # handle function parameters
-        if node.isIdentifier() and node.isArgumentOfAFunction():
+        if node.isIdentifier() and node.isArgumentOfAFunctionDefinition():
             key = (node.content, node.scope)
             dataType = "assignment"
             node.addDataFlowEdge(dataType, None)
