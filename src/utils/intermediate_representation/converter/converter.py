@@ -24,36 +24,6 @@ class IRConverter(ABC):
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         pass
     
-    '''
-        ide buat optimisasi graf
-        gausa ada iterasi pertama yang cuman bikin ASTNode
-        jadi bakal ngebuat ASTNode seiring jalan bikin CFG atau DFG
-        tapi untuk ngehandle dependency ke lower node, kalau ada kejadian gitu
-        bakal ngebuat lower node tersebut dan disimpan di hashset atau apa gt
-        ntar tiap mau bikin ASTNode baru ngecek ke hashset tersebut dulu udah ada atau blm
-        pro: satu iterasi
-        cons: space yg dibutuhin bisa besar + perlu ngecek ke hash tiap ada isinya (tp harusnya ga lebih lama dr kl  iterasi gasih)
-    '''
-
-    '''
-        ide lain buat optimisasi graf
-        buat sedemikian rupa biar gaada dependency ke lower node
-        jadi semua ngarah ke parent
-    '''
-
-    '''
-        ide buat optimisasi speed I/O
-        gausah pake neo4j kecuali kalo emang mau buat visualisasi (optional)
-        jadi bikin algoritma taint analysis sendiri di python
-        harusnya algoritmanya simpel cuman ngikutin data flow aja untuk setiap sink
-        dan kalo ketemu sanitizer bakal berhenti
-    '''
-
-    '''
-        buat masalah control flow prioritas terakhir
-        sekarang fokus ke data flow
-    '''
-
     @abstractmethod
     def addControlFlowEdgesToTree(self, root: IRNode):
         pass
