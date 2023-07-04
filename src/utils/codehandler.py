@@ -49,7 +49,7 @@ class FileHandler:
             for path, subdirs, files in os.walk(repositoryPath):
                 for name in files:
                     if self.checkValidCodeExtension(name):
-                        self.addCodeFilePath(os.path.join(path, name))
+                        self.addCodeFilePath(os.path.join(path, name).replace('\\', '/'))
 
                     if self.checkValidDependency(name):
                         self.addDependencyFilePath(os.path.join(path, name))
