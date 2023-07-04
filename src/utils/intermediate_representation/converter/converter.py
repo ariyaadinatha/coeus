@@ -14,8 +14,8 @@ class IRConverter(ABC):
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
         self.registerFunctionsToSymbolTable(irRoot)
+        self.addControlFlowEdgesToTree(irRoot)
         self.addDataFlowEdgesToTree(irRoot)
 
         return irRoot
@@ -23,7 +23,7 @@ class IRConverter(ABC):
     @abstractmethod
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         pass
-    
+
     @abstractmethod
     def addControlFlowEdgesToTree(self, root: IRNode):
         pass
@@ -31,6 +31,13 @@ class IRConverter(ABC):
     @abstractmethod
     def addDataFlowEdgesToTree(self, root: IRNode):
         pass
+
+    def setNodeCallEdges(self, node: IRNode):
+        if node.isIdentifierOfFunctionDefinition():
+            pureFilename = node.filename.rsplit('\\')[-1].split('.')[0]
+            key = (node.content, pureFilename)
+            parameters = node.parent.getParameters()
+            self.functionSymbolTable[key] = [parameter.id for parameter in parameters]
 
     def registerFunctionsToSymbolTable(self, root: IRNode):
         # to keep track of all visited nodes

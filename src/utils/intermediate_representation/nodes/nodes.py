@@ -82,12 +82,11 @@ class IRNode(ABC):
         
         return False
     
-    def setDataFlowProps(self, scope, sources, sinks, sanitizers):
+    def setDataFlowProps(self, sources, sinks, sanitizers):
         self.isSource = self.checkIsSource(sources)
         self.isSink = self.checkIsSink(sinks)
         self.isSanitizer = self.checkIsSanitizer(sanitizers)
         self.isTainted = self.isSource
-        self.scope = scope
     
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None], controlType: str='next_statement'):
         edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
@@ -194,6 +193,9 @@ class IRNode(ABC):
     def isFunctionDefinition(self) -> bool:
         return self.type == "function_definition"
     
+    def isImportStatement(self) -> bool:
+        return "import_from_statement" in self.type or "import_statement" in self.type
+
     def getCallExpression(self):
         parent = self.parent
 
@@ -202,14 +204,17 @@ class IRNode(ABC):
 
         return parent
     
-    def getFunctionIdentifierFromFunctionCall(self) -> str:
+    def getFunctionAttributesFromFunctionCall(self) -> str:
         call = self.getCallExpression()
 
-        for child in call.astChildren:
-            if child.isIdentifier():
-                return child.content
-    
-        return None
+        first = call.astChildren[0]
+        if first.isIdentifier():
+            return [first.content]
+        else:
+            # handle method call from class
+            # ex: Example.sink(test) -> Example is the first identifier then sink
+            # to always get the identifier, we get the last child
+            return [attr.content for attr in first.astChildren if attr.isIdentifier()]
     
     def getBinaryExpression(self):
         parent = self.parent
@@ -279,6 +284,18 @@ class IRNode(ABC):
         for child in self.astChildren:
             if child.type == "parameters":
                 return child.astChildren
+
+    def getImportOriginAndName(self):
+        if not self.isImportStatement():
+            return None
+        
+        origin = []
+        for child in self.astChildren:
+            for identifier in child.astChildren:
+                if identifier.isIdentifier():
+                    origin.append(identifier.content)
+
+        return origin[-1], origin
 
     @abstractmethod
     def isBinaryExpression(self) -> bool:

@@ -29,6 +29,7 @@ class IRPythonConverter(IRConverter):
                 continue
 
             convertedNode = IRPythonNode(node, filename, projectId, parent=parent)
+            convertedNode.setDataFlowProps(self.sources, self.sinks, self.sanitizers)
 
             # add current node as child to parent node
             # else set root node
@@ -88,6 +89,8 @@ class IRPythonConverter(IRConverter):
         visitedList = []
         # to keep track of variables
         symbolTable = {}
+        # to keep track of import statement
+        importTable = {}
         # to keep track of scopes
         scopeDatabase = set()
         # for dfs
@@ -103,9 +106,10 @@ class IRPythonConverter(IRConverter):
             scopeDatabase.add(scope)
 
             # do the ting
-            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
+            node.scope = scope
             scope = self.determineScopeNode(node, scope)
-            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable, importTable)
+            self.saveImportOrigin(node, importTable)
             
             controlId = uuid.uuid4().hex
             
@@ -116,55 +120,12 @@ class IRPythonConverter(IRConverter):
                         child.controlId = controlId
             stack.extend(reversed([(child, scope) for child in node.astChildren]))
 
-    def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
-        projectId = uuid.uuid4().hex
-        irRoot = IRPythonNode(root, filename, projectId)
+    def saveImportOrigin(self, node: IRNode, importTable: dict):
+        if node.isImportStatement():
+            name, importOrigin = node.getImportOriginAndName()
+            importTable[name] = importOrigin
 
-        # to keep track of all visited nodes
-        visited = set()
-        # to keep track of order of visited nodes
-        visitedList = []
-        # to keep track of variables
-        symbolTable = {}
-        # to keep track of scopes
-        scopeDatabase = set()
-        # for dfs
-        stack: list[tuple(IRNode, str)] = [(irRoot, filename)]
-
-        while stack:
-            payload = stack.pop()
-            node: IRNode = payload[0]
-            scope: str = payload[1]
-
-            visited.add(node.id)
-            visitedList.append(node.id)
-            scopeDatabase.add(scope)
-
-            # do the ting
-            node.setDataFlowProps(scope, self.sources, self.sinks, self.sanitizers)
-            scope = self.determineScopeNode(node, scope)
-            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
-            
-            controlId = uuid.uuid4().hex
-            
-            for child in node.node.children:
-                if not self.isIgnoredType(child):
-                    if node.type == "if_statement":
-                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
-                    else:
-                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
-                    node.astChildren.append(irChild)
-            stack.extend(reversed([(child, scope) for child in node.astChildren]))
-        
-        return irRoot
-
-    def setNodeCallEdges(self, node: IRNode):
-        if node.isIdentifierOfFunctionDefinition():
-            key = node.content
-            parameters = node.parent.getParameters()
-            self.functionSymbolTable[key] = [parameter.id for parameter in parameters]
-
-    def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict):
+    def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, importTable: dict):
         # handle variable assignment and reassignment
         if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition()):
             key = (node.content, node.scope)
@@ -237,13 +198,36 @@ class IRPythonConverter(IRConverter):
 
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
-                key = node.getFunctionIdentifierFromFunctionCall()
-                print(key)
-                parameterOrder = node.getOrderOfParametersInFunction()
-                print(parameterOrder)
-                if key in self.functionSymbolTable:
-                    parameters = self.functionSymbolTable[key]
-                    node.addDataFlowEdge("passed", parameters[parameterOrder])
+                functionAttributes = node.getFunctionAttributesFromFunctionCall()
+                functionName = functionAttributes[-1]
+                print(importTable)
+
+                print('attributes')
+
+                for attr in functionAttributes:
+                    print(attr)
+                    if attr in importTable:
+                        print('attribute in import')
+                        print(attr)
+
+                        importOrigin = importTable[attr]
+                        print('import origin')
+                        print(importOrigin)
+                        
+                        filename = importOrigin[0] if len(importOrigin) < 2 else importOrigin[-2]
+
+                        key = (functionName, filename)
+
+                        print('key')
+                        print(key)
+
+                        print('function symbol table')
+                        print(self.functionSymbolTable)
+                        if key in self.functionSymbolTable:
+                            parameterOrder = node.getOrderOfParametersInFunction()
+                            parameters = self.functionSymbolTable[key]
+                            node.addDataFlowEdge("passed", parameters[parameterOrder])
+                            break
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
@@ -402,6 +386,49 @@ class IRPythonConverter(IRConverter):
                     if node.isPartOfCallExpression():
                         nodeCall = node.getCallExpression()
                         nodeCall.addDataFlowEdge(dataType, node.id)
+
+    
+    def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:
+        projectId = uuid.uuid4().hex
+        irRoot = IRPythonNode(root, filename, projectId)
+
+        # to keep track of all visited nodes
+        visited = set()
+        # to keep track of order of visited nodes
+        visitedList = []
+        # to keep track of variables
+        symbolTable = {}
+        # to keep track of scopes
+        scopeDatabase = set()
+        # for dfs
+        stack: list[tuple(IRNode, str)] = [(irRoot, filename)]
+
+        while stack:
+            payload = stack.pop()
+            node: IRNode = payload[0]
+            scope: str = payload[1]
+
+            visited.add(node.id)
+            visitedList.append(node.id)
+            scopeDatabase.add(scope)
+
+            # do the ting
+            node.setDataFlowProps(self.sources, self.sinks, self.sanitizers)
+            scope = self.determineScopeNode(node, scope)
+            self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable)
+            
+            controlId = uuid.uuid4().hex
+            
+            for child in node.node.children:
+                if not self.isIgnoredType(child):
+                    if node.type == "if_statement":
+                        irChild = IRPythonNode(child, node.filename, node.projectId, controlId=controlId, parent=node)
+                    else:
+                        irChild = IRPythonNode(child, node.filename, node.projectId, parent=node)
+                    node.astChildren.append(irChild)
+            stack.extend(reversed([(child, scope) for child in node.astChildren]))
+        
+        return irRoot
     
     def isControlScope(self, scope: str) -> bool:
         return len(scope.rpartition("\\")[2]) > 32 and scope.rpartition("\\")[2][:-32] in PYTHON_CONTROL_SCOPE_IDENTIFIERS
