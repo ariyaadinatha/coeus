@@ -200,29 +200,17 @@ class IRPythonConverter(IRConverter):
         if node.isArgumentOfAFunctionCall():
                 functionAttributes = node.getFunctionAttributesFromFunctionCall()
                 functionName = functionAttributes[-1]
-                print(importTable)
-
-                print('attributes')
 
                 for attr in functionAttributes:
-                    print(attr)
                     if attr in importTable:
-                        print('attribute in import')
-                        print(attr)
-
                         importOrigin = importTable[attr]
-                        print('import origin')
-                        print(importOrigin)
+
+                        fileAttributes = node.filename.split('/')
+                        fileAttributes = fileAttributes[:len(fileAttributes) - len(importOrigin)+1] + importOrigin[:-1]
                         
-                        filename = importOrigin[0] if len(importOrigin) < 2 else importOrigin[-2]
+                        fileImportDirectory = ('/').join(fileAttributes) 
+                        key = (functionName, fileImportDirectory)
 
-                        key = (functionName, filename)
-
-                        print('key')
-                        print(key)
-
-                        print('function symbol table')
-                        print(self.functionSymbolTable)
                         if key in self.functionSymbolTable:
                             parameterOrder = node.getOrderOfParametersInFunction()
                             parameters = self.functionSymbolTable[key]
