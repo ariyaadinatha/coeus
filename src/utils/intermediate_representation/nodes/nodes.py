@@ -228,10 +228,13 @@ class IRNode(ABC):
         definition = self.getFunctionDefinition()
 
         for attr in definition.astChildren:
-            if attr.isIdentifier():
+            if attr.isIdentifier() or attr.type == "name":
                 return attr.content
             
     def getIdentifierOfFunctionCall(self) -> str:
+        if "echo" in self.type:
+            return None
+        
         first = self.astChildren[0]
         if first.isIdentifier() or first.type == "name":
             return first.content

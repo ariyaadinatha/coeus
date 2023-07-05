@@ -122,7 +122,7 @@ class IRPhpConverter(IRConverter):
         # NOTE: could be detrimental for assignments that use call expression
         # e.g. a = init(x, y)
         # or not?????
-        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition()):
+        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition() or node.isPartOfReturnStatement()):
             key = (node.content, node.scope)
             # check node in left hand side
             if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not node.isValueOfAssignment():
@@ -198,12 +198,22 @@ class IRPhpConverter(IRConverter):
             functionName = functionAttributes[-1]
 
             key = functionName
-            print(self.functionSymbolTable)
             if key in self.functionSymbolTable:
                 parameterOrder = node.getOrderOfParametersInFunction()
 
                 for function in self.functionSymbolTable[key]:
-                    node.addDataFlowEdge("passed", function[parameterOrder])
+                    node.addDataFlowEdge("passed", function['arguments'][parameterOrder])
+
+        # handle return from function
+        # connect return to function call
+        if node.isCallExpression():
+            key = node.getIdentifierOfFunctionCall()
+            if key in self.functionSymbolTable:
+                print(self.functionSymbolTable[key])
+                for func in self.functionSymbolTable[key]:
+                    if len(func['returns']) > 0:
+                        for id in func['returns']:
+                            node.addDataFlowEdge('returned', id)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope

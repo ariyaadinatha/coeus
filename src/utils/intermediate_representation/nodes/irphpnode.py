@@ -23,10 +23,7 @@ class IRPhpNode(IRNode):
     
     def isIdentifierOfFunctionDefinition(self) -> bool:
         return self.type == "name" and self.parent.isFunctionDefinition()
-    
-    def isFunctionDefinition(self) -> bool:
-        return self.type == "function_definition"
-    
+
     def isArgumentOfAFunctionDefinition(self) -> str:
         return self.isIdentifier() and self.parent.type == "simple_parameter"
     
@@ -38,7 +35,7 @@ class IRPhpNode(IRNode):
 
         for child in self.astChildren:
             if child.type == "formal_parameters":
-                parameters.append(child.astChildren[0])
+                parameters.append(child.astChildren[0].astChildren[0])
                 
         return parameters
     
