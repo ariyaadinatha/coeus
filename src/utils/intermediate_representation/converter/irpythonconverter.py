@@ -205,8 +205,19 @@ class IRPythonConverter(IRConverter):
             if key in self.functionSymbolTable:
                 parameterOrder = node.getOrderOfParametersInFunction()
 
+                parameters = []
                 for function in self.functionSymbolTable[key]:
-                    node.addDataFlowEdge("passed", function['arguments'][parameterOrder])
+                    parameter = function['arguments'][parameterOrder]
+                    # if there is a function definition in the same file
+                    # use only that
+                    if function['filename'] == node.filename:
+                        parameters = [parameter]
+                        break
+                    else:
+                        parameters.append(parameter)
+                
+                for parameter in parameters:
+                    node.addDataFlowEdge("passed", parameter)
             
             # if use file directory as key and need to resolve imports
             # if len(functionAttributes) <= 1:
@@ -238,11 +249,20 @@ class IRPythonConverter(IRConverter):
         # connect return to function call
         if node.isCallExpression():
             key = node.getIdentifierOfFunctionCall()
+            returns = []
+            
             if key in self.functionSymbolTable:
                 for func in self.functionSymbolTable[key]:
-                    if len(func['returns']) > 0:
-                        for id in func['returns']:
-                            node.addDataFlowEdge('returned', id)
+                    # prioritize function return in current file
+                    if func['filename'] == node.filename:
+                        returns = [func['returns']]
+                    else:
+                        returns.append(func['returns'])
+            
+            # flatten array
+            returns = [item for sub_list in returns for item in sub_list]
+            for returnId in returns:
+                node.addDataFlowEdge('returned', returnId)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
