@@ -21,9 +21,26 @@ class IRPhpNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in PHP_DIVERGE_CONTROL_STATEMENTS
     
-    # TODO: implement this func to add parameters to symbol table
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        return self.type == "name" and self.parent.isFunctionDefinition()
+    
+    def isFunctionDefinition(self) -> bool:
+        return self.type == "function_definition"
+    
     def isArgumentOfAFunctionDefinition(self) -> str:
-        return super().isArgumentOfAFunctionDefinition()
+        return self.isIdentifier() and self.parent.type == "simple_parameter"
+    
+    def isArgumentOfAFunctionCall(self) -> str:
+        return self.isIdentifier() and self.parent.type == "argument"
+    
+    def getParameters(self) -> list:
+        parameters = []
+
+        for child in self.astChildren:
+            if child.type == "formal_parameters":
+                parameters.append(child.astChildren[0])
+                
+        return parameters
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_expression"
