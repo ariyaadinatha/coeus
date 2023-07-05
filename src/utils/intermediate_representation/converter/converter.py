@@ -40,7 +40,11 @@ class IRConverter(ABC):
 
             key = node.content
             parameters = node.parent.getParameters()
-            self.functionSymbolTable[key] = [parameter.id for parameter in parameters]
+            
+            if key in self.functionSymbolTable:
+                self.functionSymbolTable[key].append([parameter.id for parameter in parameters])
+            else:
+                self.functionSymbolTable[key] = [[parameter.id for parameter in parameters]]
 
     def registerFunctionsToSymbolTable(self, root: IRNode):
         # to keep track of all visited nodes

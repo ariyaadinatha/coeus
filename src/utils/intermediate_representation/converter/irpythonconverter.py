@@ -198,40 +198,41 @@ class IRPythonConverter(IRConverter):
 
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
-                functionAttributes = node.getFunctionAttributesFromFunctionCall()
-                functionName = functionAttributes[-1]
+            functionAttributes = node.getFunctionAttributesFromFunctionCall()
+            functionName = functionAttributes[-1]
 
-                key = functionName
-                if key in self.functionSymbolTable:
-                    parameterOrder = node.getOrderOfParametersInFunction()
-                    parameters = self.functionSymbolTable[key]
-                    node.addDataFlowEdge("passed", parameters[parameterOrder])
-                
-                # if use file directory as key and need to resolve imports
-                # if len(functionAttributes) <= 1:
-                #     key = (functionName, node.filename)
+            key = functionName
+            if key in self.functionSymbolTable:
+                parameterOrder = node.getOrderOfParametersInFunction()
 
-                #     key = functionName
-                #     if key in self.functionSymbolTable:
-                #         parameterOrder = node.getOrderOfParametersInFunction()
-                #         parameters = self.functionSymbolTable[key]
-                #         node.addDataFlowEdge("passed", parameters[parameterOrder])
-                # else:
-                #     for attr in functionAttributes:
-                #         if attr in importTable:
-                #             importOrigin = importTable[attr]
+                for function in self.functionSymbolTable[key]:
+                    node.addDataFlowEdge("passed", function[parameterOrder])
+            
+            # if use file directory as key and need to resolve imports
+            # if len(functionAttributes) <= 1:
+            #     key = (functionName, node.filename)
 
-                #             fileAttributes = node.filename.split('/')
-                #             fileAttributes = fileAttributes[:len(fileAttributes) - len(importOrigin)+1] + importOrigin[:-1]
-                            
-                #             fileImportDirectory = ('/').join(fileAttributes) 
-                #             key = (functionName, fileImportDirectory)
+            #     key = functionName
+            #     if key in self.functionSymbolTable:
+            #         parameterOrder = node.getOrderOfParametersInFunction()
+            #         parameters = self.functionSymbolTable[key]
+            #         node.addDataFlowEdge("passed", parameters[parameterOrder])
+            # else:
+            #     for attr in functionAttributes:
+            #         if attr in importTable:
+            #             importOrigin = importTable[attr]
 
-                #             if key in self.functionSymbolTable:
-                #                 parameterOrder = node.getOrderOfParametersInFunction()
-                #                 parameters = self.functionSymbolTable[key]
-                #                 node.addDataFlowEdge("passed", parameters[parameterOrder])
-                #                 break
+            #             fileAttributes = node.filename.split('/')
+            #             fileAttributes = fileAttributes[:len(fileAttributes) - len(importOrigin)+1] + importOrigin[:-1]
+                        
+            #             fileImportDirectory = ('/').join(fileAttributes) 
+            #             key = (functionName, fileImportDirectory)
+
+            #             if key in self.functionSymbolTable:
+            #                 parameterOrder = node.getOrderOfParametersInFunction()
+            #                 parameters = self.functionSymbolTable[key]
+            #                 node.addDataFlowEdge("passed", parameters[parameterOrder])
+            #                 break
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
