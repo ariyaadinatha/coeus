@@ -127,7 +127,7 @@ class IRPythonConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, importTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition()):
+        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition() or node.isPartOfReturnStatement()):
             key = (node.content, node.scope)
             # check node in left hand side
             if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not node.isValueOfAssignment():
@@ -206,7 +206,7 @@ class IRPythonConverter(IRConverter):
                 parameterOrder = node.getOrderOfParametersInFunction()
 
                 for function in self.functionSymbolTable[key]:
-                    node.addDataFlowEdge("passed", function[parameterOrder])
+                    node.addDataFlowEdge("passed", function['arguments'][parameterOrder])
             
             # if use file directory as key and need to resolve imports
             # if len(functionAttributes) <= 1:
@@ -233,6 +233,16 @@ class IRPythonConverter(IRConverter):
             #                 parameters = self.functionSymbolTable[key]
             #                 node.addDataFlowEdge("passed", parameters[parameterOrder])
             #                 break
+        
+        # handle return from function
+        # connect return to function call
+        if node.isCallExpression():
+            key = node.getIdentifierOfFunctionCall()
+            if key in self.functionSymbolTable:
+                for func in self.functionSymbolTable[key]:
+                    if len(func['returns']) > 0:
+                        for id in func['returns']:
+                            node.addDataFlowEdge('returned', id)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
