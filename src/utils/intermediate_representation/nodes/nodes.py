@@ -187,8 +187,26 @@ class IRNode(ABC):
     def isAttribute(self) -> bool:
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
     
+    def isFunctionDefinition(self) -> bool:
+        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration"
+    
     def isImportStatement(self) -> bool:
         return "import_from_statement" in self.type or "import_statement" in self.type
+
+    def isReturnStatement(self) -> bool:
+        return self.type == "return_statement"
+    
+    def isPartOfReturnStatement(self) -> bool:
+        if not self.isIdentifier():
+            return False
+        
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if parent.isReturnStatement():
+                return True
+            parent = parent.parent
+
+        return False
 
     def getCallExpression(self):
         parent = self.parent
@@ -198,9 +216,33 @@ class IRNode(ABC):
 
         return parent
     
-    def getFunctionAttributesFromFunctionCall(self) -> str:
+    def getFunctionDefinition(self):
+        parent = self.parent
+
+        while not parent.isFunctionDefinition():
+            parent = parent.parent
+
+        return parent
+    
+    def getIdentifierFromFunctionDefinition(self) -> str:
+        definition = self.getFunctionDefinition()
+
+        for attr in definition.astChildren:
+            if attr.isIdentifier():
+                return attr.content
+            
+    def getIdentifierOfFunctionCall(self) -> str:
+        first = self.astChildren[0]
+        if first.isIdentifier() or first.type == "name":
+            return first.content
+        else:
+            # handle method call from class
+            # ex: Example.sink(test) -> Example is the first identifier then sink
+            # to always get the identifier, we get the last child
+            return [attr.content for attr in first.astChildren if attr.isIdentifier()][-1]
+    
+    def getFunctionAttributesFromFunctionCall(self) -> list:
         call = self.getCallExpression()
-        print(call)
 
         first = call.astChildren[0]
         if first.isIdentifier() or first.type == "name":
@@ -297,13 +339,9 @@ class IRNode(ABC):
     @abstractmethod
     def isControlStatement(self) -> bool:
         pass
-
-    @abstractmethod
-    def isIdentifierOfFunctionDefinition(self) -> bool:
-        pass
     
     @abstractmethod
-    def isFunctionDefinition(self) -> bool:
+    def isIdentifierOfFunctionDefinition(self) -> bool:
         pass
 
     # argument of function definition
