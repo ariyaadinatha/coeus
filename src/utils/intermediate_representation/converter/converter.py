@@ -39,7 +39,12 @@ class IRConverter(ABC):
             # key = (node.content, fileDirectory)
 
             key = node.content
-            parameters = node.parent.getParameters()
+
+            # handle arrow function in js
+            if node.parent.isAssignmentStatement() and node.parent.astChildren[1].isFunctionDefinition():
+                parameters = node.parent.astChildren[1].getParameters()
+            else:
+                parameters = node.parent.getParameters()
             
             if key in self.functionSymbolTable:
                 self.functionSymbolTable[key].append({

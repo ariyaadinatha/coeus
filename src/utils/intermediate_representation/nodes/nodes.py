@@ -192,7 +192,7 @@ class IRNode(ABC):
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
     
     def isFunctionDefinition(self) -> bool:
-        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration" or self.type == "method_declaration"
+        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration" or self.type == "method_declaration" or self.type == "arrow_function"
     
     def isImportStatement(self) -> bool:
         return "import_from_statement" in self.type or "import_statement" in self.type

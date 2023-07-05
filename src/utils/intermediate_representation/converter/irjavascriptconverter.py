@@ -134,7 +134,7 @@ class IRJavascriptConverter(IRConverter):
         if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition() or node.isPartOfReturnStatement()):
             key = (node.content, node.scope)
             # check node in left hand side
-            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not node.isValueOfAssignment():
+            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not (node.isValueOfAssignment() and not node.isArgumentOfAFunctionDefinition()):
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
