@@ -24,6 +24,9 @@ class IRJavaNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVA_DIVERGE_CONTROL_STATEMENTS
     
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        return self.isIdentifier() and self.parent.isFunctionDefinition()
+    
     def isArgumentOfAFunctionDefinition(self) -> str:
         if "annotation" in self.parent.type:
             return False
@@ -35,6 +38,19 @@ class IRJavaNode(IRNode):
             parent = parent.parent
 
         return False
+
+    def isArgumentOfAFunctionCall(self) -> str:
+        return self.isIdentifier() and self.parent.type == "argument_list"
+    
+    def getParameters(self) -> list:
+        parameters = []
+        for child in self.astChildren:
+            if child.type == "formal_parameters":
+                for parameter in child.astChildren:
+                    if parameter.type == "formal_parameter":
+                        parameters.append(parameter.astChildren[1])
+
+        return parameters
     
     def getIdentifierFromAssignment(self) -> str:
         # a = x

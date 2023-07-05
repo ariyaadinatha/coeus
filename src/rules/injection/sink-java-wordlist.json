@@ -14,7 +14,6 @@
     "output",
     "compile",
     "evaluate",
-    "query",
     "queryResource",
     "connect",
     "write",

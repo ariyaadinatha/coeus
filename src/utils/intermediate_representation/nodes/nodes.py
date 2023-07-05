@@ -99,6 +99,10 @@ class IRNode(ABC):
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
+        # handle declaration of source in function
+        # ex: public AttackResult attack(@RequestParam String userId)
+        if (self.isArgumentOfAFunctionDefinition() and self.parent.node.children[0].text.decode("utf-8") == "@RequestParam"):
+            return True
         for source in sources:
             if source.lower() in self.content.lower():
                 return True
@@ -182,13 +186,13 @@ class IRNode(ABC):
         return False
     
     def isIdentifier(self) -> bool:
-        return "identifier" in self.type or self.type == "variable_name"
+        return ("identifier" in self.type or self.type == "variable_name") and self.type != "type_identifier"
     
     def isAttribute(self) -> bool:
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
     
     def isFunctionDefinition(self) -> bool:
-        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration"
+        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration" or self.type == "method_declaration"
     
     def isImportStatement(self) -> bool:
         return "import_from_statement" in self.type or "import_statement" in self.type
@@ -248,7 +252,7 @@ class IRNode(ABC):
         call = self.getCallExpression()
 
         first = call.astChildren[0]
-        if first.isIdentifier() or first.type == "name":
+        if first.isIdentifier() or first.type == "name" and first.node.next_sibling.type != ".":
             return [first.content]
         else:
             # handle method call from class
