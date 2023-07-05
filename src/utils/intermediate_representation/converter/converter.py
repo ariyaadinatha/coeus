@@ -42,9 +42,26 @@ class IRConverter(ABC):
             parameters = node.parent.getParameters()
             
             if key in self.functionSymbolTable:
-                self.functionSymbolTable[key].append([parameter.id for parameter in parameters])
+                self.functionSymbolTable[key].append({
+                    'filename': node.filename,
+                    'arguments': [parameter.id for parameter in parameters],
+                    'returns': []
+                })
             else:
-                self.functionSymbolTable[key] = [[parameter.id for parameter in parameters]]
+                self.functionSymbolTable[key] = [{
+                    'filename': node.filename,
+                    'arguments': [parameter.id for parameter in parameters],
+                    'returns': []
+                }]
+
+        # handle return variable
+        if node.isPartOfReturnStatement():
+            key = node.getIdentifierFromFunctionDefinition()
+
+            if key in self.functionSymbolTable:
+                for func in self.functionSymbolTable[key]:
+                    if func['filename'] == node.filename:
+                        func['returns'].append(node.id)
 
     def registerFunctionsToSymbolTable(self, root: IRNode):
         # to keep track of all visited nodes
