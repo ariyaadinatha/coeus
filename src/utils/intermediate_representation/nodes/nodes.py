@@ -186,12 +186,6 @@ class IRNode(ABC):
     
     def isAttribute(self) -> bool:
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
-
-    def isIdentifierOfFunctionDefinition(self) -> bool:
-        return "identifier" in self.type and self.parent.type == "function_definition"
-    
-    def isFunctionDefinition(self) -> bool:
-        return self.type == "function_definition"
     
     def isImportStatement(self) -> bool:
         return "import_from_statement" in self.type or "import_statement" in self.type
@@ -206,9 +200,10 @@ class IRNode(ABC):
     
     def getFunctionAttributesFromFunctionCall(self) -> str:
         call = self.getCallExpression()
+        print(call)
 
         first = call.astChildren[0]
-        if first.isIdentifier():
+        if first.isIdentifier() or first.type == "name":
             return [first.content]
         else:
             # handle method call from class
@@ -278,12 +273,6 @@ class IRNode(ABC):
                 return index
         
         return 0
-    
-    # node is function definition
-    def getParameters(self) -> list:
-        for child in self.astChildren:
-            if child.type == "parameters":
-                return child.astChildren
 
     def getImportOriginAndName(self):
         if not self.isImportStatement():
@@ -309,6 +298,14 @@ class IRNode(ABC):
     def isControlStatement(self) -> bool:
         pass
 
+    @abstractmethod
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        pass
+    
+    @abstractmethod
+    def isFunctionDefinition(self) -> bool:
+        pass
+
     # argument of function definition
     @abstractmethod
     def isArgumentOfAFunctionDefinition(self) -> str:
@@ -317,6 +314,11 @@ class IRNode(ABC):
     # argument of function call
     @abstractmethod
     def isArgumentOfAFunctionCall(self) -> str:
+        pass
+
+    # node is function definition
+    @abstractmethod
+    def getParameters(self) -> list:
         pass
 
     @abstractmethod
