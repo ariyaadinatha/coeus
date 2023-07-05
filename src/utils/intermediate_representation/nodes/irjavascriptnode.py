@@ -21,9 +21,19 @@ class IRJavascriptNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
     
-    # TODO: implement this func to add parameters to symbol table
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        return self.isIdentifier() and self.parent.isFunctionDefinition()
+    
     def isArgumentOfAFunctionDefinition(self) -> str:
-        return super().isArgumentOfAFunctionDefinition()
+        return self.isIdentifier() and self.parent.type == "formal_parameters"
+    
+    def isArgumentOfAFunctionCall(self) -> str:
+        return self.isIdentifier() and self.parent.type == "arguments"
+    
+    def getParameters(self) -> list:
+        for child in self.astChildren:
+            if child.type == "formal_parameters":
+                return child.astChildren
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_expression"
