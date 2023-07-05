@@ -21,11 +21,19 @@ class IRPythonNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in PYTHON_DIVERGE_CONTROL_STATEMENTS
     
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        return self.isIdentifier() and self.parent.isFunctionDefinition()
+    
     def isArgumentOfAFunctionDefinition(self) -> str:
         return self.isIdentifier() and self.parent.type == "parameters"
     
     def isArgumentOfAFunctionCall(self) -> str:
         return self.isIdentifier() and self.parent.type == "argument_list"
+    
+    def getParameters(self) -> list:
+        for child in self.astChildren:
+            if child.type == "parameters":
+                return child.astChildren
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_operator"
