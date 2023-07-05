@@ -1,5 +1,8 @@
 const test = (req) => {
-  source = req.body.get('domain');
+  const {
+    source
+  } = req.params;
+  
   sink(source);
 }
 
