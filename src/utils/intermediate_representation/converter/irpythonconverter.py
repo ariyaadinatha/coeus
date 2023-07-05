@@ -201,21 +201,28 @@ class IRPythonConverter(IRConverter):
                 functionAttributes = node.getFunctionAttributesFromFunctionCall()
                 functionName = functionAttributes[-1]
 
-                for attr in functionAttributes:
-                    if attr in importTable:
-                        importOrigin = importTable[attr]
+                if len(functionAttributes) <= 1:
+                    key = (functionName, node.filename)
+                    if key in self.functionSymbolTable:
+                        parameterOrder = node.getOrderOfParametersInFunction()
+                        parameters = self.functionSymbolTable[key]
+                        node.addDataFlowEdge("passed", parameters[parameterOrder])
+                else:
+                    for attr in functionAttributes:
+                        if attr in importTable:
+                            importOrigin = importTable[attr]
 
-                        fileAttributes = node.filename.split('/')
-                        fileAttributes = fileAttributes[:len(fileAttributes) - len(importOrigin)+1] + importOrigin[:-1]
-                        
-                        fileImportDirectory = ('/').join(fileAttributes) 
-                        key = (functionName, fileImportDirectory)
+                            fileAttributes = node.filename.split('/')
+                            fileAttributes = fileAttributes[:len(fileAttributes) - len(importOrigin)+1] + importOrigin[:-1]
+                            
+                            fileImportDirectory = ('/').join(fileAttributes) 
+                            key = (functionName, fileImportDirectory)
 
-                        if key in self.functionSymbolTable:
-                            parameterOrder = node.getOrderOfParametersInFunction()
-                            parameters = self.functionSymbolTable[key]
-                            node.addDataFlowEdge("passed", parameters[parameterOrder])
-                            break
+                            if key in self.functionSymbolTable:
+                                parameterOrder = node.getOrderOfParametersInFunction()
+                                parameters = self.functionSymbolTable[key]
+                                node.addDataFlowEdge("passed", parameters[parameterOrder])
+                                break
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope

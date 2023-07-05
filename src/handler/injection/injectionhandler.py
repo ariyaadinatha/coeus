@@ -72,7 +72,7 @@ class InjectionHandler:
         sourceCode = fileHandler.readFile(codePath)
         code = CodeProcessor(self.language, sourceCode)
         root = code.getRootNode()
-        astRoot = self.converter.createAstTree(root, codePath)
+        astRoot = self.converter.createAstTree(root, codePath.rsplit('.', 1)[0])
         self.converter.registerFunctionsToSymbolTable(astRoot)
 
         return astRoot

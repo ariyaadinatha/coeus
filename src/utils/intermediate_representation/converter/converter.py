@@ -34,8 +34,7 @@ class IRConverter(ABC):
 
     def setNodeCallEdges(self, node: IRNode):
         if node.isIdentifierOfFunctionDefinition():
-            fileDirectory = node.filename.rsplit('.', 1)[0]
-            print(fileDirectory)
+            fileDirectory = node.filename
             key = (node.content, fileDirectory)
             parameters = node.parent.getParameters()
             self.functionSymbolTable[key] = [parameter.id for parameter in parameters]
