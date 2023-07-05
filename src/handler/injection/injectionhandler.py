@@ -362,7 +362,7 @@ class InjectionHandler:
             else:
                 query = '''
                         MATCH (child:Node), (parent:Node)
-                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'called' OR $data_type = 'referenced')
+                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'called' OR $data_type = 'referenced' OR $data_type = 'returned')
                         MERGE (parent)-[r:DATA_FLOW_TO{data_type: $data_type}]->(child)
                         SET child:DataNode
                         SET parent:DataNode
