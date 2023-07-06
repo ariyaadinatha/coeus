@@ -287,6 +287,7 @@ class IRJavascriptConverter(IRConverter):
             print(node)
 
             nextCall = node.getNextFunctionInChain()
+            if nextCall is None: return
 
             print('next call')
             print(nextCall)
