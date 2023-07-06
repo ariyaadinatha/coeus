@@ -215,25 +215,24 @@ class IRNode(ABC):
     def getCallExpression(self):
         parent = self.parent
 
-        while not parent.isCallExpression():
+        while parent is not None and not parent.isCallExpression():
             parent = parent.parent
-
-            if parent is None:
-                print(self)
-                return None
 
         return parent
     
     def getFunctionDefinition(self):
         parent = self.parent
 
-        while not parent.isFunctionDefinition():
+        while parent is not None and not parent.isFunctionDefinition():
             parent = parent.parent
 
         return parent
     
     def getIdentifierFromFunctionDefinition(self) -> str:
         definition = self.getFunctionDefinition()
+
+        if definition is None:
+            return None
 
         for attr in definition.astChildren:
             if attr.isIdentifier() or attr.type == "name":
@@ -340,16 +339,17 @@ class IRNode(ABC):
         return 0
 
     def getImportOriginAndName(self):
-        if not self.isImportStatement():
-            return None
+        pass
+        # if not self.isImportStatement():
+        #     return None
         
-        origin = []
-        for child in self.astChildren:
-            for identifier in child.astChildren:
-                if identifier.isIdentifier():
-                    origin.append(identifier.content)
+        # origin = []
+        # for child in self.astChildren:
+        #     for identifier in child.astChildren:
+        #         if identifier.isIdentifier():
+        #             origin.append(identifier.content)
 
-        return origin[-1], origin
+        # return origin[-1], origin
 
     @abstractmethod
     def isBinaryExpression(self) -> bool:

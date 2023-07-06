@@ -45,7 +45,10 @@ class IRConverter(ABC):
                 parameters = node.parent.astChildren[1].getParameters()
             else:
                 parameters = node.parent.getParameters()
-            
+
+            if parameters is None:
+                parameters = []
+
             if key in self.functionSymbolTable:
                 self.functionSymbolTable[key].append({
                     'filename': node.filename,

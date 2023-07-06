@@ -22,8 +22,13 @@ class IRJavascriptNode(IRNode):
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
     
     def isIdentifierOfFunctionDefinition(self) -> bool:
+        if not self.isIdentifier():
+            return False
+        if self.parent is None:
+            return False
+
         # handle standard function definition and arrow function definition
-        return self.isIdentifier() and (self.parent.isFunctionDefinition() or (self.parent.isAssignmentStatement() and self.parent.astChildren[1].isFunctionDefinition()))
+        return self.parent.isFunctionDefinition() or (self.parent.isAssignmentStatement() and len(self.parent.astChildren) >= 2 and self.parent.astChildren[1].isFunctionDefinition())
     
     def isArgumentOfAFunctionDefinition(self) -> str:
         return self.isIdentifier() and self.parent.type == "formal_parameters"

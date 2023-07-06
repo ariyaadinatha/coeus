@@ -195,25 +195,48 @@ class IRPhpConverter(IRConverter):
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
+
+            if len(functionAttributes) < 1:
+                return
             functionName = functionAttributes[-1]
 
             key = functionName
             if key in self.functionSymbolTable:
                 parameterOrder = node.getOrderOfParametersInFunction()
 
+                parameters = []
                 for function in self.functionSymbolTable[key]:
-                    node.addDataFlowEdge("passed", function['arguments'][parameterOrder])
+                    if len(function['arguments']) <= parameterOrder: continue
+                    parameter = function['arguments'][parameterOrder]
+                    # if there is a function definition in the same file
+                    # use only that
+                    if function['filename'] == node.filename:
+                        parameters = [parameter]
+                        break
+                    else:
+                        parameters.append(parameter)
+                
+                for parameter in parameters:
+                    node.addDataFlowEdge("passed", parameter)
 
         # handle return from function
         # connect return to function call
         if node.isCallExpression():
             key = node.getIdentifierOfFunctionCall()
+            returns = []
+            
             if key in self.functionSymbolTable:
-                print(self.functionSymbolTable[key])
                 for func in self.functionSymbolTable[key]:
-                    if len(func['returns']) > 0:
-                        for id in func['returns']:
-                            node.addDataFlowEdge('returned', id)
+                    # prioritize function return in current file
+                    if func['filename'] == node.filename:
+                        returns = [func['returns']]
+                    else:
+                        returns.append(func['returns'])
+            
+            # flatten array
+            returns = [item for sub_list in returns for item in sub_list]
+            for returnId in returns:
+                node.addDataFlowEdge('returned', returnId)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope

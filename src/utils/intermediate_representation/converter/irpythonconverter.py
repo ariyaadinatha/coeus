@@ -109,7 +109,6 @@ class IRPythonConverter(IRConverter):
             node.scope = scope
             scope = self.determineScopeNode(node, scope)
             self.setNodeDataFlowEdges(node, visited, visitedList, scopeDatabase, symbolTable, importTable)
-            self.saveImportOrigin(node, importTable)
             
             controlId = uuid.uuid4().hex
             

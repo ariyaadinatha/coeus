@@ -137,9 +137,9 @@ def injection(path, language, output, mode):
         current
         '''
         # handler = InjectionHandler("./testcase/python/current", "python")
-        handler = InjectionHandler("./testcase/php/current", "php")
+        # handler = InjectionHandler("./testcase/php/current", "php")
         # handler = InjectionHandler("./testcase/java/current", "java")
-        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        handler = InjectionHandler("./testcase/javascript/current", "javascript")
 
         '''
         testing
@@ -149,7 +149,15 @@ def injection(path, language, output, mode):
         # handler = InjectionHandler("../../NodeGoat", "javascript")
         # handler = InjectionHandler("./../../WebGoat", "java")
         
-        result = handler.taintAnalysis(apoc=True)
+        '''
+        testing tito
+        '''
+        # handler = InjectionHandler("../../coeus-test-projects/DVWA", "php")
+        # handler = InjectionHandler("../../coeus-test-projects/PyGoat", "python")
+        # handler = InjectionHandler("../../coeus-test-projects/NodeGoat", "javascript")
+        # handler = InjectionHandler("./../../coeus-test-projects/WebGoat", "java")
+    
+        result = handler.taintAnalysis()
         vulnHandler = VulnerableHandler()
 
         finalRes = set()
@@ -176,7 +184,6 @@ def injection(path, language, output, mode):
                 print(vuln)
                 vulnHandler.addVulnerable(vuln)
             
-        fileNameOutput = path.split("/")[-1]
         vulnHandler.dumpVulnerabilities("result")
     except Exception as e:
         print("Failed to do taint analysis")

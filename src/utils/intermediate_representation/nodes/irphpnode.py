@@ -35,6 +35,8 @@ class IRPhpNode(IRNode):
 
         for child in self.astChildren:
             if child.type == "formal_parameters":
+                if len(child.astChildren) == 0:
+                    continue
                 parameters.append(child.astChildren[0].astChildren[0])
                 
         return parameters
