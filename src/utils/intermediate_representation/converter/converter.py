@@ -39,10 +39,18 @@ class IRConverter(ABC):
             # key = (node.content, fileDirectory)
 
             key = node.content
-
+            print('function definition')
+            print(node)
             # handle arrow function in js
             if node.parent.isAssignmentStatement() and node.parent.astChildren[1].isFunctionDefinition():
+                print('arrow function')
+                print(node)
                 parameters = node.parent.astChildren[1].getParameters()
+            # handle arrow function w/ this in js
+            elif node.isPartOfAssignment() and node.type == "property_identifier" and node.parent.astChildren[0].content == "this":
+                print('arrow w/ this function')
+                print(node)
+                parameters = node.parent.parent.astChildren[1].getParameters()
             else:
                 parameters = node.parent.getParameters()
 

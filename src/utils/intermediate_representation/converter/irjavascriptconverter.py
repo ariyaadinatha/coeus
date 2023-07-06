@@ -233,14 +233,20 @@ class IRJavascriptConverter(IRConverter):
 
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
+            print('argument of call')
+            print(node)
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
 
             if len(functionAttributes) < 1:
                 return
             functionName = functionAttributes[-1]
+            print('call name')
+            print(functionName)
 
             key = functionName
             if key in self.functionSymbolTable:
+                print('call info')
+                print(self.functionSymbolTable[key])
                 parameterOrder = node.getOrderOfParametersInFunction()
 
                 parameters = []

@@ -23,12 +23,33 @@ class IRJavascriptNode(IRNode):
     
     def isIdentifierOfFunctionDefinition(self) -> bool:
         if not self.isIdentifier():
-            return False
+            if self.parent is None:
+                return False
+            if self.parent.astChildren[0].content != "this" and self.type == "property_identifier":
+                return False
         if self.parent is None:
             return False
 
         # handle standard function definition and arrow function definition
-        return self.parent.isFunctionDefinition() or (self.parent.isAssignmentStatement() and len(self.parent.astChildren) >= 2 and self.parent.astChildren[1].isFunctionDefinition())
+        if self.parent.isFunctionDefinition() and self.isIdentifier():
+            print('standard func definition')
+            print(self)
+            return True
+        # handle arrow function
+        elif self.parent.isAssignmentStatement() and len(self.parent.astChildren) >= 2 and self.parent.astChildren[1].isFunctionDefinition():
+            print('arrow func definition')
+            print(self)
+            return True
+        # handle arrow function with this pointer
+        elif self.isPartOfAssignment() and self.type == "property_identifier" and len(self.parent.astChildren) >= 2 and self.parent.astChildren[0].content == "this":
+            print('arrow w/ this func definition')
+            print(self)
+            return True
+        
+        print('not func definition')
+        print(self)
+        
+        return False
     
     def isArgumentOfAFunctionDefinition(self) -> bool:
         return self.isIdentifier() and self.parent.type == "formal_parameters"
