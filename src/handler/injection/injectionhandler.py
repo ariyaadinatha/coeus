@@ -119,6 +119,8 @@ class InjectionHandler:
                 self.converter.addDataFlowEdgesToTree(root)
                 self.insertDataFlowAndControlFlowRelationshipsToNeo4j(root)
 
+                root.printChildren()
+
             self.createASTRelationship()
             self.setLabels()
             result = self.expandInjectionPathUsingAPOC()
@@ -378,11 +380,11 @@ class InjectionHandler:
         query = '''
             MATCH (source:Node {is_source: True})
             WITH collect(source) AS startNodes
-            MATCH (terminator:Node {is_sink: True})
-            WITH startNodes, collect(terminator) AS terminatorNodes
+            MATCH (end:Node {is_sink: True})
+            WITH startNodes, collect(end) AS endNodes
             OPTIONAL MATCH (blacklist:Node {is_sanitizer: True })
-            WITH startNodes, terminatorNodes, collect(blacklist) AS blacklistNodes
-            CALL apoc.path.expandConfig(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
+            WITH startNodes, endNodes, collect(blacklist) AS blacklistNodes
+            CALL apoc.path.expandConfig(startNodes, {endNodes: endNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
             YIELD path
             RETURN path
         '''
