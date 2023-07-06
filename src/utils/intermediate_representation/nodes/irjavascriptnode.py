@@ -30,16 +30,38 @@ class IRJavascriptNode(IRNode):
         # handle standard function definition and arrow function definition
         return self.parent.isFunctionDefinition() or (self.parent.isAssignmentStatement() and len(self.parent.astChildren) >= 2 and self.parent.astChildren[1].isFunctionDefinition())
     
-    def isArgumentOfAFunctionDefinition(self) -> str:
+    def isArgumentOfAFunctionDefinition(self) -> bool:
         return self.isIdentifier() and self.parent.type == "formal_parameters"
     
-    def isArgumentOfAFunctionCall(self) -> str:
+    def isArgumentOfAFunctionCall(self) -> bool:
         return self.isIdentifier() and self.parent.type == "arguments"
+    
+    def isArgumentOfArrowFunction(self) -> bool:
+        return self.isIdentifier() and self.parent.type == "arrow_function"
+    
+    def isInFunctionChain(self) -> bool:
+        return self.isCallExpression() and len(self.parent.astChildren) > 1 and self.parent.astChildren[1].type == "property_identifier" and self.parent.astChildren[1].content == "then"
+    
+    def getNextFunctionInChain(self) -> IRNode:
+        if not self.isInFunctionChain():
+            return None
+        
+        # traverse to higher function
+        previousCall = self.getCallExpression()
+        
+        if previousCall.astChildren[1].type == "arguments":
+            previousCallArgument = previousCall.astChildren[1]
+            if previousCallArgument.astChildren[0].type == "arrow_function":
+                # return next function in chain
+                return previousCallArgument.astChildren[0]
     
     def getParameters(self) -> list:
         for child in self.astChildren:
             if child.type == "formal_parameters":
                 return child.astChildren
+            
+    def getParametersFromArrowFunctionCall(self) -> list:
+        return [parameter for parameter in self.astChildren if parameter.isIdentifier()]
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_expression"

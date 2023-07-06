@@ -131,10 +131,10 @@ class IRJavascriptConverter(IRConverter):
 
     def setNodeDataFlowEdges(self, node: IRNode, visited: set, visitedList: list, scopeDatabase: set, symbolTable: dict, blockScopedSymbolTable: dict):
         # handle variable assignment and reassignment
-        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition() or node.isPartOfReturnStatement()):
+        if node.isIdentifier() and (node.isPartOfAssignment() or node.isArgumentOfAFunctionDefinition() or node.isPartOfReturnStatement() or node.isArgumentOfArrowFunction()):
             key = (node.content, node.scope)
             # check node in left hand side
-            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition()) and not (node.isValueOfAssignment() and not node.isArgumentOfAFunctionDefinition()):
+            if ((node.isInLeftHandSide() and node.isDirectlyInvolvedInAssignment()) or node.isPartOfPatternAssignment() or node.isArgumentOfAFunctionDefinition() or node.isArgumentOfArrowFunction()) and not (node.isValueOfAssignment() and not node.isArgumentOfAFunctionDefinition()):
                 # reassignment of an existing variable
                 if key in blockScopedSymbolTable:
                     dataType = "reassignment"
@@ -263,7 +263,6 @@ class IRJavascriptConverter(IRConverter):
         if node.isCallExpression():
             key = node.getIdentifierOfFunctionCall()
             returns = []
-            
             if key in self.functionSymbolTable:
                 for func in self.functionSymbolTable[key]:
                     # prioritize function return in current file
@@ -276,6 +275,22 @@ class IRJavascriptConverter(IRConverter):
             returns = [item for sub_list in returns for item in sub_list]
             for returnId in returns:
                 node.addDataFlowEdge('returned', returnId)
+
+        if node.isInFunctionChain():
+            print('function chain')
+            print(node)
+
+            nextCall = node.getNextFunctionInChain()
+
+            print('next call')
+            print(nextCall)
+
+            parameters: list[IRNode] = nextCall.getParametersFromArrowFunctionCall()
+
+            for parameter in parameters:
+                print('parameter of next call')
+                print(parameter)
+                parameter.addDataFlowEdge('returned', node.id)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:
         currScope = prevScope
