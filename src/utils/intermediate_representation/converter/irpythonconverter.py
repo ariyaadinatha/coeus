@@ -199,6 +199,9 @@ class IRPythonConverter(IRConverter):
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
+
+            if len(functionAttributes) < 1:
+                return
             functionName = functionAttributes[-1]
 
             key = functionName
@@ -207,6 +210,7 @@ class IRPythonConverter(IRConverter):
 
                 parameters = []
                 for function in self.functionSymbolTable[key]:
+                    if len(function['arguments']) <= parameterOrder: continue
                     parameter = function['arguments'][parameterOrder]
                     # if there is a function definition in the same file
                     # use only that
