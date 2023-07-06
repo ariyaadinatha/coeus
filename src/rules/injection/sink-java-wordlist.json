@@ -11,7 +11,6 @@
     ".command",
     "loadLibrary",
     "load",
-    "output",
     "compile",
     "evaluate",
     "queryResource",
