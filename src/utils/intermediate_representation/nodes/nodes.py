@@ -58,6 +58,7 @@ class IRNode(ABC):
         indent = ' ' * depth
 
         print(f'{indent}{self}')
+        # print(f'{indent}{self.scope}')
         # control flow info
         # for control in node.controlFlowEdges:
         #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
@@ -285,7 +286,7 @@ class IRNode(ABC):
     
     def isPartOfCallExpression(self) -> bool:
         parent = self.parent
-        while parent is not None and not parent.isControlStatement():
+        while parent is not None and not parent.isControlStatement() and not parent.isAssignmentStatement():
             if parent.isCallExpression():
                 return True
             parent = parent.parent
