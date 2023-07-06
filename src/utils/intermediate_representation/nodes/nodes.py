@@ -218,6 +218,10 @@ class IRNode(ABC):
         while not parent.isCallExpression():
             parent = parent.parent
 
+            if parent is None:
+                print(self)
+                return None
+
         return parent
     
     def getFunctionDefinition(self):
@@ -246,10 +250,18 @@ class IRNode(ABC):
             # handle method call from class
             # ex: Example.sink(test) -> Example is the first identifier then sink
             # to always get the identifier, we get the last child
-            return [attr.content for attr in first.astChildren if attr.isIdentifier()][-1]
+            identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
+            if len(identifiers) < 1:
+                return None
+            else:
+                return identifiers[-1]
     
     def getFunctionAttributesFromFunctionCall(self) -> list:
         call = self.getCallExpression()
+
+        if call == None:
+            print(self)
+            return []
 
         first = call.astChildren[0]
         if first.isIdentifier() or first.type == "name" and first.node.next_sibling.type != ".":
@@ -258,7 +270,11 @@ class IRNode(ABC):
             # handle method call from class
             # ex: Example.sink(test) -> Example is the first identifier then sink
             # to always get the identifier, we get the last child
-            return [attr.content for attr in first.astChildren if attr.isIdentifier()]
+            identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
+            if len(identifiers) < 1:
+                return []
+            else:
+                return identifiers
     
     def getBinaryExpression(self):
         parent = self.parent
