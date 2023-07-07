@@ -47,7 +47,7 @@ class IRConverter(ABC):
                 print(node)
                 parameters = node.parent.astChildren[1].getParameters()
             # handle arrow function w/ this in js
-            elif node.isPartOfAssignment() and node.type == "property_identifier" and node.parent.astChildren[0].content == "this":
+            elif node.isPartOfAssignment() and node.type == "property_identifier" and node.parent.astChildren[0].content == "this" and len(node.parent.parent.astChildren) >= 2:
                 print('arrow w/ this function')
                 print(node)
                 parameters = node.parent.parent.astChildren[1].getParameters()
