@@ -211,13 +211,7 @@ class IRPythonConverter(IRConverter):
                 for function in self.functionSymbolTable[key]:
                     if len(function['arguments']) <= parameterOrder: continue
                     parameter = function['arguments'][parameterOrder]
-                    # if there is a function definition in the same file
-                    # use only that
-                    if function['filename'] == node.filename:
-                        parameters = [parameter]
-                        break
-                    else:
-                        parameters.append(parameter)
+                    parameters.append(parameter)
                 
                 for parameter in parameters:
                     node.addDataFlowEdge("passed", parameter)
@@ -230,11 +224,7 @@ class IRPythonConverter(IRConverter):
             
             if key in self.functionSymbolTable:
                 for func in self.functionSymbolTable[key]:
-                    # prioritize function return in current file
-                    if func['filename'] == node.filename:
-                        returns = [func['returns']]
-                    else:
-                        returns.append(func['returns'])
+                    returns.append(func['returns'])
             
             # flatten array
             returns = [item for sub_list in returns for item in sub_list]
