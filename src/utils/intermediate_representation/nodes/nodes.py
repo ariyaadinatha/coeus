@@ -58,6 +58,7 @@ class IRNode(ABC):
         indent = ' ' * depth
 
         print(f'{indent}{self}')
+        # print(f'{indent}{self.scope}')
         # control flow info
         # for control in node.controlFlowEdges:
         #     print(f'{indent}[control] {control.cfgParentId} - {control.statementOrder}')
@@ -82,24 +83,27 @@ class IRNode(ABC):
         
         return False
     
-    def setDataFlowProps(self, scope, sources, sinks, sanitizers):
+    def setDataFlowProps(self, sources, sinks, sanitizers):
         self.isSource = self.checkIsSource(sources)
         self.isSink = self.checkIsSink(sinks)
         self.isSanitizer = self.checkIsSanitizer(sanitizers)
         self.isTainted = self.isSource
-        self.scope = scope
     
     def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None], controlType: str='next_statement'):
         edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
         self.controlFlowEdges.append(edge)
 
-    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None]):
-        edge = DataFlowEdge(dataType, dfgParentId)
+    def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None], parameterOrder: int = 0):
+        edge = DataFlowEdge(dataType, dfgParentId, parameterOrder)
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
+        # handle declaration of source in function
+        # ex: public AttackResult attack(@RequestParam String userId)
+        if (self.isArgumentOfAFunctionDefinition() and self.parent.node.children[0].text.decode("utf-8") == "@RequestParam"):
+            return True
         for source in sources:
             if source.lower() in self.content.lower():
                 return True
@@ -183,18 +187,94 @@ class IRNode(ABC):
         return False
     
     def isIdentifier(self) -> bool:
-        return "identifier" in self.type or self.type == "variable_name"
+        return ("identifier" in self.type or self.type == "variable_name") and self.type != "type_identifier"
     
     def isAttribute(self) -> bool:
         return "attribute" in self.type or "member_expression" in self.type or "member_access_expression" in self.type or "field_access" in self.type
     
+    def isFunctionDefinition(self) -> bool:
+        return self.type == "function_definition" or self.type == "method_definition" or self.type == "function_declaration" or self.type == "method_declaration" or self.type == "arrow_function"
+    
+    def isImportStatement(self) -> bool:
+        return "import_from_statement" in self.type or "import_statement" in self.type
+
+    def isReturnStatement(self) -> bool:
+        return self.type == "return_statement"
+    
+    def isPartOfReturnStatement(self) -> bool:
+        if not self.isIdentifier():
+            return False
+        
+        parent = self.parent
+        while parent is not None and not parent.isControlStatement():
+            if parent.isReturnStatement():
+                return True
+            parent = parent.parent
+
+        return False
+
     def getCallExpression(self):
         parent = self.parent
 
-        while not parent.isCallExpression():
+        while parent is not None and not parent.isCallExpression():
             parent = parent.parent
 
         return parent
+    
+    def getFunctionDefinition(self):
+        parent = self.parent
+
+        while parent is not None and not parent.isFunctionDefinition():
+            parent = parent.parent
+
+        return parent
+    
+    def getIdentifierFromFunctionDefinition(self) -> str:
+        definition = self.getFunctionDefinition()
+
+        if definition is None:
+            return None
+
+        for attr in definition.astChildren:
+            if attr.isIdentifier() or attr.type == "name":
+                return attr.content
+            
+    def getIdentifierOfFunctionCall(self) -> str:
+        if "echo" in self.type:
+            return None
+        
+        first = self.astChildren[0]
+        if first.isIdentifier() or first.type == "name":
+            return first.content
+        else:
+            # handle method call from class
+            # ex: Example.sink(test) -> Example is the first identifier then sink
+            # to always get the identifier, we get the last child
+            identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
+            if len(identifiers) < 1:
+                return None
+            else:
+                return identifiers[-1]
+    
+    def getFunctionAttributesFromFunctionCall(self) -> list:
+        call = self.getCallExpression()
+
+        if call == None:
+            print(self)
+            return []
+
+        first = call.astChildren[0]
+        if first.isIdentifier() or first.type == "name" and first.node.next_sibling.type != ".":
+            return [first.content]
+        else:
+            # handle method call from class
+            # ex: Example.sink(test) -> Example is the first identifier then sink
+            # to always get the identifier, we get the last child
+            identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
+            if len(identifiers) < 1:
+                return []
+            else:
+                return identifiers
     
     def getBinaryExpression(self):
         parent = self.parent
@@ -206,7 +286,7 @@ class IRNode(ABC):
     
     def isPartOfCallExpression(self) -> bool:
         parent = self.parent
-        while parent is not None and not parent.isControlStatement():
+        while parent is not None and not parent.isControlStatement() and not parent.isAssignmentStatement():
             if parent.isCallExpression():
                 return True
             parent = parent.parent
@@ -248,6 +328,30 @@ class IRNode(ABC):
 
         return None
     
+    def getOrderOfParametersInFunction(self) -> int:
+        if not (self.isArgumentOfAFunctionDefinition() or self.isArgumentOfAFunctionCall()):
+            return 0
+        
+        parameters = self.parent.astChildren
+        for index, node in enumerate(parameters):
+            if node.id == self.id:
+                return index
+        
+        return 0
+
+    def getImportOriginAndName(self):
+        pass
+        # if not self.isImportStatement():
+        #     return None
+        
+        # origin = []
+        # for child in self.astChildren:
+        #     for identifier in child.astChildren:
+        #         if identifier.isIdentifier():
+        #             origin.append(identifier.content)
+
+        # return origin[-1], origin
+
     @abstractmethod
     def isBinaryExpression(self) -> bool:
         pass
@@ -259,11 +363,24 @@ class IRNode(ABC):
     @abstractmethod
     def isControlStatement(self) -> bool:
         pass
-
-    # to handle source declared in parameter in Java
-    # ex: @RequestParam userId
+    
     @abstractmethod
-    def isArgumentOfAFunction(self) -> str:
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        pass
+
+    # argument of function definition
+    @abstractmethod
+    def isArgumentOfAFunctionDefinition(self) -> str:
+        pass
+
+    # argument of function call
+    @abstractmethod
+    def isArgumentOfAFunctionCall(self) -> str:
+        pass
+
+    # node is function definition
+    @abstractmethod
+    def getParameters(self) -> list:
         pass
 
     @abstractmethod
@@ -284,8 +401,9 @@ class ControlFlowEdge:
 
 # clas to store all variables and their values
 class DataFlowEdge:
-    def __init__(self, dataType: str, dfgParentId:  Union[str, None]) -> None:
-      # determine whether node is a variable or variable value
-      self.dfgId = uuid.uuid4().hex
-      self.dfgParentId = dfgParentId
-      self.dataType = dataType
+    def __init__(self, dataType: str, dfgParentId:  Union[str, None], parameterOrder: int = 0) -> None:
+        # determine whether node is a variable or variable value
+        self.dfgId = uuid.uuid4().hex
+        self.dfgParentId = dfgParentId
+        self.dataType = dataType
+        self.parameterOrder = parameterOrder

@@ -10,61 +10,88 @@ class IRConverter(ABC):
         self.sources = sources
         self.sinks = sinks
         self.sanitizers = sanitizers
-
-    def createCompleteTreeDFS(self, root: Node, filename: str) -> IRNode:
-        irRoot = self.createDataFlowTreeDFS(root, filename)
-        self.addControlFlowEdgesToTree(irRoot)
-
-        return irRoot
+        self.functionSymbolTable = {}
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
+        self.registerFunctionsToSymbolTable(irRoot)
         self.addControlFlowEdgesToTree(irRoot)
-        self.addDataFlowEdgesToTreeDFS(irRoot)
+        self.addDataFlowEdgesToTree(irRoot)
 
         return irRoot
 
     @abstractmethod
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         pass
-    
-    '''
-        ide buat optimisasi graf
-        gausa ada iterasi pertama yang cuman bikin ASTNode
-        jadi bakal ngebuat ASTNode seiring jalan bikin CFG atau DFG
-        tapi untuk ngehandle dependency ke lower node, kalau ada kejadian gitu
-        bakal ngebuat lower node tersebut dan disimpan di hashset atau apa gt
-        ntar tiap mau bikin ASTNode baru ngecek ke hashset tersebut dulu udah ada atau blm
-        pro: satu iterasi
-        cons: space yg dibutuhin bisa besar + perlu ngecek ke hash tiap ada isinya (tp harusnya ga lebih lama dr kl  iterasi gasih)
-    '''
-
-    '''
-        ide lain buat optimisasi graf
-        buat sedemikian rupa biar gaada dependency ke lower node
-        jadi semua ngarah ke parent
-    '''
-
-    '''
-        ide buat optimisasi speed I/O
-        gausah pake neo4j kecuali kalo emang mau buat visualisasi (optional)
-        jadi bikin algoritma taint analysis sendiri di python
-        harusnya algoritmanya simpel cuman ngikutin data flow aja untuk setiap sink
-        dan kalo ketemu sanitizer bakal berhenti
-    '''
-
-    '''
-        buat masalah control flow prioritas terakhir
-        sekarang fokus ke data flow
-    '''
 
     @abstractmethod
     def addControlFlowEdgesToTree(self, root: IRNode):
         pass
 
     @abstractmethod
-    def addDataFlowEdgesToTreeDFS(self, root: IRNode):
+    def addDataFlowEdgesToTree(self, root: IRNode):
         pass
+
+    def setNodeCallEdges(self, node: IRNode):
+        if node.isIdentifierOfFunctionDefinition():
+            # if use file directory as key
+            # fileDirectory = node.filename
+            # key = (node.content, fileDirectory)
+
+            key = node.content
+            print('function definition')
+            print(node)
+            # handle arrow function in js
+            if node.parent.isAssignmentStatement() and node.parent.astChildren[1].isFunctionDefinition():
+                print('arrow function')
+                print(node)
+                parameters = node.parent.astChildren[1].getParameters()
+            # handle arrow function w/ this in js
+            elif node.isPartOfAssignment() and node.type == "property_identifier" and node.parent.astChildren[0].content == "this" and len(node.parent.parent.astChildren) >= 2:
+                print('arrow w/ this function')
+                print(node)
+                parameters = node.parent.parent.astChildren[1].getParameters()
+            else:
+                parameters = node.parent.getParameters()
+
+            if parameters is None:
+                parameters = []
+
+            if key in self.functionSymbolTable:
+                self.functionSymbolTable[key].append({
+                    'filename': node.filename,
+                    'arguments': [parameter.id for parameter in parameters],
+                    'returns': []
+                })
+            else:
+                self.functionSymbolTable[key] = [{
+                    'filename': node.filename,
+                    'arguments': [parameter.id for parameter in parameters],
+                    'returns': []
+                }]
+
+        # handle return variable
+        if node.isPartOfReturnStatement():
+            key = node.getIdentifierFromFunctionDefinition()
+
+            if key in self.functionSymbolTable:
+                for func in self.functionSymbolTable[key]:
+                    if func['filename'] == node.filename:
+                        func['returns'].append(node.id)
+
+    def registerFunctionsToSymbolTable(self, root: IRNode):
+        # to keep track of all visited nodes
+        visited = set()
+        # for dfs
+        stack: list[IRNode] = [root]
+
+        while stack:
+            node = stack.pop()
+            visited.add(node.id)
+
+            # do the ting
+            self.setNodeCallEdges(node)
+            stack.extend(reversed([child for child in node.astChildren]))
 
     @abstractmethod
     def createDataFlowTreeDFS(self, root: Node, filename: str) -> IRNode:

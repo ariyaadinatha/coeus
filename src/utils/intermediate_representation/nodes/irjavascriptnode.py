@@ -21,9 +21,68 @@ class IRJavascriptNode(IRNode):
     def isDivergingControlStatement(self) -> bool:
         return self.type in JAVASCRIPT_DIVERGE_CONTROL_STATEMENTS
     
-    # TODO: implement this func to add parameters to symbol table
-    def isArgumentOfAFunction(self) -> str:
-        return super().isArgumentOfAFunction()
+    def isIdentifierOfFunctionDefinition(self) -> bool:
+        if not self.isIdentifier():
+            if self.parent is None:
+                return False
+            if self.parent.astChildren[0].content != "this" and self.type == "property_identifier":
+                return False
+        if self.parent is None:
+            return False
+
+        # handle standard function definition and arrow function definition
+        if self.parent.isFunctionDefinition() and self.isIdentifier():
+            print('standard func definition')
+            print(self)
+            return True
+        # handle arrow function
+        elif self.parent.isAssignmentStatement() and len(self.parent.astChildren) >= 2 and self.parent.astChildren[1].isFunctionDefinition():
+            print('arrow func definition')
+            print(self)
+            return True
+        # handle arrow function with this pointer
+        elif self.isPartOfAssignment() and self.type == "property_identifier" and len(self.parent.astChildren) >= 2 and self.parent.astChildren[0].content == "this":
+            print('arrow w/ this func definition')
+            print(self)
+            return True
+        
+        print('not func definition')
+        print(self)
+        
+        return False
+    
+    def isArgumentOfAFunctionDefinition(self) -> bool:
+        return self.isIdentifier() and self.parent.type == "formal_parameters"
+    
+    def isArgumentOfAFunctionCall(self) -> bool:
+        return self.isIdentifier() and self.parent.type == "arguments"
+    
+    def isArgumentOfArrowFunction(self) -> bool:
+        return self.isIdentifier() and self.parent.type == "arrow_function"
+    
+    def isInFunctionChain(self) -> bool:
+        return self.isCallExpression() and len(self.parent.astChildren) > 1 and self.parent.astChildren[1].type == "property_identifier" and self.parent.astChildren[1].content == "then"
+    
+    def getNextFunctionInChain(self) -> IRNode:
+        if not self.isInFunctionChain():
+            return None
+        
+        # traverse to higher function
+        previousCall = self.getCallExpression()
+        
+        if previousCall.astChildren[1].type == "arguments":
+            previousCallArgument = previousCall.astChildren[1]
+            if previousCallArgument.astChildren[0].type == "arrow_function":
+                # return next function in chain
+                return previousCallArgument.astChildren[0]
+    
+    def getParameters(self) -> list:
+        for child in self.astChildren:
+            if child.type == "formal_parameters":
+                return child.astChildren
+            
+    def getParametersFromArrowFunctionCall(self) -> list:
+        return [parameter for parameter in self.astChildren if parameter.isIdentifier()]
     
     def isBinaryExpression(self) -> bool:
         return self.type == "binary_expression"

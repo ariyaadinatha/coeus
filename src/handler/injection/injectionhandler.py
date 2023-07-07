@@ -68,13 +68,22 @@ class InjectionHandler:
             self.insertDataFlowRelationshipsToNeo4j(astRoot)
             self.setLabels()
 
+    def buildAstTree(self, fileHandler: FileHandler, codePath: str) -> IRNode:
+        sourceCode = fileHandler.readFile(codePath)
+        code = CodeProcessor(self.language, sourceCode)
+        root = code.getRootNode()
+        astRoot = self.converter.createAstTree(root, codePath.rsplit('.', 1)[0])
+        self.converter.registerFunctionsToSymbolTable(astRoot)
+
+        return astRoot
+
     def buildCompleteTree(self, fileHandler: FileHandler, codePath: str):
         sourceCode = fileHandler.readFile(codePath)
         code = CodeProcessor(self.language, sourceCode)
         root = code.getRootNode()
         astRoot = self.converter.createCompleteTree(root, codePath)
         self.insertAllNodesToNeo4j(astRoot)
-        self.insertAllRelationshipsToNeo4j(astRoot)
+        self.insertDataFlowAndControlFlowRelationshipsToNeo4j(astRoot)
 
     def buildCompleteProject(self):
         fh = FileHandler()
@@ -86,9 +95,10 @@ class InjectionHandler:
 
                 self.buildCompleteTree(fh, codePath)
 
-    def taintAnalysis(self, apoc: bool) -> Path:
+    def taintAnalysis(self) -> Path:
         try:
             result = []
+            roots = []
             
             self.createUniqueConstraint()
             self.deleteAllNodesAndRelationshipsByAPOC()
@@ -100,14 +110,20 @@ class InjectionHandler:
                 if codePath.split('.')[-1] != EXTENSION_ALIAS[self.language]:
                     continue
             
-                self.buildCompleteTree(fh, codePath)
-                self.setLabels()
-                if apoc:
-                    result = self.expandInjectionPathUsingAPOC()
-                else:
-                    self.propagateTaint()
-                    self.applySanitizers()
-                    result.append(self.getSourceAndSinkInjectionVulnerability())
+                astRoot = self.buildAstTree(fh, codePath)
+                roots.append(astRoot)
+                self.insertAllNodesToNeo4j(astRoot)
+            
+            for root in roots:
+                self.converter.addControlFlowEdgesToTree(root)
+                self.converter.addDataFlowEdgesToTree(root)
+                self.insertDataFlowAndControlFlowRelationshipsToNeo4j(root)
+
+                root.printChildren()
+
+            self.createASTRelationship()
+            self.setLabels()
+            result = self.expandInjectionPathUsingAPOC()
 
             return result
         except Exception as e:
@@ -175,7 +191,7 @@ class InjectionHandler:
             for child in node.astChildren:
                 queue.append(child)
 
-    def insertAllRelationshipsToNeo4j(self, root: IRNode):
+    def insertDataFlowAndControlFlowRelationshipsToNeo4j(self, root: IRNode):
         queue: list[IRNode] = [root]
 
         while len(queue) != 0:
@@ -188,8 +204,6 @@ class InjectionHandler:
 
             for child in node.astChildren:
                 queue.append(child)
-
-        self.createASTRelationship()
 
     def createUniqueConstraint(self):
         query = '''
@@ -339,10 +353,10 @@ class InjectionHandler:
                     "data_type": edge.dataType
                 }
             
-            if edge.dataType == "value" or edge.dataType == "reassignment":
+            if edge.dataType == "value" or edge.dataType == "passed":
                 query = '''
                         MATCH (child:Node), (parent:Node)
-                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'value' OR $data_type = 'reassignment')
+                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'value' OR $data_type = 'reassignment' OR $data_type = 'passed')
                         MERGE (child)-[r:DATA_FLOW_TO{data_type: $data_type}]->(parent)
                         SET child:DataNode
                         SET parent:DataNode
@@ -350,7 +364,7 @@ class InjectionHandler:
             else:
                 query = '''
                         MATCH (child:Node), (parent:Node)
-                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'called' OR $data_type = 'referenced')
+                        WHERE child.id = $id AND parent.id = $dfg_parent_id AND ($data_type = 'called' OR $data_type = 'referenced' OR $data_type = 'returned')
                         MERGE (parent)-[r:DATA_FLOW_TO{data_type: $data_type}]->(child)
                         SET child:DataNode
                         SET parent:DataNode
@@ -366,11 +380,11 @@ class InjectionHandler:
         query = '''
             MATCH (source:Node {is_source: True})
             WITH collect(source) AS startNodes
-            MATCH (terminator:Node {is_sink: True})
-            WITH startNodes, collect(terminator) AS terminatorNodes
+            MATCH (end:Node {is_sink: True})
+            WITH startNodes, collect(end) AS endNodes
             OPTIONAL MATCH (blacklist:Node {is_sanitizer: True })
-            WITH startNodes, terminatorNodes, collect(blacklist) AS blacklistNodes
-            CALL apoc.path.expandConfig(startNodes, {terminatorNodes: terminatorNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
+            WITH startNodes, endNodes, collect(blacklist) AS blacklistNodes
+            CALL apoc.path.expandConfig(startNodes, {endNodes: endNodes, blacklistNodes: blacklistNodes, relationshipFilter: 'DATA_FLOW_TO>'})
             YIELD path
             RETURN path
         '''

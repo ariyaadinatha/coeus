@@ -14,6 +14,12 @@
       "spawn",
       "connection.query",
       "sequelize.query",
-      "innerHTML"
+      "innerHTML",
+      ".findOne",
+      ".update",
+      ".find",
+      "bypassSecurityTrustHtml",
+      "sanitizeSecure",
+      "sanitizeHtml"
   ]
 }
