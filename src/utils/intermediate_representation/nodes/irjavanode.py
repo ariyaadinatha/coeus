@@ -47,8 +47,9 @@ class IRJavaNode(IRNode):
         for child in self.astChildren:
             if child.type == "formal_parameters":
                 for parameter in child.astChildren:
-                    if parameter.type == "formal_parameter" and len(parameter.astChildren) > 2:
-                        parameters.append(parameter.astChildren[1])
+                    for identifier in parameter.astChildren:
+                        if identifier.isIdentifier() and identifier.isArgumentOfAFunctionDefinition():
+                            parameters.append(identifier)
 
         return parameters
     

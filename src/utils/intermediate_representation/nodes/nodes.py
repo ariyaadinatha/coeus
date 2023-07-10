@@ -102,7 +102,7 @@ class IRNode(ABC):
         if self.parent == None: return False
         # handle declaration of source in function
         # ex: public AttackResult attack(@RequestParam String userId)
-        if (self.isArgumentOfAFunctionDefinition() and self.parent.node.children[0].text.decode("utf-8") == "@RequestParam"):
+        if (self.isIdentifier() and self.isArgumentOfAFunctionDefinition() and "@RequestParam" in self.parent.content):
             return True
         for source in sources:
             if source.lower() in self.content.lower():
