@@ -264,7 +264,7 @@ class IRNode(ABC):
             return []
 
         first = call.astChildren[0]
-        if first.isIdentifier() or first.type == "name" and first.node.next_sibling.type != ".":
+        if (first.isIdentifier() or first.type == "name") and first.node.next_sibling.type != ".":
             return [first.content]
         else:
             # handle method call from class
