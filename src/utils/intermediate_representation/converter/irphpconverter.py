@@ -182,8 +182,15 @@ class IRPhpConverter(IRConverter):
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
-                else:
+                else: 
                     dfgParentId = symbolTable[key][-1]
+                    if node.isSourceOfMethodCall():
+                        # connect back from function
+                        node.addDataFlowEdge(dataType, nodeCall.id)
+
+                        # register as new assignment
+                        node.addDataFlowEdge("assignment", None)
+                        symbolTable[key].append(node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
 
             if node.isInsideIfElseBranch():

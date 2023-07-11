@@ -182,8 +182,15 @@ class IRJavaConverter(IRConverter):
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
                     dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
-                else:
+                else: 
                     dfgParentId = blockScopedSymbolTable[key][-1]
+                    if node.isSourceOfMethodCall():
+                        # connect back from function
+                        node.addDataFlowEdge(dataType, nodeCall.id)
+
+                        # register as new assignment
+                        node.addDataFlowEdge("assignment", None)
+                        blockScopedSymbolTable[key].append(node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
 
             if node.isInsideIfElseBranch():
@@ -193,10 +200,14 @@ class IRJavaConverter(IRConverter):
         
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
+            print('argument function call')
+            print(node)
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
             if len(functionAttributes) < 1:
                 return
             functionName = functionAttributes[-1]
+            print('function attr')
+            print(functionAttributes)
 
             key = functionName
             if key in self.functionSymbolTable:
