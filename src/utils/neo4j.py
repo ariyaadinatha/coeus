@@ -21,7 +21,10 @@ class Neo4jConnection:
         response = None
         try: 
             session = self.__driver.session(database=db) if db is not None else self.__driver.session() 
-            response = list(session.run(query, parameters))
+            # Begin the transaction
+            with session.begin_transaction() as tx:
+                # Execute the query within the transaction
+                response = list(tx.run(query, parameters))
         except Exception as e:
             print("Query failed:", e)
         finally: 
