@@ -1,6 +1,5 @@
 from tree_sitter import Node
 import uuid
-from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
 from typing import Union
 from abc import ABC, abstractmethod
 
@@ -212,6 +211,9 @@ class IRNode(ABC):
             parent = parent.parent
 
         return False
+    
+    def isSourceOfMethodCall(self) -> bool:
+        return self.isPartOfCallExpression() and (self.node.next_sibling.type == "." or self.node.next_sibling.type == "->") and self.node.prev_sibling is None
 
     def getCallExpression(self):
         parent = self.parent
