@@ -209,10 +209,14 @@ class IRJavaConverter(IRConverter):
         
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
+            print('argument function call')
+            print(node)
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
             if len(functionAttributes) < 1:
                 return
             functionName = functionAttributes[-1]
+            print('function attr')
+            print(functionAttributes)
 
             key = functionName
             if key in self.functionSymbolTable:
