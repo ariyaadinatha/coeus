@@ -178,7 +178,8 @@ class IRPythonConverter(IRConverter):
 
             # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
-            nodeCall.addDataFlowEdge(dataType, node.id)
+            if not (node.isSourceOfMethodCall() and key in symbolTable):
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in symbolTable:
                 # handle variable used for its own value

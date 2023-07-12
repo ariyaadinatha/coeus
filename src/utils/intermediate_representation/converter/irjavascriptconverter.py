@@ -206,7 +206,8 @@ class IRJavascriptConverter(IRConverter):
                 nodeCall = node.getCallExpression()
             else:
                 nodeCall = node.getBinaryExpression()
-            nodeCall.addDataFlowEdge(dataType, node.id)
+            if not (node.isSourceOfMethodCall() and (key in blockScopedSymbolTable or key in symbolTable)):
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
                 # handle variable used for its own value

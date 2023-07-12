@@ -213,7 +213,7 @@ class IRNode(ABC):
         return False
     
     def isSourceOfMethodCall(self) -> bool:
-        return self.isPartOfCallExpression() and self.node.next_sibling is not None and (self.node.next_sibling.type == "." or self.node.next_sibling.type == "->") and self.node.prev_sibling is None
+        return self.isIdentifier() and self.isPartOfCallExpression() and self.node.next_sibling is not None and (self.node.next_sibling.type == "." or self.node.next_sibling.type == "->") and self.node.prev_sibling is None
     
     def getCallExpression(self):
         parent = self.parent
