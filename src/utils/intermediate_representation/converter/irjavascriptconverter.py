@@ -215,14 +215,14 @@ class IRJavascriptConverter(IRConverter):
                     dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = blockScopedSymbolTable[key][-1]
-                    if node.isSourceOfMethodCall():
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
                         # connect back from function
                         node.addDataFlowEdge(dataType, nodeCall.id)
 
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         blockScopedSymbolTable[key].append(node.id)
-                    if node.isPartOfAssignment():
+                    else:
                         nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
             elif key in symbolTable:
@@ -233,14 +233,14 @@ class IRJavascriptConverter(IRConverter):
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = symbolTable[key][-1]
-                    if node.isSourceOfMethodCall():
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
                         # connect back from function
                         node.addDataFlowEdge(dataType, nodeCall.id)
 
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         symbolTable[key].append(node.id)
-                    if node.isPartOfAssignment():
+                    else:
                         nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
             else:
@@ -254,20 +254,14 @@ class IRJavascriptConverter(IRConverter):
 
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
-            print('argument of call')
-            print(node)
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
 
             if len(functionAttributes) < 1:
                 return
             functionName = functionAttributes[-1]
-            print('call name')
-            print(functionName)
 
             key = functionName
             if key in self.functionSymbolTable:
-                print('call info')
-                print(self.functionSymbolTable[key])
                 parameterOrder = node.getOrderOfParametersInFunction()
 
                 parameters = []
@@ -294,20 +288,12 @@ class IRJavascriptConverter(IRConverter):
                 node.addDataFlowEdge('returned', returnId)
 
         if node.isInFunctionChain():
-            print('function chain')
-            print(node)
-
             nextCall = node.getNextFunctionInChain()
             if nextCall is None: return
-
-            print('next call')
-            print(nextCall)
 
             parameters: list[IRNode] = nextCall.getParametersFromArrowFunctionCall()
 
             for parameter in parameters:
-                print('parameter of next call')
-                print(parameter)
                 parameter.addDataFlowEdge('returned', node.id)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:

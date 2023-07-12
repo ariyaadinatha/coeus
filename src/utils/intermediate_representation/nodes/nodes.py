@@ -140,7 +140,7 @@ class IRNode(ABC):
         return False
 
     def isAssignmentStatement(self) -> bool:
-        return "assignment" in self.type or "declarator" in self.type or "declaration" in self.type
+        return ("assignment" in self.type or "declarator" in self.type or "declaration" in self.type) and self.type != "method_declaration" and self.type != "class_declaration" and self.type != "function_declaration"
     
     def isDirectlyInvolvedInAssignment(self) -> bool:
         return self.parent.isAssignmentStatement()
@@ -311,6 +311,9 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isAssignmentStatement():
+                print('part of assignment true')
+                print(self)
+                print(parent)
                 return True
             else:
                 parent = parent.parent

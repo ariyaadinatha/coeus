@@ -185,15 +185,17 @@ class IRPhpConverter(IRConverter):
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = symbolTable[key][-1]
-                    if node.isSourceOfMethodCall():
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
                         # connect back from function
                         node.addDataFlowEdge(dataType, nodeCall.id)
 
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         symbolTable[key].append(node.id)
-                    if node.isPartOfAssignment():
+                    else:
+                        # connect node to call expression
                         nodeCall.addDataFlowEdge(dataType, node.id)
+                # connect previous occurence of identifier to node
                 node.addDataFlowEdge(dataType, dfgParentId)
             else:
                 nodeCall.addDataFlowEdge(dataType, node.id)

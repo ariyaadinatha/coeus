@@ -184,15 +184,20 @@ class IRJavaConverter(IRConverter):
                     dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = blockScopedSymbolTable[key][-1]
-                    if node.isSourceOfMethodCall():
-                        # connect back from function
+                    # node is source, connect call expression back to node
+                    # to describe data flow changes
+                    # bcs not part of assignment, assume there is no return value from method call and changes are reflected directly to the source
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
+                        # connect function to node
                         node.addDataFlowEdge(dataType, nodeCall.id)
 
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         blockScopedSymbolTable[key].append(node.id)
-                    if node.isPartOfAssignment():
+                    else:
+                        # connect node to call expression
                         nodeCall.addDataFlowEdge(dataType, node.id)
+                # connect previous occurence of identifier to node
                 node.addDataFlowEdge(dataType, dfgParentId)
             else:
                 nodeCall.addDataFlowEdge(dataType, node.id)
