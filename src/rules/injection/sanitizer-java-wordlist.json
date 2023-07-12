@@ -19,6 +19,10 @@
     "encodeForXPath",
     "encodeForXML",
     "encodeForXMLAttribute",
-    "encodeForURL"
+    "encodeForURL",
+    "setInt(",
+    "setFloat(",
+    "setString(",
+    "setDouble("
   ]
 }
