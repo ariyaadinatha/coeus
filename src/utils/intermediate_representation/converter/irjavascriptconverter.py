@@ -206,13 +206,12 @@ class IRJavascriptConverter(IRConverter):
                 nodeCall = node.getCallExpression()
             else:
                 nodeCall = node.getBinaryExpression()
-            if not (node.isSourceOfMethodCall() and (key in blockScopedSymbolTable or key in symbolTable)):
-                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
                 # handle variable used for its own value
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    nodeCall.addDataFlowEdge(dataType, node.id)
                     dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = blockScopedSymbolTable[key][-1]
@@ -223,11 +222,14 @@ class IRJavascriptConverter(IRConverter):
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         blockScopedSymbolTable[key].append(node.id)
+                    else:
+                        nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
             elif key in symbolTable:
                 # handle variable used for its own value
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    nodeCall.addDataFlowEdge(dataType, node.id)
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
                 else: 
                     dfgParentId = symbolTable[key][-1]
@@ -238,7 +240,11 @@ class IRJavascriptConverter(IRConverter):
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         symbolTable[key].append(node.id)
+                    else:
+                        nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
+            else:
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
