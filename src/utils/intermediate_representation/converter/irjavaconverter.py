@@ -191,7 +191,7 @@ class IRJavaConverter(IRConverter):
                         # register as new assignment
                         node.addDataFlowEdge("assignment", None)
                         blockScopedSymbolTable[key].append(node.id)
-                    else:
+                    if node.isPartOfAssignment():
                         nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
             else:
