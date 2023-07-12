@@ -269,14 +269,23 @@ class IRNode(ABC):
         if (first.isIdentifier() or first.type == "name") and first.node.next_sibling.type != ".":
             return [first.content]
         else:
-            # handle method call from class
-            # ex: Example.sink(test) -> Example is the first identifier then sink
-            # to always get the identifier, we get the last child
-            identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
-            if len(identifiers) < 1:
-                return []
+            # handle for java
+            if (first.isIdentifier()) and first.node.next_sibling.type == ".":
+                identifiers = [attr.content for attr in call.astChildren if attr.isIdentifier()]
+                if len(identifiers) < 1:
+                    return []
+                else:
+                    return identifiers
+            # handle for js and python
             else:
-                return identifiers
+                # handle method call from class
+                # ex: Example.sink(test) -> Example is the first identifier then sink
+                # to always get the identifier, we get the last child
+                identifiers = [attr.content for attr in first.astChildren if attr.isIdentifier()]
+                if len(identifiers) < 1:
+                    return []
+                else:
+                    return identifiers
     
     def getBinaryExpression(self):
         parent = self.parent
@@ -311,9 +320,6 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isAssignmentStatement():
-                print('part of assignment true')
-                print(self)
-                print(parent)
                 return True
             else:
                 parent = parent.parent
