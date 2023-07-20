@@ -311,9 +311,6 @@ class IRNode(ABC):
         parent = self.parent
         while parent is not None and not parent.isControlStatement():
             if parent.isAssignmentStatement():
-                print('part of assignment true')
-                print(self)
-                print(parent)
                 return True
             else:
                 parent = parent.parent
