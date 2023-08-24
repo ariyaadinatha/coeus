@@ -178,16 +178,28 @@ class IRPythonConverter(IRConverter):
 
             # connect identifier with function call to describe argument
             nodeCall = node.getCallExpression()
-            nodeCall.addDataFlowEdge(dataType, node.id)
-
             if key in symbolTable:
                 # handle variable used for its own value
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    nodeCall.addDataFlowEdge(dataType, node.id)
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
-                else:
+                else: 
                     dfgParentId = symbolTable[key][-1]
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
+                        # connect back from function
+                        node.addDataFlowEdge(dataType, nodeCall.id)
+
+                        # register as new assignment
+                        node.addDataFlowEdge("assignment", None)
+                        symbolTable[key].append(node.id)
+                    else:
+                        # connect node to call expression
+                        nodeCall.addDataFlowEdge(dataType, node.id)
+                # connect previous occurence of identifier to node
                 node.addDataFlowEdge(dataType, dfgParentId)
+            else:
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable)
@@ -211,13 +223,7 @@ class IRPythonConverter(IRConverter):
                 for function in self.functionSymbolTable[key]:
                     if len(function['arguments']) <= parameterOrder: continue
                     parameter = function['arguments'][parameterOrder]
-                    # if there is a function definition in the same file
-                    # use only that
-                    if function['filename'] == node.filename:
-                        parameters = [parameter]
-                        break
-                    else:
-                        parameters.append(parameter)
+                    parameters.append(parameter)
                 
                 for parameter in parameters:
                     node.addDataFlowEdge("passed", parameter)
@@ -230,11 +236,7 @@ class IRPythonConverter(IRConverter):
             
             if key in self.functionSymbolTable:
                 for func in self.functionSymbolTable[key]:
-                    # prioritize function return in current file
-                    if func['filename'] == node.filename:
-                        returns = [func['returns']]
-                    else:
-                        returns.append(func['returns'])
+                    returns.append(func['returns'])
             
             # flatten array
             returns = [item for sub_list in returns for item in sub_list]

@@ -206,24 +206,45 @@ class IRJavascriptConverter(IRConverter):
                 nodeCall = node.getCallExpression()
             else:
                 nodeCall = node.getBinaryExpression()
-            nodeCall.addDataFlowEdge(dataType, node.id)
 
             if key in blockScopedSymbolTable:
                 # handle variable used for its own value
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    nodeCall.addDataFlowEdge(dataType, node.id)
                     dfgParentId = blockScopedSymbolTable[key][-2] if len(blockScopedSymbolTable[key]) > 1 else None
-                else:
+                else: 
                     dfgParentId = blockScopedSymbolTable[key][-1]
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
+                        # connect back from function
+                        node.addDataFlowEdge(dataType, nodeCall.id)
+
+                        # register as new assignment
+                        node.addDataFlowEdge("assignment", None)
+                        blockScopedSymbolTable[key].append(node.id)
+                    else:
+                        nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
             elif key in symbolTable:
                 # handle variable used for its own value
                 # ex: test = test + "hahaha"
                 if node.isPartOfAssignment() and node.getIdentifierFromAssignment() == node.content:
+                    nodeCall.addDataFlowEdge(dataType, node.id)
                     dfgParentId = symbolTable[key][-2] if len(symbolTable[key]) > 1 else None
-                else:
+                else: 
                     dfgParentId = symbolTable[key][-1]
+                    if node.isSourceOfMethodCall() and not node.isPartOfAssignment():
+                        # connect back from function
+                        node.addDataFlowEdge(dataType, nodeCall.id)
+
+                        # register as new assignment
+                        node.addDataFlowEdge("assignment", None)
+                        symbolTable[key].append(node.id)
+                    else:
+                        nodeCall.addDataFlowEdge(dataType, node.id)
                 node.addDataFlowEdge(dataType, dfgParentId)
+            else:
+                nodeCall.addDataFlowEdge(dataType, node.id)
 
             if node.isInsideIfElseBranch():
                 self.connectDataFlowEdgeToOutsideIfElseBranch(node, key, dataType, visited, visitedList, scopeDatabase, symbolTable, blockScopedSymbolTable)
@@ -233,33 +254,21 @@ class IRJavascriptConverter(IRConverter):
 
         # handle variable as argument in function call and connect to argument in function definition
         if node.isArgumentOfAFunctionCall():
-            print('argument of call')
-            print(node)
             functionAttributes = node.getFunctionAttributesFromFunctionCall()
 
             if len(functionAttributes) < 1:
                 return
             functionName = functionAttributes[-1]
-            print('call name')
-            print(functionName)
 
             key = functionName
             if key in self.functionSymbolTable:
-                print('call info')
-                print(self.functionSymbolTable[key])
                 parameterOrder = node.getOrderOfParametersInFunction()
 
                 parameters = []
                 for function in self.functionSymbolTable[key]:
                     if len(function['arguments']) <= parameterOrder: continue
                     parameter = function['arguments'][parameterOrder]
-                    # if there is a function definition in the same file
-                    # use only that
-                    if function['filename'] == node.filename:
-                        parameters = [parameter]
-                        break
-                    else:
-                        parameters.append(parameter)
+                    parameters.append(parameter)
                 
                 for parameter in parameters:
                     node.addDataFlowEdge("passed", parameter)
@@ -271,11 +280,7 @@ class IRJavascriptConverter(IRConverter):
             returns = []
             if key in self.functionSymbolTable:
                 for func in self.functionSymbolTable[key]:
-                    # prioritize function return in current file
-                    if func['filename'] == node.filename:
-                        returns = [func['returns']]
-                    else:
-                        returns.append(func['returns'])
+                    returns.append(func['returns'])
             
             # flatten array
             returns = [item for sub_list in returns for item in sub_list]
@@ -283,20 +288,12 @@ class IRJavascriptConverter(IRConverter):
                 node.addDataFlowEdge('returned', returnId)
 
         if node.isInFunctionChain():
-            print('function chain')
-            print(node)
-
             nextCall = node.getNextFunctionInChain()
             if nextCall is None: return
-
-            print('next call')
-            print(nextCall)
 
             parameters: list[IRNode] = nextCall.getParametersFromArrowFunctionCall()
 
             for parameter in parameters:
-                print('parameter of next call')
-                print(parameter)
                 parameter.addDataFlowEdge('returned', node.id)
 
     def determineScopeNode(self, node: IRNode, prevScope: str) -> str:

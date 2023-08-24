@@ -1,6 +1,5 @@
 from tree_sitter import Node
 import uuid
-from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS
 from typing import Union
 from abc import ABC, abstractmethod
 
@@ -102,7 +101,7 @@ class IRNode(ABC):
         if self.parent == None: return False
         # handle declaration of source in function
         # ex: public AttackResult attack(@RequestParam String userId)
-        if (self.isArgumentOfAFunctionDefinition() and self.parent.node.children[0].text.decode("utf-8") == "@RequestParam"):
+        if (self.isIdentifier() and self.isArgumentOfAFunctionDefinition() and "@RequestParam" in self.parent.content):
             return True
         for source in sources:
             if source.lower() in self.content.lower():
@@ -141,7 +140,7 @@ class IRNode(ABC):
         return False
 
     def isAssignmentStatement(self) -> bool:
-        return "assignment" in self.type or "declarator" in self.type or "declaration" in self.type
+        return ("assignment" in self.type or "declarator" in self.type or "declaration" in self.type) and self.type != "method_declaration" and self.type != "class_declaration" and self.type != "function_declaration"
     
     def isDirectlyInvolvedInAssignment(self) -> bool:
         return self.parent.isAssignmentStatement()
@@ -212,7 +211,10 @@ class IRNode(ABC):
             parent = parent.parent
 
         return False
-
+    
+    def isSourceOfMethodCall(self) -> bool:
+        return self.isIdentifier() and self.isPartOfCallExpression() and self.node.next_sibling is not None and (self.node.next_sibling.type == "." or self.node.next_sibling.type == "->") and self.node.prev_sibling is None
+    
     def getCallExpression(self):
         parent = self.parent
 
@@ -264,7 +266,7 @@ class IRNode(ABC):
             return []
 
         first = call.astChildren[0]
-        if first.isIdentifier() or first.type == "name" and first.node.next_sibling.type != ".":
+        if (first.isIdentifier() or first.type == "name") and first.node.next_sibling.type != ".":
             return [first.content]
         else:
             # handle method call from class

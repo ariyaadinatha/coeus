@@ -134,12 +134,17 @@ def injection(path, language, output, mode):
 
     try:
         '''
+        demo
+        '''
+        handler = InjectionHandler(path, language)
+
+        '''
         current
         '''
         # handler = InjectionHandler("./testcase/python/current", "python")
         # handler = InjectionHandler("./testcase/php/current", "php")
         # handler = InjectionHandler("./testcase/java/current", "java")
-        handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
 
         '''
         testing

@@ -2,12 +2,12 @@
   "type": "wordlist",
   "wordlist": [
       "shell_exec",
-      "exec",
       "system",
       "mysqli_query",
       "mssql_query",
       "->query",
       "echo",
-      "unserialize"
+      "unserialize",
+      "eval"
   ]
 }
