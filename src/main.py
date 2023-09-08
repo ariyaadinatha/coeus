@@ -1,6 +1,7 @@
 from handler.dependency.dependencyhandler import DependencyHandler, Dependency
 from handler.secret.secrethandler import SecretDetection
 from handler.injection.injectionhandler import InjectionHandler
+from handler.brokenauth.brokenauthhandler import ACHandler
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.vulnhandler import VulnerableHandler, Vulnerable
 from utils.codehandler import FileHandler
@@ -139,7 +140,7 @@ def injection(path, language, output, mode):
         # handler = InjectionHandler("./testcase/python/current", "python")
         # handler = InjectionHandler("./testcase/php/current", "php")
         # handler = InjectionHandler("./testcase/java/current", "java")
-        handler = InjectionHandler("./testcase/javascript/current", "javascript")
+        # handler = InjectionHandler("./testcase/javascript/current", "javascript")
 
         '''
         testing
@@ -156,6 +157,8 @@ def injection(path, language, output, mode):
         # handler = InjectionHandler("../../coeus-test-projects/PyGoat", "python")
         # handler = InjectionHandler("../../coeus-test-projects/NodeGoat", "javascript")
         # handler = InjectionHandler("./../../coeus-test-projects/WebGoat", "java")
+
+        handler = InjectionHandler("./testcase/brokenauth/a", "python")
     
         result = handler.taintAnalysis()
         vulnHandler = VulnerableHandler()
@@ -200,7 +203,7 @@ cli.add_command(injection)
 @click.option('--path', '-p', help='Path to source code')
 @click.option('--language', '-l', default='python', type=click.Choice(['python', 'javascript', 'java', 'php']), help='Determines the language used by the to-be-analyzed project')
 def buildCompleteProject(path, language):
-    handler = InjectionHandler(path, language)
+    handler = InjectionHandler("./testcase/brokenauth", language)
     handler.deleteAllNodesAndRelationshipsByAPOC()
     handler.buildCompleteProject()
 
@@ -218,15 +221,24 @@ cli.add_command(buildDataFlowTree, name="build-data-flow")
 
 @click.command(short_help='Scan code for broken access control')
 @click.option('--path', '-p', help='Path to source code')
+@click.option('--language', '-l', default='python') # need to edit later, default = python
 @click.option('--output', '-o', default='json', type=click.Choice(['json', 'html', 'pdf']), help='Specifies the output format or file results.')
 @click.option('--mode', '-m', default='medium', type=click.Choice(['low', 'medium', 'high']), help='Specifies the scan sensitivity.')
-def access(path, output, mode):
+def access(path, language, output, mode):
     logger.info("=============== Starting broken access detection ===============")
-    startTime = time.time()
+    # startTime = time.time()
 
     # code here
+    
 
-    logger.info(f"Execution time: {(time.time() - startTime)}")
+    handler = ACHandler("./testcase/brokenauth/b", language)
+    # handler = ACHandler("./testcase/brokenauth/b", language)
+
+    handler.deleteAllNodesAndRelationshipsByAPOC()
+    handler.buildTreeRepository()
+    print("heello")
+
+    # logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished broken access detection ===============")
 cli.add_command(access)
 

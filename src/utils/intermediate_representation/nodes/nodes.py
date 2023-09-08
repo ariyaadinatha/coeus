@@ -10,6 +10,7 @@ class IRNode(ABC):
         self.id = uuid.uuid4().hex
         self.controlFlowEdges: list[ControlFlowEdge] = []
         self.dataFlowEdges: list[DataFlowEdge] = []
+        self.routingEdges: list[RoutingEdge] = []
 
         # get info from tree-sitter node
         self.treeSitterId = node.id
@@ -80,7 +81,7 @@ class IRNode(ABC):
         
         if node.type in ignoredList:
             return True
-        
+         
         return False
     
     def setDataFlowProps(self, sources, sinks, sanitizers):
@@ -97,6 +98,10 @@ class IRNode(ABC):
         edge = DataFlowEdge(dataType, dfgParentId, parameterOrder)
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
+
+    def addRoutingEdge(self, stmtOrder: int, parentId: Union[str, None]):
+        edge = RoutingEdge(stmtOrder, parentId)
+        self.routingEdges.append(edge)
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
@@ -407,3 +412,13 @@ class DataFlowEdge:
         self.dfgParentId = dfgParentId
         self.dataType = dataType
         self.parameterOrder = parameterOrder
+
+class RoutingEdge:
+    def __init__(self, stmtOrder: int, parentId: str) -> None:
+        self.routeId = uuid.uuid4().hex
+        self.stmtOrder = stmtOrder
+        self.routeParentId = parentId
+
+class CallEdge:
+    def __init__(self) -> None:
+        pass

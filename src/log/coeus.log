@@ -3013,3 +3013,300 @@
 [2023-06-23 17:33:16,987-INFO-injection-187]: Execution time: 2.579303503036499
 [2023-06-23 17:33:16,987-INFO-injection-188]: =============== Finished injection detection ===============
 [2023-06-23 17:33:17,002-ERROR-_set_defunct-756]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-07-24 00:53:28,475-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-24 00:55:32,962-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-24 00:57:04,780-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-24 00:57:04,823-INFO-access-234]: =============== Finished broken access detection ===============
+[2023-07-24 01:05:55,240-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-24 01:05:55,291-INFO-access-236]: =============== Finished broken access detection ===============
+[2023-07-25 05:16:07,999-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 05:29:21,680-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 05:37:41,469-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:27:28,644-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:27:28,645-INFO-access-236]: =============== Finished broken access detection ===============
+[2023-07-25 06:29:34,723-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:30:26,167-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:30:26,168-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:31:08,927-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:31:08,928-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:31:44,547-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:31:44,548-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:31:44,854-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:33:02,560-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:33:02,561-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:33:07,541-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:33:33,729-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:33:33,730-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:35:06,985-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:35:06,986-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:35:13,892-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:36:49,440-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:36:50,358-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:36:57,001-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:45:30,442-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:45:30,569-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:45:36,993-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:46:37,157-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:46:37,243-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:46:43,432-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 06:47:07,996-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 06:47:08,102-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 06:47:14,378-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 07:07:34,316-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 07:07:34,409-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 07:08:35,584-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 07:08:37,957-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 07:08:58,451-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 07:08:58,565-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 07:09:06,941-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 07:09:33,045-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 07:09:33,186-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 07:09:48,515-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 07:13:34,610-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 07:13:34,739-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 07:13:36,388-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 09:41:47,457-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 09:41:47,776-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 09:41:51,066-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 09:47:44,886-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 09:47:45,064-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 09:47:49,916-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 09:56:48,403-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 09:56:51,010-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 09:56:58,299-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 09:58:38,773-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 09:58:38,888-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 09:58:43,221-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 10:03:56,325-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 10:03:56,409-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 10:03:57,192-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 10:06:05,235-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 10:06:05,384-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 10:06:12,277-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 10:07:16,662-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 10:07:17,079-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 10:08:58,433-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 10:09:50,505-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 10:09:51,504-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 10:10:05,840-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 15:32:55,050-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 15:33:01,613-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 15:33:01,850-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 15:33:44,857-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 15:33:45,462-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 15:33:45,477-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 15:58:00,138-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 15:58:00,817-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 15:58:03,081-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 15:59:37,246-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 15:59:37,253-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 15:59:38,750-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 15:59:52,231-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 15:59:52,237-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 15:59:52,436-ERROR-_set_defunct-698]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-07-25 16:01:11,185-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 16:01:11,192-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 16:01:12,663-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 16:01:58,708-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 16:01:58,715-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 16:01:59,081-ERROR-_set_defunct-698]: Failed to write data to connection IPv4Address(('localhost', 7687)) (IPv4Address(('127.0.0.1', 7687)))
+[2023-07-25 16:07:01,540-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 16:07:02,492-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 16:07:20,216-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 17:13:37,381-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 17:13:49,791-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 17:14:05,917-INFO-access-238]: =============== Finished broken access detection ===============
+[2023-07-25 17:29:30,093-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 17:29:30,602-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-25 17:29:56,057-INFO-access-226]: =============== Starting broken access detection ===============
+[2023-07-25 17:29:56,214-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 08:40:48,051-INFO-injection-133]: =============== Starting injection detection ===============
+[2023-07-26 08:40:48,285-INFO-injection-197]: Execution time: 0.2338409423828125
+[2023-07-26 08:40:48,285-INFO-injection-198]: =============== Finished injection detection ===============
+[2023-07-26 09:24:03,815-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 09:24:15,251-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 09:24:33,063-INFO-access-240]: =============== Finished broken access detection ===============
+[2023-07-26 09:27:01,873-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 09:27:02,662-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 09:27:28,021-INFO-access-240]: =============== Finished broken access detection ===============
+[2023-07-26 12:20:21,812-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 12:20:55,751-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 12:21:31,514-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 12:46:46,691-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 12:46:56,728-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 12:47:35,854-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 13:13:31,314-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 13:13:40,529-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 13:14:18,647-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 20:30:31,684-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 20:30:38,049-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 20:30:48,128-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:23:08,779-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:23:52,796-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:24:29,366-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:24:29,749-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:24:37,412-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:26:51,611-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:26:52,024-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:26:56,550-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:27:17,525-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:27:17,642-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:27:21,731-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:27:40,873-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:27:40,993-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:27:44,543-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:28:10,752-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:28:11,033-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:28:14,565-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:29:06,757-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:29:07,035-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:29:11,009-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:50:40,473-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:50:55,658-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:53:36,719-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:53:37,174-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:53:41,416-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-26 22:57:09,785-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-26 22:57:10,377-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-26 22:57:18,212-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-28 12:06:57,000-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-28 12:06:59,122-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-28 12:07:03,828-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-28 12:19:16,980-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-28 12:19:17,168-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-28 12:19:23,207-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-28 12:24:20,291-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-28 12:24:20,398-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-28 12:24:27,010-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:21:15,369-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:21:18,404-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:21:28,581-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:24:39,078-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:24:39,371-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:25:14,478-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:25:14,539-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:25:20,508-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:26:45,785-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:26:46,085-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:26:46,091-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:27:10,181-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:27:10,248-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:27:10,254-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:27:26,462-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:27:26,507-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:27:26,517-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:27:57,536-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:27:57,550-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:27:57,556-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:27:59,516-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:27:59,529-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:27:59,535-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:28:02,316-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:28:02,331-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:28:02,337-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:31:59,701-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:31:59,716-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:31:59,753-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:32:24,555-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:32:24,568-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:32:24,772-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:33:09,154-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:33:09,213-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:33:12,612-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:40:52,650-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:40:52,806-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:40:55,631-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:42:04,244-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:42:04,320-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:42:07,251-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:43:05,591-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:43:05,667-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:43:08,790-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:43:56,398-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:43:56,492-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:44:02,225-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:45:17,732-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:45:17,890-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:45:23,143-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:47:13,898-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:47:14,019-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:47:49,276-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:47:49,385-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:47:55,084-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:49:09,160-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:49:09,275-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:49:14,945-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:50:13,756-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:50:13,861-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:50:19,158-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:52:55,814-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:52:55,901-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:53:01,310-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:54:45,058-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:54:45,262-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:54:51,050-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:56:12,291-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:56:12,412-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:56:18,010-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 12:58:09,258-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 12:58:09,378-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 12:58:14,134-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:04:14,312-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:04:14,616-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:04:19,945-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:05:37,891-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:05:38,046-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:05:44,341-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:07:26,927-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:07:27,156-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:07:33,158-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:07:45,931-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:07:46,075-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:07:52,112-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:09:01,012-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:09:01,116-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:09:07,635-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:10:38,692-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:10:38,771-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:10:52,376-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:13:50,645-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:13:50,869-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:15:30,494-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-07-31 13:20:00,530-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-07-31 13:20:01,137-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-07-31 13:21:35,881-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 03:27:26,691-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 03:27:31,686-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 03:29:45,279-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 03:29:45,597-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 03:30:04,391-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 03:44:41,393-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 03:44:42,755-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 03:45:01,465-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 03:45:59,584-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 03:45:59,899-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 03:46:16,231-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 03:49:05,509-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 03:49:05,626-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 03:50:58,379-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 07:40:56,923-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 07:41:27,729-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 07:42:57,734-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-02 07:44:49,623-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-02 07:44:50,475-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-02 07:44:56,084-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-07 05:28:14,493-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-07 05:28:18,777-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-07 05:28:42,058-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-07 05:40:45,328-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-07 05:40:46,611-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-07 05:40:54,564-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-16 10:57:12,947-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-16 10:57:29,777-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-16 10:57:43,565-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-16 16:46:26,840-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-16 16:46:33,112-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-16 16:46:55,993-INFO-access-242]: =============== Finished broken access detection ===============
+[2023-08-16 16:54:04,277-INFO-access-228]: =============== Starting broken access detection ===============
+[2023-08-16 16:54:04,624-INFO-getAllFilesFromRepository-45]: Searching all relevant files
+[2023-08-16 16:54:16,416-INFO-access-242]: =============== Finished broken access detection ===============

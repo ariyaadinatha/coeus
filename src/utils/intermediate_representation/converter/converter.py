@@ -6,10 +6,10 @@ import uuid
 from abc import ABC, abstractmethod
 
 class IRConverter(ABC):
-    def __init__(self, sources, sinks, sanitizers) -> None:
-        self.sources = sources
-        self.sinks = sinks
-        self.sanitizers = sanitizers
+    def __init__(self) -> None:
+        # self.sources = sources
+        # self.sinks = sinks
+        # self.sanitizers = sanitizers
         self.functionSymbolTable = {}
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
@@ -17,6 +17,7 @@ class IRConverter(ABC):
         self.registerFunctionsToSymbolTable(irRoot)
         self.addControlFlowEdgesToTree(irRoot)
         self.addDataFlowEdgesToTree(irRoot)
+        self.addRoutingEdgesToTree(irRoot)
 
         return irRoot
 
@@ -30,6 +31,10 @@ class IRConverter(ABC):
 
     @abstractmethod
     def addDataFlowEdgesToTree(self, root: IRNode):
+        pass
+
+    @abstractmethod
+    def addRoutingEdgesToTree(self, root: IRNode):
         pass
 
     def setNodeCallEdges(self, node: IRNode):

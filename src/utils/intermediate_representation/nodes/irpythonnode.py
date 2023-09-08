@@ -3,6 +3,7 @@ from utils.intermediate_representation.nodes.nodes import IRNode
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_CONTROL_STATEMENTS, PYTHON_DIVERGE_CONTROL_STATEMENTS
 from typing import Union
 import uuid
+import re
 
 # all node from tree-sitter parse result
 class IRPythonNode(IRNode):
@@ -52,3 +53,42 @@ class IRPythonNode(IRNode):
         else:
             # a = "test" + x
             return parent.astChildren[0].content
+    
+    def isFlaskImport(self) -> bool:
+
+        if self.type in ["import_statement", "import_from_statement"]:
+            for child in self.astChildren:
+                if child.type == "dotted_name" and child.content == "Flask":
+                    return True
+        
+        return False
+    
+    def isDecoratedDefinition(self) -> bool:
+        return self.type == "decorated_definition"
+    
+    def isAppStartingPoint(self) -> bool:
+
+        if self.type == "expression_statement" and self.astChildren[0].type == "assignment":
+           child = self.astChildren[0]
+           
+           for expr in child.astChildren:
+                match = re.match(r"Flask\((.*?)\)", expr.content)
+                if bool(match):
+                    return True
+                match = re.match(r"Blueprint\((.*?)\)", expr.content)
+                if bool(match):
+                    return True
+        
+        return False
+    
+    def isRegisterBlueprint(self) -> bool:
+
+        if self.type == "expression_statement" and self.astChildren[0].type == "call":
+           child = self.astChildren[0]
+           
+           for expr in child.astChildren:
+               match = re.match(r"(.*?).register_blueprint", expr.content)
+               if bool(match):
+                   return True
+        
+        return False

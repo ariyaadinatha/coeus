@@ -8,8 +8,8 @@ import uuid
 from abc import ABC, abstractmethod
 
 class IRPythonConverter(IRConverter):
-    def __init__(self, sources, sinks, sanitizers) -> None:
-        IRConverter.__init__(self, sources, sinks, sanitizers)
+    def __init__(self) -> None:
+        IRConverter.__init__(self)
 
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
@@ -29,7 +29,6 @@ class IRPythonConverter(IRConverter):
                 continue
 
             convertedNode = IRPythonNode(node, filename, projectId, parent=parent)
-            convertedNode.setDataFlowProps(self.sources, self.sinks, self.sanitizers)
 
             # add current node as child to parent node
             # else set root node
@@ -42,6 +41,36 @@ class IRPythonConverter(IRConverter):
                 queue.append((child, convertedNode))
 
         return irRoot
+    
+    def addRoutingEdgesToTree(self, root: IRNode):
+        queue : list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+        appStartId: str = None
+
+        while len(queue) != 0:
+            currPayload = queue.pop(0)
+            currNode: IRNode = currPayload[0]
+            stmtOrder: int = currPayload[1]
+            parentId: str = currPayload[2]
+
+            if stmtOrder != 0:
+                currNode.addRoutingEdge(stmtOrder, parentId)
+            
+            stmtOrder = 0
+
+            for child in currNode.astChildren:
+                if  child.isAppStartingPoint():
+                    stmtOrder += 1
+                    appStartId = child.id
+                    queue.append((child, stmtOrder, None))
+                
+                elif child.isDecoratedDefinition() or child.isRegisterBlueprint():
+                    stmtOrder += 1
+                    queue.append((child, stmtOrder, appStartId))
+                
+                else:
+                    queue.append((child, 0, None))
+
+
     
     def addControlFlowEdgesToTree(self, root: IRNode):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
@@ -69,7 +98,8 @@ class IRPythonConverter(IRConverter):
                             elif currNode.isDivergingControlStatement():
                                 # !!!: depends on lower node
                                 blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
-            
+
+
             statementOrder = 0
             # handles the next statement relationship
             # TODO: handle for, while, try, catch, etc. control
