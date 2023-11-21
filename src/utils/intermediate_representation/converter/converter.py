@@ -17,7 +17,7 @@ class IRConverter(ABC):
         self.registerFunctionsToSymbolTable(irRoot)
         self.addControlFlowEdgesToTree(irRoot)
         self.addDataFlowEdgesToTree(irRoot)
-        self.addRoutingEdgesToTree(irRoot)
+        self.addRouteEdgesToTree(irRoot)
 
         return irRoot
 
@@ -34,7 +34,7 @@ class IRConverter(ABC):
         pass
 
     @abstractmethod
-    def addRoutingEdgesToTree(self, root: IRNode):
+    def addRouteEdgesToTree(self, root: IRNode):
         pass
 
     def setNodeCallEdges(self, node: IRNode):

@@ -70,9 +70,10 @@ class ACHandler:
         astRoot = self.converter.createCompleteTree(root, codePath)
         self.insertAllNodesToNeo4j(astRoot)
         self.insertAllEdgesToNeo4j(astRoot)
-        self.insertAllCFGEdgesToNeo4j(astRoot)
+        # self.insertAllCFGEdgesToNeo4j(astRoot)
         self.insertAllRTEdgesToNeo4j(astRoot)
         self.setLabels()
+    
     '''
         Neo4j
     '''
@@ -81,10 +82,6 @@ class ACHandler:
         try:
             print(command)
             self.connection.query(query, parameters, db=self.dbName)
-            # if parameters != None:
-            #     self.connection.query(query, parameters, db=self.dbName)
-            # else:
-            #     self.connection.query(query, db=self.dbName)
         except Exception as e:
             print(f"Query {command} error: {traceback.print_exc()}")
     
@@ -224,33 +221,29 @@ class ACHandler:
         while len(queue) != 0:
             node = queue.pop(0)
 
-            if len(node.routingEdges) != 0:
+            if len(node.routeEdges) != 0:
                 self.createRTRel(node)
 
             for child in node.astChildren:
                 queue.append(child)
 
     def createRTRel(self, node: IRNode):
-        for edge in node.routingEdges:
+        command = "Creating route relationship..."
+        query = '''
+                MATCH (child:Node), (parent:Node)
+                WHERE child.id = $id AND parent.id = $parent_id
+                CREATE (child)<-[r:ROUTING_TO]-(parent)
+                SET child:RouteNode
+                SET parent:RouteNode
+            '''
+        for edge in node.routeEdges:
+
             parameters = {
                 "id": node.id,
-                "stmt_order": edge.stmtOrder,
                 "parent_id": edge.routeParentId,
             }
 
-            query = '''
-                    MATCH (child:Node), (parent:Node)
-                    WHERE child.id = $id AND parent.id = $parent_id
-                    CREATE (child)<-[r:ROUTING_TO{stmt_order: $stmt_order}]-(parent)
-                    SET child:RouteNode
-                    SET parent:RouteNode
-                '''
-
-            try:
-                print("creating routing relationship")
-                self.connection.query(query, parameters=parameters, db=self.dbName)
-            except Exception as e:
-                print(f"Query create routing relationship error: {traceback.print_exc()}")
+            self.Neo4jQuery(command, query, parameters)
 
     ### Set all labels
     def setLabels(self):

@@ -227,16 +227,12 @@ cli.add_command(buildDataFlowTree, name="build-data-flow")
 def access(path, language, output, mode):
     logger.info("=============== Starting broken access detection ===============")
     # startTime = time.time()
-
-    # code here
     
-
-    handler = ACHandler("./testcase/brokenauth/b", language)
-    # handler = ACHandler("./testcase/brokenauth/b", language)
+    handler = ACHandler("./testcase/brokenauth/c", language)
 
     handler.deleteAllNodesAndRelationshipsByAPOC()
     handler.buildTreeRepository()
-    print("heello")
+    print("end of program")
 
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished broken access detection ===============")

@@ -42,36 +42,33 @@ class IRPythonConverter(IRConverter):
 
         return irRoot
     
-    def addRoutingEdgesToTree(self, root: IRNode):
-        queue : list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+    # bagian Andrew
+    # === BEGIN ===
+    def addRouteEdgesToTree(self, root: IRNode):
+        queue : list[tuple(IRNode, int, IRNode)] = [(root, None)]
         appStartId: str = None
+        appStartFound: bool = False
 
         while len(queue) != 0:
             currPayload = queue.pop(0)
             currNode: IRNode = currPayload[0]
-            stmtOrder: int = currPayload[1]
-            parentId: str = currPayload[2]
+            parentId: str = currPayload[1]
 
-            if stmtOrder != 0:
-                currNode.addRoutingEdge(stmtOrder, parentId)
-            
-            stmtOrder = 0
+            if appStartFound and parentId is not None:
+                currNode.addRouteEdge(parentId)
 
             for child in currNode.astChildren:
                 if  child.isAppStartingPoint():
-                    stmtOrder += 1
                     appStartId = child.id
-                    queue.append((child, stmtOrder, None))
+                    appStartFound = True
+                    queue.append((child, None))
                 
-                elif child.isDecoratedDefinition() or child.isRegisterBlueprint():
-                    stmtOrder += 1
-                    queue.append((child, stmtOrder, appStartId))
+                elif child.isEndpointStatement() or child.isRegisterBlueprint():
+                    queue.append((child, appStartId))
                 
                 else:
-                    queue.append((child, 0, None))
+                    queue.append((child, None))
 
-
-    
     def addControlFlowEdgesToTree(self, root: IRNode):
         queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
 
@@ -111,6 +108,8 @@ class IRPythonConverter(IRConverter):
                     currCfgParent = child.id
                 else:
                     queue.append((child, 0, None))
+
+    # === END ===
 
     def addDataFlowEdgesToTree(self, root: IRNode):
         # to keep track of all visited nodes
