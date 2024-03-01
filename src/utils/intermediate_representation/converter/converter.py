@@ -15,7 +15,7 @@ class IRConverter(ABC):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.registerFunctionsToSymbolTable(irRoot)
-        self.addControlFlowEdgesToTree(irRoot)
+        self.addControlFlowEdgesToTree(irRoot, None)
         self.addDataFlowEdgesToTree(irRoot)
         self.addRouteEdgesToTree(irRoot)
 

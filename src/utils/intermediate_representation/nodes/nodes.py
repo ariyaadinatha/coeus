@@ -90,8 +90,8 @@ class IRNode(ABC):
         self.isSanitizer = self.checkIsSanitizer(sanitizers)
         self.isTainted = self.isSource
     
-    def addControlFlowEdge(self, statementOrder: int, cfgParentId: Union[str, None], controlType: str='next_statement'):
-        edge = ControlFlowEdge(statementOrder, cfgParentId, controlType)
+    def addControlFlowEdge(self, cfgChildId: Union[str, None], controlType: str='next_statement'):
+        edge = ControlFlowEdge(cfgChildId, controlType)
         self.controlFlowEdges.append(edge)
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None], parameterOrder: int = 0):
@@ -398,10 +398,9 @@ class IRNode(ABC):
 
 # class to store all control flow related actions
 class ControlFlowEdge:
-    def __init__(self, statementOrder: int, cfgParentId: str, controlType: str = 'next_statement') -> None:
+    def __init__(self, cfgChildId: str, controlType: str = 'next_statement') -> None:
         self.cfgId = uuid.uuid4().hex
-        self.statementOrder = statementOrder
-        self.cfgParentId = cfgParentId
+        self.cfgChildId = cfgChildId
         self.controlType = controlType
 
 # clas to store all variables and their values

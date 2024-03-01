@@ -10,6 +10,8 @@ def home():
 def login():
     return 'Login'
 
+app.register_blueprint(auth.bp)
+app.register_blueprint(blog.bp)
 # from flask import Flask
 # from flaskr import auth, blog
 
@@ -18,5 +20,3 @@ def login():
 #     @app.route("/hello")
 #     def hello():
 #         return "Hello, World!"
-#     app.register_blueprint(auth.bp)
-#     app.register_blueprint(blog.bp)

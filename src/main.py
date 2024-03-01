@@ -228,11 +228,11 @@ def access(path, language, output, mode):
     logger.info("=============== Starting broken access detection ===============")
     # startTime = time.time()
     
-    handler = ACHandler("./testcase/brokenauth/c", language)
+    handler = ACHandler("./testcase/brokenauth/b", language)
 
     handler.deleteAllNodesAndRelationshipsByAPOC()
     handler.buildTreeRepository()
-    print("end of program")
+    print("End of program.")
 
     # logger.info(f"Execution time: {(time.time() - startTime)}")
     logger.info("=============== Finished broken access detection ===============")

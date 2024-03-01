@@ -69,45 +69,73 @@ class IRPythonConverter(IRConverter):
                 else:
                     queue.append((child, None))
 
-    def addControlFlowEdgesToTree(self, root: IRNode):
-        queue: list[tuple(IRNode, int, IRNode)] = [(root, 0, None)]
+    def connectControlFlowEdges(self, pred: IRNode, succ: IRNode):
+        if pred.type == "expression_statement":
+            pred.addControlFlowEdge(succ.id)
+        
+        if pred.type == "if_statement":
+            condition: IRNode = None
+            ifBlock: IRNode = None
+            elifBlock: list[IRNode] = []
+            elseBlock: IRNode = None
+            for child in pred.astChildren:
+                if child.type == "comparison_operator":
+                    condition = child
+                if child.type == "block":
+                    ifBlock = child
+                if child.type == "elif_clause":
+                    elifBlock.append(child)
+                if child.type == "else_clause":
+                    elseBlock = child.astChildren[1]
+            
+            pred.addControlFlowEdge(condition.id)
 
-        while len(queue) != 0:
-            currPayload = queue.pop(0)
-            currNode: IRNode = currPayload[0]
-            statementOrder: int = currPayload[1]
-            cfgParentId: str = currPayload[2]
+            condition.addControlFlowEdge(ifBlock.id)
+            self.addControlFlowEdgesToTree(ifBlock, succ)
 
-            if statementOrder != 0:
-                currNode.addControlFlowEdge(statementOrder, cfgParentId)
+            if len(elifBlock) > 0:
+                for i in range(len(elifBlock)):
+                    elifCondition = elifBlock[i].astChildren[1]
+                    elifIfBlock = elifBlock[i].astChildren[2]
 
-            # handle control statement (if-else, for, while, etc.)
-            if currNode.isControlStatement() or currNode.isDivergingControlStatement():
-                for child in currNode.astChildren:
-                    if child.type == "block":
-                        blockNode = child
-                        if len(blockNode.astChildren) != 0:
-                            # connect if true statements with control statement and skip block node
-                            if currNode.isControlStatement():
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.id, f"{currNode.type}_child")
-                            # connect else statements with control consequence statement and skip block node
-                            elif currNode.isDivergingControlStatement():
-                                # !!!: depends on lower node
-                                blockNode.astChildren[0].addControlFlowEdge(1, currNode.parentId, f"{currNode.type}_child")
+                    elifCondition.addControlFlowEdge(elifIfBlock.id)
+                    self.addControlFlowEdgesToTree(elifIfBlock, succ)
+                    condition.addControlFlowEdge(elifCondition.id)
 
+                    condition = elifCondition
 
-            statementOrder = 0
-            # handles the next statement relationship
-            # TODO: handle for, while, try, catch, etc. control
-            currCfgParent = None if currNode.type != "module" else currNode.id
-            for child in currNode.astChildren:
-                if "statement" in child.type:
-                    statementOrder += 1
-                    queue.append((child, statementOrder, currCfgParent))
-                    currCfgParent = child.id
-                else:
-                    queue.append((child, 0, None))
+            if elseBlock != None:
+                condition.addControlFlowEdge(elseBlock.id)
+                self.addControlFlowEdgesToTree(elseBlock, succ)
+            else:
+                condition.addControlFlowEdge(succ.id)
+
+        if pred.type == "while_statement":
+            pass
+
+        if pred.type == "for_statement":
+            pass
+
+    def addControlFlowEdgesToTree(self, root: IRNode, exit: IRNode):
+        
+        # list all blocks in tree
+        blocks: list[IRNode] = []
+        for child in root.astChildren:
+            if "statement" in child.type or "definition" in child.type:
+                blocks.append(child)
+        
+        root.addControlFlowEdge(blocks[0].id)
+
+        # parse blocks recursively
+        nBlocks = len(blocks)
+        for i in range (nBlocks-1):
+            currBlock = blocks[i]
+            nextBlock = blocks[i+1]
+            self.connectControlFlowEdges(currBlock, nextBlock)
+        
+        if exit != None:
+            self.connectControlFlowEdges(blocks[-1], exit)
+
 
     # === END ===
 

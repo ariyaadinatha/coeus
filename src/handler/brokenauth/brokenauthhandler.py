@@ -70,8 +70,8 @@ class ACHandler:
         astRoot = self.converter.createCompleteTree(root, codePath)
         self.insertAllNodesToNeo4j(astRoot)
         self.insertAllEdgesToNeo4j(astRoot)
-        # self.insertAllCFGEdgesToNeo4j(astRoot)
-        self.insertAllRTEdgesToNeo4j(astRoot)
+        self.insertAllCFGEdgesToNeo4j(astRoot)
+        # self.insertAllRTEdgesToNeo4j(astRoot)
         self.setLabels()
     
     '''
@@ -80,7 +80,7 @@ class ACHandler:
     ### Neo4j query
     def Neo4jQuery(self, command, query, parameters=None):
         try:
-            print(command)
+            # print(command)
             self.connection.query(query, parameters, db=self.dbName)
         except Exception as e:
             print(f"Query {command} error: {traceback.print_exc()}")
@@ -195,21 +195,20 @@ class ACHandler:
         for edge in node.controlFlowEdges:
             parameters = {
                 "id": node.id,
-                "cfg_parent_id": edge.cfgParentId,
-                "statement_order": edge.statementOrder,
+                "cfg_child_id": edge.cfgChildId,
                 "control_type": edge.controlType
             }
 
             query = '''
                     MATCH (child:Node), (parent:Node)
-                    WHERE child.id = $id AND parent.id = $cfg_parent_id
-                    CREATE (child)<-[r:CONTROL_FLOW_TO{statement_order: $statement_order, control_type: $control_type}]-(parent)
+                    WHERE child.id = $cfg_child_id AND parent.id = $id
+                    CREATE (child)<-[r:CONTROL_FLOW_TO{control_type: $control_type}]-(parent)
                     SET child:ControlNode
                     SET parent:ControlNode
                 '''
 
             try:
-                print("creating control flow relationship")
+                # print("creating control flow relationship")
                 self.connection.query(query, parameters=parameters, db=self.dbName)
             except Exception as e:
                 print(f"Query create control flow relationship error: {traceback.print_exc()}")
