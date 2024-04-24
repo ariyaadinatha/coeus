@@ -44,34 +44,27 @@ class IRPythonConverter(IRConverter):
     
     # bagian Andrew
     # === BEGIN ===
-    def addRouteEdgesToTree(self, root: IRNode):
-        queue : list[tuple(IRNode, int, IRNode)] = [(root, None)]
-        appStartId: str = None
-        appStartFound: bool = False
-
+    
+    # Routes/Endpoints
+    def identifyEndpoints(self, root: IRNode):
+        
+        queue : list[IRNode] = [root]
+        endpointList : list[IRNode] = []
+        
         while len(queue) != 0:
-            currPayload = queue.pop(0)
-            currNode: IRNode = currPayload[0]
-            parentId: str = currPayload[1]
+            
+            node = queue.pop(0)
 
-            if appStartFound and parentId is not None:
-                currNode.addRouteEdge(parentId)
+            if node.isEndpointStatement():
+                node.isEndpoint = True
+                endpointList.append(node)
 
-            for child in currNode.astChildren:
-                if  child.isAppStartingPoint():
-                    appStartId = child.id
-                    appStartFound = True
-                    queue.append((child, None))
-                
-                elif child.isEndpointStatement() or child.isRegisterBlueprint():
-                    queue.append((child, appStartId))
-                
-                else:
-                    queue.append((child, None))
+            for ch in node.astChildren:
+                queue.append(ch)
+        
+        return endpointList
 
     def connectControlFlowEdges(self, pred: IRNode, succ: IRNode):
-        if pred.type == "expression_statement":
-            pred.addControlFlowEdge(succ.id)
         
         if pred.type == "if_statement":
             condition: IRNode = None
@@ -79,7 +72,7 @@ class IRPythonConverter(IRConverter):
             elifBlock: list[IRNode] = []
             elseBlock: IRNode = None
             for child in pred.astChildren:
-                if child.type == "comparison_operator":
+                if "operator" in child.type:
                     condition = child
                 if child.type == "block":
                     ifBlock = child
@@ -113,15 +106,18 @@ class IRPythonConverter(IRConverter):
         if pred.type == "while_statement":
             pass
 
-        if pred.type == "for_statement":
+        if pred.type == "for_statement": 
             pass
+
+        # next statement
+        pred.addControlFlowEdge(succ.id)
 
     def addControlFlowEdgesToTree(self, root: IRNode, exit: IRNode):
         
         # list all blocks in tree
         blocks: list[IRNode] = []
         for child in root.astChildren:
-            if "statement" in child.type or "definition" in child.type:
+            if "statement" in child.type:
                 blocks.append(child)
         
         root.addControlFlowEdge(blocks[0].id)

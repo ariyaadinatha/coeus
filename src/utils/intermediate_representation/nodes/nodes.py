@@ -38,6 +38,7 @@ class IRNode(ABC):
             self.controlId = None
 
         # control flow props
+        self.isEndpoint = False
 
         # if root
         if isinstance(parent, IRNode):
@@ -395,6 +396,13 @@ class IRNode(ABC):
     @abstractmethod
     def getIdentifierFromAssignment(self) -> str:
         pass
+
+    # bagian Andrew (masih perlu diintegrasikan dengan abstract method)
+    # === BEGIN ===
+    @abstractmethod
+    def isEndpointStatement(self) -> bool:
+        pass
+    # === END ===
 
 # class to store all control flow related actions
 class ControlFlowEdge:

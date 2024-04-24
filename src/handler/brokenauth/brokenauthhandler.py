@@ -85,7 +85,7 @@ class ACHandler:
         except Exception as e:
             print(f"Query {command} error: {traceback.print_exc()}")
     
-    ### Insert all nodes to Neo4j
+    ### Insert AST nodes and edges to Neo4j
     def insertAllNodesToNeo4j(self, root: IRNode):
         queue: list[IRNode] = [root]
 
@@ -107,7 +107,8 @@ class ACHandler:
             scope: $scope, 
             filename: $filename, 
             startPoint: $startPoint, 
-            endPoint: $endPoint
+            endPoint: $endPoint,
+            is_endpoint: $is_endpoint
             })'''
         parameters = {
             "id": node.id,
@@ -118,11 +119,11 @@ class ACHandler:
             "filename": node.filename, 
             "startPoint": node.startPoint,
             "endPoint": node.endPoint,
+            "is_endpoint": node.isEndpoint,
         }
 
         self.Neo4jQuery(command, query, parameters)
 
-    ### Insert all edges to Neo4j
     def insertAllEdgesToNeo4j(self, root: IRNode):
         queue: list[IRNode] = [root]
         while len(queue) != 0:
@@ -146,37 +147,7 @@ class ACHandler:
             }
             self.Neo4jQuery(command, query, parameters)
 
-    def identifyAppNode(self, root: IRNode):
-        
-        queue : list[IRNode] = [root]
-        
-        while len(queue) != 0:
-            
-            node = queue.pop(0)
-            
-            found = False
-            
-            if node.type == "expression_statement" and node.astChildren[0].type == "assignment":
-                child = node.astChildren[0]
-                pattern = r"Flask\((.*?)\)"
-                for expr in child.astChildren:
-                    match = re.match(pattern, expr.content)
-                    if bool(match):
-                        found = True
-                        break
-            if found:
-                param = {
-                    "id":node.id
-                }
-                query = '''
-                    MATCH (n) WHERE n.id=$id
-                    SET n:StartApp
-                '''
-                self.Neo4jQuery(param, query, "setting flask starting point")
-                break
-
-            for ch in node.astChildren:
-                queue.append(ch)
+    ### Identify endpoints
 
     ### Insert all CFG edges to Neo4j
     def insertAllCFGEdgesToNeo4j(self, root: IRNode):
@@ -247,12 +218,23 @@ class ACHandler:
     ### Set all labels
     def setLabels(self):
         self.setRootLabel()
+        self.setEndpointLabel()
+
 
     def setRootLabel(self):
         command = "Setting root label..."
         query = '''
             MATCH (n) WHERE n.parent_id IS NULL
             SET n:Root
+        '''
+        self.Neo4jQuery(command, query)
+
+    def setEndpointLabel(self):
+        command = "Setting endpoint label..."
+        query = '''
+            MATCH (n) WHERE n.is_endpoint = true
+            SET n:EndpointNode
+            SET n:ControlNode
         '''
         self.Neo4jQuery(command, query)
 

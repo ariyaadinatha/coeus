@@ -15,14 +15,30 @@ class IRConverter(ABC):
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
         self.registerFunctionsToSymbolTable(irRoot)
+        endpoints: list[IRNode] = self.identifyEndpoints(irRoot)
+        for endpoint in endpoints:
+            endpointChild: list[IRNode] = []
+            for ch in endpoint.astChildren:
+                endpointChild.append(ch)
+            endpoint.addControlFlowEdge(endpointChild[0].id)                # connect decorated_definition to first child
+            for i in range(len(endpointChild)-1):                           # connect each child
+                endpointChild[i].addControlFlowEdge(endpointChild[i+1].id)
+            endpointFunctionBlock = endpointChild[-1].astChildren[-1]       # identify block of the endpoint function
+            endpointChild[-1].addControlFlowEdge(endpointFunctionBlock.id)  # connect function_definition to block
+            self.addControlFlowEdgesToTree(endpointFunctionBlock, None)     # add control flow edges in the block
+        
         self.addControlFlowEdgesToTree(irRoot, None)
         self.addDataFlowEdgesToTree(irRoot)
-        self.addRouteEdgesToTree(irRoot)
 
         return irRoot
 
     @abstractmethod
     def createAstTree(self, root: Node, filename: str) -> IRNode:
+        pass
+
+    
+    @abstractmethod
+    def identifyEndpoints(self, root: IRNode):
         pass
 
     @abstractmethod
@@ -33,9 +49,9 @@ class IRConverter(ABC):
     def addDataFlowEdgesToTree(self, root: IRNode):
         pass
 
-    @abstractmethod
-    def addRouteEdgesToTree(self, root: IRNode):
-        pass
+    # @abstractmethod
+    # def addRouteEdgesToTree(self, root: IRNode):
+    #     pass
 
     def setNodeCallEdges(self, node: IRNode):
         if node.isIdentifierOfFunctionDefinition():

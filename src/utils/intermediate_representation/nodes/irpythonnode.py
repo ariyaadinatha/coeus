@@ -57,13 +57,17 @@ class IRPythonNode(IRNode):
     # bagian Andrew (masih perlu diintegrasikan dengan abstract method)
     # === BEGIN ===
 
-    def isFlaskImport(self) -> bool:
+    # Endpoint statement
+    # perlu diintegrasikan dengan abstract method
+    def isEndpointStatement(self) -> bool:
+        if self.type == "decorated_definition" and self.astChildren[0].type == "decorator":
+            child = self.astChildren[0]
 
-        if self.type in ["import_statement", "import_from_statement"]:
-            for child in self.astChildren:
-                if child.type == "dotted_name" and child.content == "Flask":
+            for expr in child.astChildren:
+                match = re.match(r"(.*?).route", expr.content)
+                if bool(match):
                     return True
-        
+                
         return False
     
     def isDecoratedDefinition(self) -> bool:
@@ -79,29 +83,6 @@ class IRPythonNode(IRNode):
                 if bool(match):
                     return True
                 match = re.match(r"Blueprint\((.*?)\)", expr.content)
-                if bool(match):
-                    return True
-        
-        return False
-    
-    def isEndpointStatement(self) -> bool:
-        if self.type == "decorated_definition" and self.astChildren[0].type == "decorator":
-            child = self.astChildren[0]
-
-            for expr in child.astChildren:
-                match = re.match(r"(.*?).route", expr.content)
-                if bool(match):
-                    return True
-                
-        return False
-
-    def isRegisterBlueprint(self) -> bool:
-
-        if self.type == "expression_statement" and self.astChildren[0].type == "call":
-            child = self.astChildren[0]
-           
-            for expr in child.astChildren:
-                match = re.match(r"(.*?).register_blueprint", expr.content)
                 if bool(match):
                     return True
         
