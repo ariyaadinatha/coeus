@@ -64,6 +64,7 @@ class IRPythonConverter(IRConverter):
         
         return endpointList
 
+    # Control Flow
     def connectControlFlowEdges(self, pred: IRNode, succ: IRNode):
         
         if pred.type == "if_statement":
@@ -109,6 +110,9 @@ class IRPythonConverter(IRConverter):
         if pred.type == "for_statement": 
             pass
 
+        if pred.type == "return_statement":
+            pass
+
         # next statement
         pred.addControlFlowEdge(succ.id)
 
@@ -119,6 +123,10 @@ class IRPythonConverter(IRConverter):
         for child in root.astChildren:
             if "statement" in child.type:
                 blocks.append(child)
+        
+        print(root.type, root.astChildren[0].type)
+        if len(blocks) == 0:
+            return
         
         root.addControlFlowEdge(blocks[0].id)
 

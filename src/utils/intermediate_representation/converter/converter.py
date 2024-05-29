@@ -49,10 +49,6 @@ class IRConverter(ABC):
     def addDataFlowEdgesToTree(self, root: IRNode):
         pass
 
-    # @abstractmethod
-    # def addRouteEdgesToTree(self, root: IRNode):
-    #     pass
-
     def setNodeCallEdges(self, node: IRNode):
         if node.isIdentifierOfFunctionDefinition():
             # if use file directory as key

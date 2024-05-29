@@ -100,10 +100,6 @@ class IRNode(ABC):
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
 
-    def addRouteEdge(self, parentId: Union[str, None]):
-        edge = RouteEdge(parentId)
-        self.routeEdges.append(edge)
-
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
         # handle declaration of source in function
@@ -419,12 +415,3 @@ class DataFlowEdge:
         self.dfgParentId = dfgParentId
         self.dataType = dataType
         self.parameterOrder = parameterOrder
-
-class RouteEdge:
-    def __init__(self, parentId: str) -> None:
-        self.routeId = uuid.uuid4().hex
-        self.routeParentId = parentId
-
-class CallEdge:
-    def __init__(self) -> None:
-        pass

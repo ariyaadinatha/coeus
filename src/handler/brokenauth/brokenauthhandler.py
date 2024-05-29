@@ -184,37 +184,6 @@ class ACHandler:
             except Exception as e:
                 print(f"Query create control flow relationship error: {traceback.print_exc()}")
 
-    ### Insert all routing edges to Neo4j
-    def insertAllRTEdgesToNeo4j(self, root: IRNode):
-        queue: list[IRNode] = [root]
-
-        while len(queue) != 0:
-            node = queue.pop(0)
-
-            if len(node.routeEdges) != 0:
-                self.createRTRel(node)
-
-            for child in node.astChildren:
-                queue.append(child)
-
-    def createRTRel(self, node: IRNode):
-        command = "Creating route relationship..."
-        query = '''
-                MATCH (child:Node), (parent:Node)
-                WHERE child.id = $id AND parent.id = $parent_id
-                CREATE (child)<-[r:ROUTING_TO]-(parent)
-                SET child:RouteNode
-                SET parent:RouteNode
-            '''
-        for edge in node.routeEdges:
-
-            parameters = {
-                "id": node.id,
-                "parent_id": edge.routeParentId,
-            }
-
-            self.Neo4jQuery(command, query, parameters)
-
     ### Set all labels
     def setLabels(self):
         self.setRootLabel()
