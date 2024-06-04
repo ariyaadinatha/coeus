@@ -70,35 +70,21 @@ class IRPythonConverter(IRConverter):
         stmtList, defList = self.parseBlocks(root)
 
         # parse each definitions
+        for defn in defList:
+            self.parseDefinitions(defn)
 
-        # parse each statements
+        # parse each statements (if any)
         n_stmtList = len(stmtList)
-        for i in range(n_stmtList - 1):
-            currStmt = stmtList[i]
-            nextStmt = stmtList[i + 1]
-            print(currStmt.type, nextStmt.type)
-            self.parseStatements(currStmt, nextStmt)
+        if n_stmtList > 0:
+            for i in range(n_stmtList - 1):
+                currStmt = stmtList[i]
+                nextStmt = stmtList[i + 1]
+                print(currStmt.type, nextStmt.type)
+                self.parseStatements(currStmt, nextStmt)
         
-        # parse last statement
-        self.parseStatements(stmtList[-1], None)
+            # parse last statement
+            self.parseStatements(stmtList[-1], None)
 
-
-        # print(root.type, root.astChildren[0].type)
-
-        # if len(blocks) == 0:
-        #     return
-        
-        # root.addControlFlowEdge(blocks[0].id)
-
-        # # parse blocks recursively
-        # nBlocks = len(blocks)
-        # for i in range (nBlocks-1):
-        #     currBlock = blocks[i]
-        #     nextBlock = blocks[i+1]
-        #     self.connectControlFlowEdges(currBlock, nextBlock)
-        
-        # if exit != None:
-        #     self.connectControlFlowEdges(blocks[-1], exit)
 
     def parseBlocks(self, node: IRNode):
         stmtList: list[IRNode] = []
@@ -115,12 +101,13 @@ class IRPythonConverter(IRConverter):
     # Definitions (function_definition, decorated_definition)
     def parseDefinitions(self, node: IRNode):
         if node.type == "function_definition":
-            pass
-        elif node.type == "decorated_definition":
-            pass
+            self.handleFunctionDefinitions(node)
 
     def handleFunctionDefinitions(self, node: IRNode):
-        pass
+        nodeBlock = node.astChildren[1]
+        nodeStmtList, nodeDefList = self.parseBlocks(nodeBlock)
+        for i in range(len(nodeStmtList) - 1):
+            self.parseStatements(nodeStmtList[i], nodeStmtList[i+1])
 
     # Statements (expression_statement, if_statement, while_statement, for_statement, try_statement, return_statement)
     def parseStatements(self, curr: IRNode, next: IRNode):
@@ -164,11 +151,14 @@ class IRPythonConverter(IRConverter):
                 condition.addControlFlowEdge(elifCondition.id, "next_statement_if_false")
                 condition = elifCondition
 
-        insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)
-        insideElseBlockStmtList.append(next)
-        condition.addControlFlowEdge(insideElseBlockStmtList[0].id, "next_statement_if_false")
-        for i in range(len(insideElseBlockStmtList) - 1):
-            self.parseStatements(insideElseBlockStmtList[i], insideElseBlockStmtList[i+1])
+        if elseBlock != None:
+            insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)
+            insideElseBlockStmtList.append(next)
+            condition.addControlFlowEdge(insideElseBlockStmtList[0].id, "next_statement_if_false")
+            for i in range(len(insideElseBlockStmtList) - 1):
+                self.parseStatements(insideElseBlockStmtList[i], insideElseBlockStmtList[i+1])
+        else:
+            self.parseStatements(condition, next)
 
     def handleNextStatement(self, curr: IRNode, next: IRNode):
         if next != None:
