@@ -27,7 +27,7 @@ class IRConverter(ABC):
             endpointChild[-1].addControlFlowEdge(endpointFunctionBlock.id)  # connect function_definition to block
             self.addControlFlowEdgesToTree(endpointFunctionBlock, None)     # add control flow edges in the block
         
-        self.addControlFlowEdgesToTree(irRoot, None)
+        self.addControlFlowEdgesToTree(irRoot)
         self.addDataFlowEdgesToTree(irRoot)
 
         return irRoot

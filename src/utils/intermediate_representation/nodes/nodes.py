@@ -10,7 +10,6 @@ class IRNode(ABC):
         self.id = uuid.uuid4().hex
         self.controlFlowEdges: list[ControlFlowEdge] = []
         self.dataFlowEdges: list[DataFlowEdge] = []
-        self.routeEdges: list[RouteEdge] = []
 
         # get info from tree-sitter node
         self.treeSitterId = node.id

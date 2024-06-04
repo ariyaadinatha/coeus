@@ -71,7 +71,6 @@ class ACHandler:
         self.insertAllNodesToNeo4j(astRoot)
         self.insertAllEdgesToNeo4j(astRoot)
         self.insertAllCFGEdgesToNeo4j(astRoot)
-        # self.insertAllRTEdgesToNeo4j(astRoot)
         self.setLabels()
     
     '''

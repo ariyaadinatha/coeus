@@ -65,6 +65,115 @@ class IRPythonConverter(IRConverter):
         return endpointList
 
     # Control Flow
+    def addControlFlowEdgesToTree(self, root: IRNode):
+        # list all childs
+        stmtList, defList = self.parseBlocks(root)
+
+        # parse each definitions
+
+        # parse each statements
+        n_stmtList = len(stmtList)
+        for i in range(n_stmtList - 1):
+            currStmt = stmtList[i]
+            nextStmt = stmtList[i + 1]
+            print(currStmt.type, nextStmt.type)
+            self.parseStatements(currStmt, nextStmt)
+        
+        # parse last statement
+        self.parseStatements(stmtList[-1], None)
+
+
+        # print(root.type, root.astChildren[0].type)
+
+        # if len(blocks) == 0:
+        #     return
+        
+        # root.addControlFlowEdge(blocks[0].id)
+
+        # # parse blocks recursively
+        # nBlocks = len(blocks)
+        # for i in range (nBlocks-1):
+        #     currBlock = blocks[i]
+        #     nextBlock = blocks[i+1]
+        #     self.connectControlFlowEdges(currBlock, nextBlock)
+        
+        # if exit != None:
+        #     self.connectControlFlowEdges(blocks[-1], exit)
+
+    def parseBlocks(self, node: IRNode):
+        stmtList: list[IRNode] = []
+        defList: list[IRNode] = []
+        
+        for child in node.astChildren:
+            if "statement" in child.type:
+                stmtList.append(child)
+            elif "definition" in child.type:
+                defList.append(child)
+        
+        return stmtList, defList
+
+    # Definitions (function_definition, decorated_definition)
+    def parseDefinitions(self, node: IRNode):
+        if node.type == "function_definition":
+            pass
+        elif node.type == "decorated_definition":
+            pass
+
+    def handleFunctionDefinitions(self, node: IRNode):
+        pass
+
+    # Statements (expression_statement, if_statement, while_statement, for_statement, try_statement, return_statement)
+    def parseStatements(self, curr: IRNode, next: IRNode):
+        if curr.type == "if_statement":
+            self.handleIfStatement(curr, next)
+        else:
+            self.handleNextStatement(curr, next)
+
+    def handleIfStatement(self, curr: IRNode, next: IRNode):
+        condition: IRNode = None
+        ifBlock: IRNode = None
+        elifClauses: list[IRNode] = []
+        elseBlock: IRNode = None
+        for child in curr.astChildren:
+            if "operator" in child.type:
+                condition = child
+            if child.type == "block":
+                ifBlock = child
+            if child.type == "elif_clause":
+                elifClauses.append(child)
+            if child.type == "else_clause":
+                elseBlock = child.astChildren[1]
+        
+        curr.addControlFlowEdge(condition.id, "next_statement")
+        
+        insideIfBlockStmtList, insideIfBlockDefList = self.parseBlocks(ifBlock)
+        insideIfBlockStmtList.append(next)
+        condition.addControlFlowEdge(insideIfBlockStmtList[0].id, "next_statement_if_true")
+        for i in range(len(insideIfBlockStmtList) - 1):
+            self.parseStatements(insideIfBlockStmtList[i], insideIfBlockStmtList[i+1])
+
+        if len(elifClauses) > 0:
+            for i in range(len(elifClauses)):
+                elifCondition: IRNode = elifClauses[i].astChildren[1]
+                insideElifIfBlockStmtList, insideElifIfBlockDefList = self.parseBlocks(elifClauses[i].astChildren[2])
+                insideElifIfBlockStmtList.append(next)
+                elifCondition.addControlFlowEdge(insideElifIfBlockStmtList[0].id, "next_statement_if_true")
+                for i in range(len(insideElifIfBlockStmtList) - 1):
+                    self.parseStatements(insideElifIfBlockStmtList[i], insideElifIfBlockStmtList[i+1])
+                
+                condition.addControlFlowEdge(elifCondition.id, "next_statement_if_false")
+                condition = elifCondition
+
+        insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)
+        insideElseBlockStmtList.append(next)
+        condition.addControlFlowEdge(insideElseBlockStmtList[0].id, "next_statement_if_false")
+        for i in range(len(insideElseBlockStmtList) - 1):
+            self.parseStatements(insideElseBlockStmtList[i], insideElseBlockStmtList[i+1])
+
+    def handleNextStatement(self, curr: IRNode, next: IRNode):
+        if next != None:
+            curr.addControlFlowEdge(next.id, "next_statement")
+
     def connectControlFlowEdges(self, pred: IRNode, succ: IRNode):
         
         if pred.type == "if_statement":
@@ -115,30 +224,6 @@ class IRPythonConverter(IRConverter):
 
         # next statement
         pred.addControlFlowEdge(succ.id)
-
-    def addControlFlowEdgesToTree(self, root: IRNode, exit: IRNode):
-        
-        # list all blocks in tree
-        blocks: list[IRNode] = []
-        for child in root.astChildren:
-            if "statement" in child.type:
-                blocks.append(child)
-        
-        print(root.type, root.astChildren[0].type)
-        if len(blocks) == 0:
-            return
-        
-        root.addControlFlowEdge(blocks[0].id)
-
-        # parse blocks recursively
-        nBlocks = len(blocks)
-        for i in range (nBlocks-1):
-            currBlock = blocks[i]
-            nextBlock = blocks[i+1]
-            self.connectControlFlowEdges(currBlock, nextBlock)
-        
-        if exit != None:
-            self.connectControlFlowEdges(blocks[-1], exit)
 
 
     # === END ===
