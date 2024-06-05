@@ -135,6 +135,8 @@ class IRPythonConverter(IRConverter):
             if child.type == "else_clause":
                 elseBlock = child.astChildren[1]
         
+        condition.isCheck = True
+
         curr.addControlFlowEdge(condition.id, "next_statement")
         
         insideIfBlockStmtList, insideIfBlockDefList = self.parseBlocks(ifBlock)
@@ -154,6 +156,7 @@ class IRPythonConverter(IRConverter):
                 
                 condition.addControlFlowEdge(elifCondition.id, "next_statement_if_false")
                 condition = elifCondition
+                condition.isCheck = True
 
         if elseBlock != None:
             insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)

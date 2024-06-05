@@ -109,7 +109,8 @@ class ACHandler:
             startPoint: $startPoint, 
             endPoint: $endPoint,
             is_endpoint: $is_endpoint,
-            is_call: $is_call
+            is_call: $is_call,
+            is_check: $is_check
             })'''
         parameters = {
             "id": node.id,
@@ -122,6 +123,7 @@ class ACHandler:
             "endPoint": node.endPoint,
             "is_endpoint": node.isEndpoint,
             "is_call": node.isCall,
+            "is_check": node.isCheck,
         }
 
         self.Neo4jQuery(command, query, parameters)
@@ -224,6 +226,7 @@ class ACHandler:
         self.setRootLabel()
         self.setEndpointLabel()
         self.setCallLabel()
+        self.setCheckLabel()
 
     def setRootLabel(self):
         command = "Setting root label..."
@@ -238,7 +241,6 @@ class ACHandler:
         query = '''
             MATCH (n) WHERE n.is_endpoint = true
             SET n:EndpointNode
-            SET n:ControlNode
         '''
         self.Neo4jQuery(command, query)
 
@@ -247,7 +249,14 @@ class ACHandler:
         query = '''
             MATCH (n) WHERE n.is_call = true
             SET n:CallNode
-            SET n:ControlNode
+        '''
+        self.Neo4jQuery(command, query)
+
+    def setCheckLabel(self):
+        command = "Setting check label..."
+        query = '''
+            MATCH (n) WHERE n.is_check = true
+            SET n:CheckNode
         '''
         self.Neo4jQuery(command, query)
 

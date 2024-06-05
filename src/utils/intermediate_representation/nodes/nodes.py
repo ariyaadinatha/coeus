@@ -39,6 +39,7 @@ class IRNode(ABC):
 
         # control flow props
         self.isEndpoint = False
+        self.isCheck = False
         
         # call props
         self.isCall = False
