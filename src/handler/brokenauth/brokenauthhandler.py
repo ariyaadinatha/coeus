@@ -107,7 +107,8 @@ class ACHandler:
             filename: $filename, 
             startPoint: $startPoint, 
             endPoint: $endPoint,
-            is_endpoint: $is_endpoint
+            is_endpoint: $is_endpoint,
+            is_call: $is_call
             })'''
         parameters = {
             "id": node.id,
@@ -119,6 +120,7 @@ class ACHandler:
             "startPoint": node.startPoint,
             "endPoint": node.endPoint,
             "is_endpoint": node.isEndpoint,
+            "is_call": node.isCall,
         }
 
         self.Neo4jQuery(command, query, parameters)
@@ -187,7 +189,7 @@ class ACHandler:
     def setLabels(self):
         self.setRootLabel()
         self.setEndpointLabel()
-
+        self.setCallLabel()
 
     def setRootLabel(self):
         command = "Setting root label..."
@@ -202,6 +204,15 @@ class ACHandler:
         query = '''
             MATCH (n) WHERE n.is_endpoint = true
             SET n:EndpointNode
+            SET n:ControlNode
+        '''
+        self.Neo4jQuery(command, query)
+
+    def setCallLabel(self):
+        command = "Setting call label..."
+        query = '''
+            MATCH (n) WHERE n.is_call = true
+            SET n:CallNode
             SET n:ControlNode
         '''
         self.Neo4jQuery(command, query)

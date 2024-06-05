@@ -38,6 +38,7 @@ class IRNode(ABC):
 
         # control flow props
         self.isEndpoint = False
+        self.isCall = False
 
         # if root
         if isinstance(parent, IRNode):

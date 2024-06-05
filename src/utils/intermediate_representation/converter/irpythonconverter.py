@@ -76,15 +76,12 @@ class IRPythonConverter(IRConverter):
         # parse each statements (if any)
         n_stmtList = len(stmtList)
         if n_stmtList > 0:
+            stmtList.append(None)
             for i in range(n_stmtList - 1):
                 currStmt = stmtList[i]
                 nextStmt = stmtList[i + 1]
                 print(currStmt.type, nextStmt.type)
                 self.parseStatements(currStmt, nextStmt)
-        
-            # parse last statement
-            self.parseStatements(stmtList[-1], None)
-
 
     def parseBlocks(self, node: IRNode):
         stmtList: list[IRNode] = []
@@ -104,8 +101,15 @@ class IRPythonConverter(IRConverter):
             self.handleFunctionDefinitions(node)
 
     def handleFunctionDefinitions(self, node: IRNode):
-        nodeBlock = node.astChildren[1]
+        node.isCall = True
+        nodeBlock = None
+        for child in node.astChildren:
+            if child.type == "block":
+                nodeBlock = child
+
         nodeStmtList, nodeDefList = self.parseBlocks(nodeBlock)
+        node.addControlFlowEdge(nodeStmtList[0].id)
+        nodeStmtList.append(None)
         for i in range(len(nodeStmtList) - 1):
             self.parseStatements(nodeStmtList[i], nodeStmtList[i+1])
 
