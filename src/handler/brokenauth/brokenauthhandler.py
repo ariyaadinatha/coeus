@@ -71,6 +71,7 @@ class ACHandler:
         self.insertAllNodesToNeo4j(astRoot)
         self.insertAllEdgesToNeo4j(astRoot)
         self.insertAllCFGEdgesToNeo4j(astRoot)
+        self.insertAllCallEdgesToNeo4j(astRoot)
         self.setLabels()
     
     '''
@@ -184,6 +185,39 @@ class ACHandler:
                 self.connection.query(query, parameters=parameters, db=self.dbName)
             except Exception as e:
                 print(f"Query create control flow relationship error: {traceback.print_exc()}")
+
+    ### Insert all call edges to Neo4j
+    def insertAllCallEdgesToNeo4j(self, root: IRNode):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            if len(node.controlFlowEdges) != 0:
+                self.createCallRel(node)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+    def createCallRel(self, node: IRNode):
+        for edge in node.callEdges:
+            parameters = {
+                "id": node.id,
+                "call_child_id": edge.callChildId,
+                "call_type": edge.callType
+            }
+
+            query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.id = $call_child_id AND parent.id = $id
+                    CREATE (child)<-[r:CALL_TO{call_type: $call_type}]-(parent)
+                '''
+
+            try:
+                # print("creating control flow relationship")
+                self.connection.query(query, parameters=parameters, db=self.dbName)
+            except Exception as e:
+                print(f"Query create call relationship error: {traceback.print_exc()}")
 
     ### Set all labels
     def setLabels(self):

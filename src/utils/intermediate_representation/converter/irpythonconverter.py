@@ -164,60 +164,31 @@ class IRPythonConverter(IRConverter):
         else:
             self.parseStatements(condition, next)
 
+    #TODO: while statement, for statement, try statement
+    def handleWhileStatement(self, curr: IRNode, next: IRNode):
+        pass
+
+    def handleForStatement(self, curr:IRNode, next: IRNode):
+        pass
+
+    def handleTryStatement(self, curr: IRNode, next: IRNode):
+        pass
+
     def handleNextStatement(self, curr: IRNode, next: IRNode):
+        if curr.isExpressionStatementWithCall()[0] == True:
+            callIdentifier = curr.isExpressionStatementWithCall()[1].astChildren[0].content
+            self.expressionCallStmtList.append((curr, callIdentifier))
+        
         if next != None:
             curr.addControlFlowEdge(next.id, "next_statement")
 
-    def connectControlFlowEdges(self, pred: IRNode, succ: IRNode):
-        
-        if pred.type == "if_statement":
-            condition: IRNode = None
-            ifBlock: IRNode = None
-            elifBlock: list[IRNode] = []
-            elseBlock: IRNode = None
-            for child in pred.astChildren:
-                if "operator" in child.type:
-                    condition = child
-                if child.type == "block":
-                    ifBlock = child
-                if child.type == "elif_clause":
-                    elifBlock.append(child)
-                if child.type == "else_clause":
-                    elseBlock = child.astChildren[1]
-            
-            pred.addControlFlowEdge(condition.id)
 
-            condition.addControlFlowEdge(ifBlock.id)
-            self.addControlFlowEdgesToTree(ifBlock, succ)
-
-            if len(elifBlock) > 0:
-                for i in range(len(elifBlock)):
-                    elifCondition = elifBlock[i].astChildren[1]
-                    elifIfBlock = elifBlock[i].astChildren[2]
-
-                    elifCondition.addControlFlowEdge(elifIfBlock.id)
-                    self.addControlFlowEdgesToTree(elifIfBlock, succ)
-                    condition.addControlFlowEdge(elifCondition.id)
-
-                    condition = elifCondition
-
-            if elseBlock != None:
-                condition.addControlFlowEdge(elseBlock.id)
-                self.addControlFlowEdgesToTree(elseBlock, succ)
-            else:
-                condition.addControlFlowEdge(succ.id)
-
-        if pred.type == "while_statement":
-            pass
-
-        if pred.type == "for_statement": 
-            pass
-
-        if pred.type == "return_statement":
-            pass
-
-        # next statement
-        pred.addControlFlowEdge(succ.id)
+    # Call
+    def addCallEdgesToTree(self):
+        for nodeTuple in self.expressionCallStmtList:
+            if nodeTuple[1] in self.functionSymbolTable:
+                id = self.functionSymbolTable[nodeTuple[1]][0]['id']
+                nodeTuple[0].addCallEdge(id)
 
 
     # === END ===

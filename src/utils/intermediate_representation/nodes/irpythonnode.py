@@ -73,19 +73,25 @@ class IRPythonNode(IRNode):
     def isDecoratedDefinition(self) -> bool:
         return self.type == "decorated_definition"
     
-    def isAppStartingPoint(self) -> bool:
-
-        if self.type == "expression_statement" and self.astChildren[0].type == "assignment":
-           child = self.astChildren[0]
-           
-           for expr in child.astChildren:
-                match = re.match(r"Flask\((.*?)\)", expr.content)
-                if bool(match):
-                    return True
-                match = re.match(r"Blueprint\((.*?)\)", expr.content)
-                if bool(match):
-                    return True
+    def isExpressionStatementWithCall(self) -> tuple[bool, str]:
+        if self.type == "expression_statement":
+            call = self.findCallExpression()
+            if call != None:
+                return (True, call)
         
-        return False
+        return (False, None)
     
+    def findCallExpression(self) -> Union[IRNode, None]:
+        queue: list[IRNode] = [self]
+        while len(queue) != 0:
+            node = queue.pop(0)
+            
+            if node.isCallExpression():
+                return node
+            
+            for child in node.astChildren:
+                queue.append(child)
+        
+        return None
+
     # === END ===

@@ -10,6 +10,7 @@ class IRNode(ABC):
         self.id = uuid.uuid4().hex
         self.controlFlowEdges: list[ControlFlowEdge] = []
         self.dataFlowEdges: list[DataFlowEdge] = []
+        self.callEdges: list[CallEdge] = []
 
         # get info from tree-sitter node
         self.treeSitterId = node.id
@@ -38,6 +39,8 @@ class IRNode(ABC):
 
         # control flow props
         self.isEndpoint = False
+        
+        # call props
         self.isCall = False
 
         # if root
@@ -99,6 +102,10 @@ class IRNode(ABC):
         edge = DataFlowEdge(dataType, dfgParentId, parameterOrder)
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
+
+    def addCallEdge(self, callId: Union[str, None], callType: str="call"):
+        edge = CallEdge(callId, callType)
+        self.callEdges.append(edge)
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
@@ -399,6 +406,13 @@ class IRNode(ABC):
     def isEndpointStatement(self) -> bool:
         pass
     # === END ===
+
+# class to store all call related actions
+class CallEdge:
+    def __init__(self, callChildId: str, callType: str = "call") -> None:
+        self.callId = uuid.uuid4().hex
+        self.callChildId = callChildId
+        self.callType = callType
 
 # class to store all control flow related actions
 class ControlFlowEdge:
