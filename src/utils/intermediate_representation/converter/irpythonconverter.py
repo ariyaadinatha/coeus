@@ -117,6 +117,8 @@ class IRPythonConverter(IRConverter):
     def parseStatements(self, curr: IRNode, next: IRNode):
         if curr.type == "if_statement":
             self.handleIfStatement(curr, next)
+        elif curr.type == "return_statement":
+            self.handleReturnStatement(curr, next)
         else:
             self.handleNextStatement(curr, next)
 
@@ -175,6 +177,9 @@ class IRPythonConverter(IRConverter):
         pass
 
     def handleTryStatement(self, curr: IRNode, next: IRNode):
+        pass
+
+    def handleReturnStatement(self, curr: IRNode, next: IRNode):
         pass
 
     def handleNextStatement(self, curr: IRNode, next: IRNode):
