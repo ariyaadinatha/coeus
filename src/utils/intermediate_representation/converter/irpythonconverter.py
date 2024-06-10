@@ -80,7 +80,6 @@ class IRPythonConverter(IRConverter):
             for i in range(n_stmtList - 1):
                 currStmt = stmtList[i]
                 nextStmt = stmtList[i + 1]
-                print(currStmt.type, nextStmt.type)
                 self.parseStatements(currStmt, nextStmt)
 
     def parseBlocks(self, node: IRNode):

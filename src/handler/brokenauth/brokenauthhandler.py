@@ -74,6 +74,62 @@ class ACHandler:
         self.insertAllCallEdgesToNeo4j(astRoot)
         self.setLabels()
     
+    def buildAstTreeFile(self, fileHandler: FileHandler, codePath: str) -> IRNode:
+        source = fileHandler.readFile(codePath)
+        code = CodeProcessor(self.language, source)
+        root = code.getRootNode()
+        astRoot = self.converter.createAstTree(root, codePath)
+        self.converter.registerFunctionsToSymbolTable(astRoot)
+
+        return astRoot
+
+    ### Role Control Flow Analysis
+    def analysis(self):
+        roots = []
+        endpoints = []
+        self.deleteAllNodesAndRelationshipsByAPOC()
+
+        fh = FileHandler()
+        fh.getAllFilesFromRepository(self.projectPath)
+
+        for codePath in fh.getCodeFilesPath():
+            if codePath.split('.')[-1] != EXTENSION_ALIAS[self.language]:
+                continue
+        
+            astRoot = self.buildAstTreeFile(fh, codePath)
+            roots.append(astRoot)
+
+        for root in roots:
+            print(root.type)
+            rootEndpoints: list[IRNode] = self.converter.identifyEndpoints(root)
+            for re in rootEndpoints:
+                reCh: list[IRNode] = []
+                for ch in re.astChildren:
+                    reCh.append(ch)
+                re.addControlFlowEdge(reCh[0].id)
+                for i in range(len(reCh) - 1):
+                    reCh[i].addControlFlowEdge(reCh[i+1].id)
+                efb = reCh[-1].astChildren[-1]
+                reCh[-1].addControlFlowEdge(efb.astChildren[0].id)
+                self.converter.addControlFlowEdgesToTree(efb)
+            
+            endpoints.extend(rootEndpoints)
+
+            self.converter.addControlFlowEdgesToTree(root)
+            self.converter.addCallEdgesToTree()
+
+            self.insertAllNodesToNeo4j(root)
+            self.insertAllCFGEdgesToNeo4j(root)
+            self.insertAllCallEdgesToNeo4j(root)
+
+        self.createASTRel()
+        self.setLabels()
+
+        for endp in endpoints:
+            pass
+
+
+
     '''
         Neo4j
     '''
@@ -151,7 +207,14 @@ class ACHandler:
             }
             self.Neo4jQuery(command, query, parameters)
 
-    ### Identify endpoints
+    def createASTRel(self):
+        command = "Inserting edge to Neo4j..."
+        query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.parent_id = parent.id
+                    CREATE (child)<-[r:AST_PARENT_TO]-(parent)
+                '''
+        self.Neo4jQuery(command, query)
 
     ### Insert all CFG edges to Neo4j
     def insertAllCFGEdgesToNeo4j(self, root: IRNode):

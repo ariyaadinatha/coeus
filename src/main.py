@@ -231,7 +231,7 @@ def access(path, language, output, mode):
     handler = ACHandler("./testcase/brokenauth/c", language)
 
     handler.deleteAllNodesAndRelationshipsByAPOC()
-    handler.buildTreeRepository()
+    handler.analysis()
     print("End of program.")
 
     # logger.info(f"Execution time: {(time.time() - startTime)}")

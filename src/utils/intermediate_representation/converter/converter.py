@@ -11,7 +11,8 @@ class IRConverter(ABC):
         # self.sinks = sinks
         # self.sanitizers = sanitizers
         self.functionSymbolTable = {}
-        self.expressionCallStmtList: list[tuple(IRNode, str)] = []
+        self.expressionCallStmtList: list[tuple[IRNode, str]] = []
+        
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
         irRoot = self.createAstTree(root, filename)
@@ -54,7 +55,7 @@ class IRConverter(ABC):
         pass
 
     @abstractmethod
-    def addCallEdgesToTree(self, root: IRNode):
+    def addCallEdgesToTree(self):
         pass
 
     def setNodeCallEdges(self, node: IRNode):
