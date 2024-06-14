@@ -40,6 +40,9 @@ class IRNode(ABC):
         # control flow props
         self.isEndpoint = False
         self.isCheck = False
+
+        self.roleAPathChildId = ""
+        self.roleBPathChildId = ""
         
         # call props
         self.isCall = False
@@ -95,8 +98,8 @@ class IRNode(ABC):
         self.isSanitizer = self.checkIsSanitizer(sanitizers)
         self.isTainted = self.isSource
     
-    def addControlFlowEdge(self, cfgChildId: Union[str, None], controlType: str='next_statement'):
-        edge = ControlFlowEdge(cfgChildId, controlType)
+    def addControlFlowEdge(self, cfgChild, cfgChildId: Union[str, None], controlType: str='next_statement'):
+        edge = ControlFlowEdge(cfgChild, cfgChildId, controlType)
         self.controlFlowEdges.append(edge)
 
     def addDataFlowEdge(self, dataType: str, dfgParentId: Union[str, None], parameterOrder: int = 0):
@@ -417,8 +420,9 @@ class CallEdge:
 
 # class to store all control flow related actions
 class ControlFlowEdge:
-    def __init__(self, cfgChildId: str, controlType: str = 'next_statement') -> None:
+    def __init__(self, cfgChild: IRNode, cfgChildId: str, controlType: str = 'next_statement') -> None:
         self.cfgId = uuid.uuid4().hex
+        self.cfgChild = cfgChild
         self.cfgChildId = cfgChildId
         self.controlType = controlType
 

@@ -107,7 +107,7 @@ class IRPythonConverter(IRConverter):
                 nodeBlock = child
 
         nodeStmtList, nodeDefList = self.parseBlocks(nodeBlock)
-        node.addControlFlowEdge(nodeStmtList[0].id)
+        node.addControlFlowEdge(nodeStmtList[0], nodeStmtList[0].id)
         nodeStmtList.append(None)
         for i in range(len(nodeStmtList) - 1):
             self.parseStatements(nodeStmtList[i], nodeStmtList[i+1])
@@ -138,11 +138,11 @@ class IRPythonConverter(IRConverter):
         
         condition.isCheck = True
 
-        curr.addControlFlowEdge(condition.id, "next_statement")
+        curr.addControlFlowEdge(condition, condition.id, "next_statement")
         
         insideIfBlockStmtList, insideIfBlockDefList = self.parseBlocks(ifBlock)
         insideIfBlockStmtList.append(next)
-        condition.addControlFlowEdge(insideIfBlockStmtList[0].id, "next_statement_if_true")
+        condition.addControlFlowEdge(insideIfBlockStmtList[0], insideIfBlockStmtList[0].id, "next_statement_if_true")
         for i in range(len(insideIfBlockStmtList) - 1):
             self.parseStatements(insideIfBlockStmtList[i], insideIfBlockStmtList[i+1])
 
@@ -151,18 +151,18 @@ class IRPythonConverter(IRConverter):
                 elifCondition: IRNode = elifClauses[i].astChildren[1]
                 insideElifIfBlockStmtList, insideElifIfBlockDefList = self.parseBlocks(elifClauses[i].astChildren[2])
                 insideElifIfBlockStmtList.append(next)
-                elifCondition.addControlFlowEdge(insideElifIfBlockStmtList[0].id, "next_statement_if_true")
+                elifCondition.addControlFlowEdge(insideElifIfBlockStmtList[0], insideElifIfBlockStmtList[0].id, "next_statement_if_true")
                 for i in range(len(insideElifIfBlockStmtList) - 1):
                     self.parseStatements(insideElifIfBlockStmtList[i], insideElifIfBlockStmtList[i+1])
                 
-                condition.addControlFlowEdge(elifCondition.id, "next_statement_if_false")
+                condition.addControlFlowEdge(elifCondition, elifCondition.id, "next_statement_if_false")
                 condition = elifCondition
                 condition.isCheck = True
 
         if elseBlock != None:
             insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)
             insideElseBlockStmtList.append(next)
-            condition.addControlFlowEdge(insideElseBlockStmtList[0].id, "next_statement_if_false")
+            condition.addControlFlowEdge(insideElseBlockStmtList[0], insideElseBlockStmtList[0].id, "next_statement_if_false")
             for i in range(len(insideElseBlockStmtList) - 1):
                 self.parseStatements(insideElseBlockStmtList[i], insideElseBlockStmtList[i+1])
         else:
@@ -187,7 +187,7 @@ class IRPythonConverter(IRConverter):
             self.expressionCallStmtList.append((curr, callIdentifier))
         
         if next != None:
-            curr.addControlFlowEdge(next.id, "next_statement")
+            curr.addControlFlowEdge(next, next.id, "next_statement")
 
 
     # Call

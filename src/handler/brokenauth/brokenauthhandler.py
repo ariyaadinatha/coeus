@@ -86,7 +86,7 @@ class ACHandler:
     ### Role Control Flow Analysis
     def analysis(self):
         roots = []
-        endpoints = []
+        endpoints: list[IRNode] = []
         self.deleteAllNodesAndRelationshipsByAPOC()
 
         fh = FileHandler()
@@ -100,17 +100,16 @@ class ACHandler:
             roots.append(astRoot)
 
         for root in roots:
-            print(root.type)
             rootEndpoints: list[IRNode] = self.converter.identifyEndpoints(root)
             for re in rootEndpoints:
                 reCh: list[IRNode] = []
                 for ch in re.astChildren:
                     reCh.append(ch)
-                re.addControlFlowEdge(reCh[0].id)
+                re.addControlFlowEdge(reCh[0], reCh[0].id)
                 for i in range(len(reCh) - 1):
-                    reCh[i].addControlFlowEdge(reCh[i+1].id)
+                    reCh[i].addControlFlowEdge(reCh[i+1], reCh[i+1].id)
                 efb = reCh[-1].astChildren[-1]
-                reCh[-1].addControlFlowEdge(efb.astChildren[0].id)
+                reCh[-1].addControlFlowEdge(efb.astChildren[0], efb.astChildren[0].id)
                 self.converter.addControlFlowEdgesToTree(efb)
             
             endpoints.extend(rootEndpoints)
@@ -125,10 +124,79 @@ class ACHandler:
         self.createASTRel()
         self.setLabels()
 
-        for endp in endpoints:
-            pass
+        # for endp in endpoints:
+        #     pass
+
+        exp = endpoints[2]
+        print(exp.content)
+
+        ### try analyzing an endpoint
+        specA = {
+            "role": "a",
+            "rel": "ROLE_A_PATH_TO"
+        }
+
+        specB = {
+            "role": "b",
+            "rel": "ROLE_B_PATH_TO"
+        }
+
+        self.rolePathAnalysis(exp, specA)
+        self.rolePathAnalysis(exp, specB)
 
 
+    def rolePathAnalysis(self, node: IRNode, spec):
+        self.nodePathAnalysis(node, spec)
+        query = ''''''
+        if spec["role"] == "a":
+            query = '''
+                        MATCH (child:Node), (parent:Node)
+                        WHERE child.id = parent.role_a_path_child_id
+                        CREATE (child)<-[r:ROLE_A_PATH_TO]-(parent)
+                    '''
+        else:
+            query = '''
+                        MATCH (child:Node), (parent:Node)
+                        WHERE child.id = parent.role_b_path_child_id
+                        CREATE (child)<-[r:ROLE_B_PATH_TO]-(parent)
+                    '''
+        self.Neo4jQuery("", query)
+
+    def nodePathAnalysis(self, node: IRNode, spec):
+        # acquire cfg edges
+        edgeList = node.controlFlowEdges
+        if len(edgeList) == 0:
+            return
+
+        edge = edgeList[0]
+
+        if spec["role"] == "a":
+            node.roleAPathChildId = edge.cfgChildId
+            query = '''
+                    MATCH (n)
+                    WHERE n.id = $id
+                    SET n.role_a_path_child_id = $role_a_path_child_id
+                '''
+            param = {
+                "id": node.id,
+                "role_a_path_child_id": node.roleAPathChildId
+            }
+            self.Neo4jQuery("", query, param)
+
+        elif spec["role"] == "b":
+            node.roleBPathChildId = edge.cfgChildId
+            query = '''
+                    MATCH (n)
+                    WHERE n.id = $id
+                    SET n.role_b_path_child_id = $role_b_path_child_id
+                '''
+            param = {
+                "id": node.id,
+                "role_b_path_child_id": node.roleAPathChildId
+            }
+            self.Neo4jQuery("", query, param)
+        
+        self.nodePathAnalysis(edge.cfgChild, spec)
 
     '''
         Neo4j
@@ -166,7 +234,9 @@ class ACHandler:
             endPoint: $endPoint,
             is_endpoint: $is_endpoint,
             is_call: $is_call,
-            is_check: $is_check
+            is_check: $is_check,
+            role_a_path_child_id: $role_a_path_child_id,
+            role_b_path_child_id: $role_b_path_child_id
             })'''
         parameters = {
             "id": node.id,
@@ -180,6 +250,8 @@ class ACHandler:
             "is_endpoint": node.isEndpoint,
             "is_call": node.isCall,
             "is_check": node.isCheck,
+            "role_a_path_child_id": node.roleAPathChildId,
+            "role_b_path_child_id": node.roleBPathChildId,
         }
 
         self.Neo4jQuery(command, query, parameters)
