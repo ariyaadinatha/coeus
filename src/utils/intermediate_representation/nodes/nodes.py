@@ -39,7 +39,15 @@ class IRNode(ABC):
 
         # control flow props
         self.isEndpoint = False
+        self.isStop = False
+
+        self.isMiddleware = False
+        self.isBuiltin = False
+        self.builtin: Builtin = None
+
+        # comparison props
         self.isCheck = False
+        self.comparison = None
 
         self.roleAPathChildId = ""
         self.roleBPathChildId = ""
@@ -107,9 +115,13 @@ class IRNode(ABC):
         if edge not in self.dataFlowEdges and dfgParentId != self.id:
             self.dataFlowEdges.append(edge)
 
-    def addCallEdge(self, callId: Union[str, None], callType: str="call"):
-        edge = CallEdge(callId, callType)
+    def addCallEdge(self, callTarget, callId: Union[str, None], callType: str="call"):
+        edge = CallEdge(callTarget, callId, callType)
         self.callEdges.append(edge)
+
+    def addComparison(self, variable, value, operator):
+        comp = Comparison(variable, value, operator)
+        self.comparison = comp
 
     def checkIsSource(self, sources) -> bool:
         if self.parent == None: return False
@@ -409,12 +421,17 @@ class IRNode(ABC):
     @abstractmethod
     def isEndpointStatement(self) -> bool:
         pass
+
+    @abstractmethod
+    def isStatementWithCall(self):
+        pass
     # === END ===
 
 # class to store all call related actions
 class CallEdge:
-    def __init__(self, callChildId: str, callType: str = "call") -> None:
+    def __init__(self, callChild: IRNode, callChildId: str, callType: str = "call") -> None:
         self.callId = uuid.uuid4().hex
+        self.callChild = callChild
         self.callChildId = callChildId
         self.callType = callType
 
@@ -434,3 +451,25 @@ class DataFlowEdge:
         self.dfgParentId = dfgParentId
         self.dataType = dataType
         self.parameterOrder = parameterOrder
+
+class Comparison:
+    def __init__(self, variable, value, operator = "=="):
+        self.variable = variable
+        self.value = value
+        self.operator = operator
+
+    def compare(self, val):
+        if self.operator == "==":
+            return self.value == val
+        elif self.operator == "is":
+            return self.value == val
+        elif self.operator == "is not":
+            return self.value != val
+        
+class Builtin:
+    def __init__(self, identifier) -> None:
+        self.identifier = identifier
+    
+    @abstractmethod
+    def isAllowed(self, spec):
+        pass

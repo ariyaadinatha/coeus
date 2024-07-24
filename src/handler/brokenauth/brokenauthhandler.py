@@ -10,6 +10,7 @@ from utils.vulnhandler import VulnerableHandler, Vulnerable
 from utils.constant.code import EXTENSION_ALIAS
 from datetime import datetime
 from neo4j.graph import Path
+from typing import Union
 import time
 import os
 import json
@@ -20,7 +21,7 @@ class ACHandler:
     '''
         Initialization
     '''
-    def __init__(self, projectPath: str, language: str):
+    def __init__(self, projectPath: str, language: str, specPath: str):
         # initialize connection to Neo4j
         self.dbName = os.getenv('DB_NAME')
         try:
@@ -32,6 +33,7 @@ class ACHandler:
         # set project path & language
         self.projectPath = projectPath
         self.language = language
+        self.specPath = specPath
 
         # create converter to AST
         self.converter = self.createConverter()
@@ -52,7 +54,7 @@ class ACHandler:
         elif self.language == "java":
             return IRJavaConverter()
 
-    ### Build complete repository AST
+    ### Build complete repository representation
     def buildTreeRepository(self):
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
@@ -62,7 +64,7 @@ class ACHandler:
                 continue
             self.buildTreeFile(fh, codePath)
 
-    ### build AST from a single file
+    ### build complete representation from a single file
     def buildTreeFile(self, fileHandler: FileHandler, codePath: str):
         source = fileHandler.readFile(codePath)
         code = CodeProcessor(self.language, source)
@@ -74,17 +76,24 @@ class ACHandler:
         self.insertAllCallEdgesToNeo4j(astRoot)
         self.setLabels()
     
+    ### build AST from a single file
     def buildAstTreeFile(self, fileHandler: FileHandler, codePath: str) -> IRNode:
         source = fileHandler.readFile(codePath)
         code = CodeProcessor(self.language, source)
         root = code.getRootNode()
         astRoot = self.converter.createAstTree(root, codePath)
-        self.converter.registerFunctionsToSymbolTable(astRoot)
+        self.converter.identifyFunctions(astRoot)
+        # self.converter.registerFunctionsToSymbolTable(astRoot)
 
         return astRoot
 
-    ### Role Control Flow Analysis
+    ### Role Path Analysis
     def analysis(self):
+
+        f = open(self.specPath)
+        spec = json.load(f)
+
+        # 1. Intermediate representation generation
         roots = []
         endpoints: list[IRNode] = []
         self.deleteAllNodesAndRelationshipsByAPOC()
@@ -100,103 +109,132 @@ class ACHandler:
             roots.append(astRoot)
 
         for root in roots:
+            self.converter.identifyStops(root)
+            self.converter.identifyMiddleware(root, spec["builtins"])
+            self.converter.identifyFunctions(root)
+            
             rootEndpoints: list[IRNode] = self.converter.identifyEndpoints(root)
-            for re in rootEndpoints:
-                reCh: list[IRNode] = []
-                for ch in re.astChildren:
-                    reCh.append(ch)
-                re.addControlFlowEdge(reCh[0], reCh[0].id)
-                for i in range(len(reCh) - 1):
-                    reCh[i].addControlFlowEdge(reCh[i+1], reCh[i+1].id)
-                efb = reCh[-1].astChildren[-1]
-                reCh[-1].addControlFlowEdge(efb.astChildren[0], efb.astChildren[0].id)
-                self.converter.addControlFlowEdgesToTree(efb)
             
             endpoints.extend(rootEndpoints)
 
             self.converter.addControlFlowEdgesToTree(root)
-            self.converter.addCallEdgesToTree()
-
+            
             self.insertAllNodesToNeo4j(root)
             self.insertAllCFGEdgesToNeo4j(root)
+
+        self.converter.addCallEdgesToTree()
+        
+        for root in roots:
             self.insertAllCallEdgesToNeo4j(root)
 
         self.createASTRel()
         self.setLabels()
 
-        # for endp in endpoints:
-        #     pass
+        # 2. Vulnerability detection
 
-        exp = endpoints[2]
-        print(exp.content)
+        ## Read specification input
+        endpSpec = spec["endpoints"]
+        roleSpec = spec["roleSpecification"]
+        specA = roleSpec["a"]
+        specB = roleSpec["b"]
 
-        ### try analyzing an endpoint
-        specA = {
-            "role": "a",
-            "rel": "ROLE_A_PATH_TO"
-        }
+        ## Endpoint path analysis
+        ### If no specified endpoints to analyze
+        for endp in endpoints:
+            m = re.search(r"\"(.*?)\"", endp.content)
+            route = m.group(1)
+            if len(endpSpec) == 0:
+                self.nodePathAnalysis(endp, specA, route)
+                self.nodePathAnalysis(endp, specB, route)
+            else:
+                if route in endpSpec:
+                    self.nodePathAnalysis(endp, specA, route)
+                    self.nodePathAnalysis(endp, specB, route)
 
-        specB = {
-            "role": "b",
-            "rel": "ROLE_B_PATH_TO"
-        }
+    def nodePathAnalysis(self, node: IRNode, spec, route: str):
+        stack: list[IRNode] = [node]
 
-        self.rolePathAnalysis(exp, specA)
-        self.rolePathAnalysis(exp, specB)
+        while stack:
 
+            payload = stack.pop()
 
-    def rolePathAnalysis(self, node: IRNode, spec):
-        self.nodePathAnalysis(node, spec)
-        query = ''''''
-        if spec["role"] == "a":
-            query = '''
-                        MATCH (child:Node), (parent:Node)
-                        WHERE child.id = parent.role_a_path_child_id
-                        CREATE (child)<-[r:ROLE_A_PATH_TO]-(parent)
-                    '''
-        else:
-            query = '''
-                        MATCH (child:Node), (parent:Node)
-                        WHERE child.id = parent.role_b_path_child_id
-                        CREATE (child)<-[r:ROLE_B_PATH_TO]-(parent)
-                    '''
-        self.Neo4jQuery("", query)
+            callEdge, cfgEdge = self.getEdges(payload, spec)
+            if cfgEdge != None:
+                stack.append(cfgEdge.cfgChild)
+            if callEdge != None:
+                stack.append(callEdge.callChild)
 
-    def nodePathAnalysis(self, node: IRNode, spec):
-        # acquire cfg edges
-        edgeList = node.controlFlowEdges
-        if len(edgeList) == 0:
-            return
+            if payload.isStop:
+                break
 
-        edge = edgeList[0]
+            if stack:
+                self.addPathEdge(payload, stack[-1], spec['role'], route)
+                
+    def getEdges(self, node: IRNode, spec):
+        callEdge = None
+        cfgEdge = None
+        callList = node.callEdges
+        cfgList = node.controlFlowEdges
 
-        if spec["role"] == "a":
-            node.roleAPathChildId = edge.cfgChildId
-            query = '''
-                    MATCH (n)
-                    WHERE n.id = $id
-                    SET n.role_a_path_child_id = $role_a_path_child_id
-                '''
-            param = {
-                "id": node.id,
-                "role_a_path_child_id": node.roleAPathChildId
-            }
-            self.Neo4jQuery("", query, param)
-
-        elif spec["role"] == "b":
-            node.roleBPathChildId = edge.cfgChildId
-            query = '''
-                    MATCH (n)
-                    WHERE n.id = $id
-                    SET n.role_b_path_child_id = $role_b_path_child_id
-                '''
-            param = {
-                "id": node.id,
-                "role_b_path_child_id": node.roleAPathChildId
-            }
-            self.Neo4jQuery("", query, param)
+        # acquire call edge
+        if len(callList) != 0:
+            callEdge = callList[0]
         
-        self.nodePathAnalysis(edge.cfgChild, spec)
+        # acquire cfg edge
+        ## normal edge (assume)
+        if len(cfgList) != 0:
+            cfgEdge = cfgList[0]
+        
+        ## branch
+        if node.isCheck:
+            ### if data is specified
+            if node.comparison.variable in spec["data"]:
+                if node.comparison.compare(spec['data'][node.comparison.variable]):
+                    cfgEdge = cfgList[0]
+                else:
+                    cfgEdge = cfgList[1]
+            ### if data is not specified
+            else:
+                cfgEdge = cfgList[0]
+
+        ## middleware
+        if node.isMiddleware:
+            ### if middleware is builtin
+            if node.isBuiltin:
+                if node.builtin.isAllowed(spec):
+                    cfgEdge = cfgList[0]
+                else:
+                    cfgEdge = None 
+            ### else, handle like call
+
+        return callEdge, cfgEdge
+
+    def addPathEdge(self, curr: IRNode, next: IRNode, role: str, endpoint: str):
+        parameters = {
+            "id": curr.id,
+            "endpoint": endpoint
+        }
+        query = ''
+        
+        if role == 'a':
+            curr.roleAPathChildId = next.id
+            parameters['role_a_path_child_id'] = curr.roleAPathChildId
+            query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.id = $role_a_path_child_id AND parent.id = $id
+                    SET parent.role_a_path_child_id = $role_a_path_child_id
+                    CREATE (child)<-[r:ROLE_A_PATH_TO{endpoint: $endpoint}]-(parent)
+                '''
+        if role == 'b':
+            curr.roleBPathChildId = next.id
+            parameters['role_b_path_child_id'] = curr.roleBPathChildId
+            query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.id = $role_b_path_child_id AND parent.id = $id
+                    SET parent.role_b_path_child_id = $role_b_path_child_id
+                    CREATE (child)<-[r:ROLE_B_PATH_TO{endpoint: $endpoint}]-(parent)
+                '''
+        self.Neo4jQuery('', query, parameters)
 
     '''
         Neo4j
@@ -235,6 +273,7 @@ class ACHandler:
             is_endpoint: $is_endpoint,
             is_call: $is_call,
             is_check: $is_check,
+            is_stop: $is_stop,
             role_a_path_child_id: $role_a_path_child_id,
             role_b_path_child_id: $role_b_path_child_id
             })'''
@@ -250,6 +289,7 @@ class ACHandler:
             "is_endpoint": node.isEndpoint,
             "is_call": node.isCall,
             "is_check": node.isCheck,
+            "is_stop": node.isStop,
             "role_a_path_child_id": node.roleAPathChildId,
             "role_b_path_child_id": node.roleBPathChildId,
         }
@@ -330,7 +370,7 @@ class ACHandler:
         while len(queue) != 0:
             node = queue.pop(0)
 
-            if len(node.controlFlowEdges) != 0:
+            if len(node.callEdges) != 0:
                 self.createCallRel(node)
 
             for child in node.astChildren:
@@ -352,9 +392,55 @@ class ACHandler:
 
             try:
                 # print("creating control flow relationship")
-                self.connection.query(query, parameters=parameters, db=self.dbName)
+                self.connection.query(query, parameters, db=self.dbName)
             except Exception as e:
                 print(f"Query create call relationship error: {traceback.print_exc()}")
+
+    ### Insert all path edges to Neo4j
+    def insertAllPathEdgesToNeo4j(self, root: IRNode, endpoint: str):
+        queue: list[IRNode] = [root]
+
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            if len(node.roleAPathChildId) != 0:
+                self.createPathRel(node, "a", endpoint)
+            
+            if len(node.roleBPathChildId) != 0:
+                self.createPathRel(node, "b", endpoint)
+
+            for child in node.astChildren:
+                queue.append(child)
+
+    def createPathRel(self, node: IRNode, role: str, endpoint: str):
+        # if node.type == 'function_definition' and 'login_required' in node.content:
+        #     print('flag')
+        
+        parameters = {
+                "id": node.id,
+                "endpoint": endpoint
+        }
+
+        query = ''
+
+        if role == 'a':
+            parameters['role_a_path_child_id'] = node.roleAPathChildId
+            query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.id = $role_a_path_child_id AND parent.id = $id
+                    SET parent.role_a_path_child_id = $role_a_path_child_id
+                    CREATE (child)<-[r:ROLE_A_PATH_TO{endpoint: $endpoint}]-(parent)
+                '''
+        elif role == 'b':
+            parameters['role_b_path_child_id'] = node.roleBPathChildId
+            query = '''
+                    MATCH (child:Node), (parent:Node)
+                    WHERE child.id = $role_b_path_child_id AND parent.id = $id
+                    SET parent.role_b_path_child_id = $role_b_path_child_id
+                    CREATE (child)<-[r:ROLE_B_PATH_TO{endpoint: $endpoint}]-(parent)
+                '''
+        
+        self.Neo4jQuery("", query, parameters)
 
     ### Set all labels
     def setLabels(self):
@@ -362,6 +448,7 @@ class ACHandler:
         self.setEndpointLabel()
         self.setCallLabel()
         self.setCheckLabel()
+        self.setStopLabel()
 
     def setRootLabel(self):
         command = "Setting root label..."
@@ -394,6 +481,13 @@ class ACHandler:
             SET n:CheckNode
         '''
         self.Neo4jQuery(command, query)
+    
+    def setStopLabel(self):
+        query = '''
+            MATCH (n) WHERE n.is_stop = true
+            SET n:StopNode
+        '''
+        self.Neo4jQuery("", query)
 
     ### Reset the database
     def deleteAllNodesAndRelationshipsByAPOC(self):

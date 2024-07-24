@@ -1,50 +1,40 @@
-import os
+@bp.route("/logout")
+def logout():
+    if user == "admin":
+        return redirect(url_for("admin"))
+    session.clear()
+    return redirect(url_for("index"))
 
-from flask import Flask
+@bp.route("/login", methods=("GET", "POST"))
+def login():
+    """Log in a registered user by adding the user id to the session."""
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+        db = get_db()
+        error = None
 
+        # SQL injection vuln
+        # input example: ' OR 'a'='a';--
+        user = db.execute(
+            "SELECT * FROM user WHERE username = \'%s\'" % (username)
+        ).fetchone()
 
-def create_app(test_config=None):
-    """Create and configure an instance of the Flask application."""
-    app = Flask(__name__, instance_relative_config=True)
-    app.config.from_mapping(
-        # a default secret that should be overridden by instance config
-        SECRET_KEY="dev",
-        # store the database in the instance folder
-        DATABASE=os.path.join(app.instance_path, "flaskr.sqlite"),
-    )
+        if user is not None:
+            for row in user:
+                print(row)
 
-    if test_config is None:
-        # load the instance config, if it exists, when not testing
-        app.config.from_pyfile("config.py", silent=True)
-    else:
-        # load the test config if passed in
-        app.config.update(test_config)
+        if user is None:
+            error = "Incorrect username."
+        elif not check_password_hash(user["password"], password):
+            error = "Incorrect password."
 
-    # ensure the instance folder exists
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+        if error is None:
+            # store the user id in a new session and return to the index
+            session.clear()
+            session["user_id"] = user["id"]
+            return redirect(url_for("index"))
 
-    @app.route("/hello")
-    def hello():
-        return "Hello, World!"
+        flash(error)
 
-    # register the database commands
-    from flaskr import db
-
-    db.init_app(app)
-
-    # apply the blueprints to the app
-    from flaskr import auth, blog
-
-    app.register_blueprint(auth.bp)
-    app.register_blueprint(blog.bp)
-
-    # make url_for('index') == url_for('blog.index')
-    # in another app, you might define a separate main index here with
-    # app.route, while giving the blog blueprint a url_prefix, but for
-    # the tutorial the blog will be the main index
-    app.add_url_rule("/", endpoint="index")
-
-    return app
+    return render_template("auth/login.html")

@@ -11,7 +11,6 @@ class IRConverter(ABC):
         # self.sinks = sinks
         # self.sanitizers = sanitizers
         self.functionSymbolTable = {}
-        self.expressionCallStmtList: list[tuple[IRNode, str]] = []
         
     
     def createCompleteTree(self, root: Node, filename: str) -> IRNode:
@@ -30,7 +29,6 @@ class IRConverter(ABC):
             self.addControlFlowEdgesToTree(endpointFunctionBlock)           # add control flow edges in the block
         
         self.addControlFlowEdgesToTree(irRoot)
-        print(self.expressionCallStmtList)
         self.addCallEdgesToTree()
         self.addDataFlowEdgesToTree(irRoot)
 
@@ -41,10 +39,29 @@ class IRConverter(ABC):
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         pass
 
+    ### BAGIAN ANDREW BEGIN
     
     @abstractmethod
-    def identifyEndpoints(self, root: IRNode):
+    def identifyEndpoints(self, root: IRNode) -> list[IRNode]:
         pass
+
+    @abstractmethod
+    def identifyStops(self, root: IRNode):
+        pass
+
+    @abstractmethod
+    def identifyMiddleware(self, root: IRNode):
+        pass
+
+    @abstractmethod
+    def identifyFunctions(self, root: IRNode):
+        pass
+    
+    @abstractmethod
+    def defineComparison(self, node: IRNode):
+        pass
+
+    ### BAGIAN ANDREW END
 
     @abstractmethod
     def addControlFlowEdgesToTree(self, root: IRNode):

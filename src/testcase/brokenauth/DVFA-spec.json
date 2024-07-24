@@ -1,0 +1,23 @@
+{
+    "endpoints": [
+    ],
+    "roleSpecification": {
+        "a": {
+            "role": "a",
+            "data": {
+                "request": "admin"
+            },
+            "middleware": [
+                "login_required"
+            ]
+        },
+        "b": {
+            "role": "b",
+            "data": {
+                "user": "user"
+            },
+            "middleware": [
+            ]
+        }
+    }
+}

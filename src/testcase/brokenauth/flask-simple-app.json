@@ -1,0 +1,24 @@
+{
+    "endpoints": [
+        "/create",
+        "/<int:id>/update"
+    ],
+    "builtins": [
+    ],
+    "roleSpecification": {
+        "a": {
+            "role": "a",
+            "data": {
+                "user": "user",
+                "g.user": "user",
+                "error": "None"
+            }
+        },
+        "b": {
+            "role": "b",
+            "data": {
+                "error": "None"
+            }
+        }
+    }
+}

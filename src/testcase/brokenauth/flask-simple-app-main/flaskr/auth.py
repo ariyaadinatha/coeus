@@ -89,16 +89,9 @@ def login():
         password = request.form["password"]
         db = get_db()
         error = None
-
-        # SQL injection vuln
-        # input example: ' OR 'a'='a';--
         user = db.execute(
-            "SELECT * FROM user WHERE username = \'%s\'" % (username)
+            "SELECT * FROM user WHERE username = ?", (username,)
         ).fetchone()
-
-        if user is not None:
-            for row in user:
-                print(row)
 
         if user is None:
             error = "Incorrect username."
@@ -118,7 +111,6 @@ def login():
 
 @bp.route("/logout")
 def logout():
-    if user == "admin":
-        return redirect(url_for("admin"))
+    """Clear the current session, including the stored user id."""
     session.clear()
     return redirect(url_for("index"))

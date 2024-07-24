@@ -1,5 +1,5 @@
 from tree_sitter import Node
-from utils.intermediate_representation.nodes.nodes import IRNode
+from utils.intermediate_representation.nodes.nodes import IRNode, Builtin
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_CONTROL_STATEMENTS, PYTHON_DIVERGE_CONTROL_STATEMENTS
 from typing import Union
 import uuid
@@ -73,12 +73,17 @@ class IRPythonNode(IRNode):
     def isDecoratedDefinition(self) -> bool:
         return self.type == "decorated_definition"
     
-    def isExpressionStatementWithCall(self) -> tuple[bool, str]:
-        if self.type == "expression_statement":
+    def isStatementWithCall(self) -> tuple[bool, str]:
+        if "statement" in self.type:
+            if self.type == "return_statement":
+                if self.astChildren[1].type == "identifier":
+                    return (True, self.astChildren[1].content)
+
             call = self.findCallExpression()
             if call != None:
-                return (True, call)
-        
+                iden = call.astChildren[0].content
+                return (True, iden)
+
         return (False, None)
     
     def findCallExpression(self) -> Union[IRNode, None]:
@@ -95,3 +100,12 @@ class IRPythonNode(IRNode):
         return None
 
     # === END ===
+
+class FlaskLoginRequired(Builtin):
+    def __init__(self, var, identifier) -> None:
+        super().__init__(identifier)
+        self.var = var
+    
+    # compare: jika var ada di dalam spesifikasi, berarti user logged in
+    def isAllowed(self, spec):
+        return self.var in spec["data"]

@@ -1,15 +1,19 @@
 from tree_sitter import Node
 from typing import Union, Callable
 from utils.intermediate_representation.nodes.nodes import IRNode
-from utils.intermediate_representation.nodes.irpythonnode import IRPythonNode
+from utils.intermediate_representation.nodes.irpythonnode import IRPythonNode, FlaskLoginRequired
 from utils.intermediate_representation.converter.converter import IRConverter
 from utils.constant.intermediate_representation import PYTHON_CONTROL_SCOPE_IDENTIFIERS, PYTHON_DATA_SCOPE_IDENTIFIERS
 import uuid
 from abc import ABC, abstractmethod
+import re
 
 class IRPythonConverter(IRConverter):
     def __init__(self) -> None:
         IRConverter.__init__(self)
+        self.decorators: list[tuple[str, IRNode]] = []
+        self.callStmtList: list[tuple[str, IRNode]] = []
+        self.functions: dict[str: IRNode] = {}
 
     def createAstTree(self, root: Node, filename: str) -> IRNode:
         # iterate through root until the end using BFS
@@ -44,9 +48,9 @@ class IRPythonConverter(IRConverter):
     
     # bagian Andrew
     # === BEGIN ===
-    
+
     # Routes/Endpoints
-    def identifyEndpoints(self, root: IRNode):
+    def identifyEndpoints(self, root: IRNode) -> list[IRNode]:
         
         queue : list[IRNode] = [root]
         endpointList : list[IRNode] = []
@@ -63,14 +67,86 @@ class IRPythonConverter(IRConverter):
                 queue.append(ch)
         
         return endpointList
+    
+    def identifyStops(self, root: IRNode):
+        queue: list[IRNode] = [root]
+        
+        while len(queue) != 0:
+            node = queue.pop(0)
+            c2 = (node.type == "expression_statement" or node.type == "return_statement") and node.astChildren[0].type != "string" and ("abort" in node.content or "flash" in node.content or "redirect" in node.content)
+            if c2:
+                node.isStop = True
+            
+            for ch in node.astChildren:
+                queue.append(ch)
+    
+    def identifyMiddleware(self, root: IRNode, builtins: list[str]):
+        queue: list[IRNode] = [root]
+        
+        while len(queue) != 0:
+            node = queue.pop(0)
+            c1 = node.type == "decorator"
+            c2 = not re.match(r"(.*?).route", node.content)
+            if c1 and c2:
+                
+                node.isMiddleware = True
+                iden = node.astChildren[1]
+                if iden.content not in builtins:
+                    self.decorators.append((iden.content, node))
+                else:    
+                    node.isBuiltin = True
+                    bi = FlaskLoginRequired("user", iden.content)
+                    node.builtin = bi
+                
+            
+            for ch in node.astChildren:
+                queue.append(ch)
+    
+    def identifyFunctions(self, root: IRNode):
+        queue: list[IRNode] = [root]
+        
+        while len(queue) != 0:
+            node = queue.pop(0)
+
+            if node.isFunctionDefinition():
+                node.isCall = True
+                iden = node.astChildren[1].content
+                self.functions[iden] = node
+            
+            for ch in node.astChildren:
+                queue.append(ch)
+
+
+    # parse comparison
+    def defineComparison(self, node: IRNode):
+        variable = node.astChildren[0]
+        value = node.astChildren[-1]
+        operator = "=="
+        
+        #TODO: handle boolean operator
+        if node.type == "boolean_operator":
+            return
+
+        for child in node.astChildren:
+            if child.type == "is":
+                operator = "is"
+            if child.type == "is not":
+                operator = "is not"
+
+        # string
+        if value.type == "string":
+            value = value.astChildren[1]
+
+        node.addComparison(variable.content, value.content, operator)
+        
 
     # Control Flow
     def addControlFlowEdgesToTree(self, root: IRNode):
         # list all childs
-        stmtList, defList = self.parseBlocks(root)
+        stmtList, defnList = self.parseBlocks(root)
 
         # parse each definitions
-        for defn in defList:
+        for defn in defnList:
             self.parseDefinitions(defn)
 
         # parse each statements (if any)
@@ -98,6 +174,8 @@ class IRPythonConverter(IRConverter):
     def parseDefinitions(self, node: IRNode):
         if node.type == "function_definition":
             self.handleFunctionDefinitions(node)
+        if node.type == "decorated_definition":
+            self.handleDecoratedDefinitions(node)
 
     def handleFunctionDefinitions(self, node: IRNode):
         node.isCall = True
@@ -107,15 +185,33 @@ class IRPythonConverter(IRConverter):
                 nodeBlock = child
 
         nodeStmtList, nodeDefList = self.parseBlocks(nodeBlock)
+
+        # parse each definitions
+        for defn in nodeDefList:
+            self.parseDefinitions(defn)
+
         node.addControlFlowEdge(nodeStmtList[0], nodeStmtList[0].id)
         nodeStmtList.append(None)
         for i in range(len(nodeStmtList) - 1):
             self.parseStatements(nodeStmtList[i], nodeStmtList[i+1])
 
+    def handleDecoratedDefinitions(self, node: IRNode):
+        child: list[IRNode] = []
+        for ch in node.astChildren:
+            child.append(ch)
+        node.addControlFlowEdge(child[0], child[0].id)
+        for i in range(len(child) - 1):
+            child[i].addControlFlowEdge(child[i+1], child[i+1].id)
+        
+        self.handleFunctionDefinitions(child[-1])
+        
+
     # Statements (expression_statement, if_statement, while_statement, for_statement, try_statement, return_statement)
     def parseStatements(self, curr: IRNode, next: IRNode):
         if curr.type == "if_statement":
             self.handleIfStatement(curr, next)
+        elif curr.type == "try_statement":
+            self.handleTryStatement(curr, next)
         elif curr.type == "return_statement":
             self.handleReturnStatement(curr, next)
         else:
@@ -127,7 +223,7 @@ class IRPythonConverter(IRConverter):
         elifClauses: list[IRNode] = []
         elseBlock: IRNode = None
         for child in curr.astChildren:
-            if "operator" in child.type:
+            if "operator" in child.type or child.type == "identifier" or child.type == "call":
                 condition = child
             if child.type == "block":
                 ifBlock = child
@@ -135,8 +231,9 @@ class IRPythonConverter(IRConverter):
                 elifClauses.append(child)
             if child.type == "else_clause":
                 elseBlock = child.astChildren[1]
-        
+
         condition.isCheck = True
+        self.defineComparison(condition)
 
         curr.addControlFlowEdge(condition, condition.id, "next_statement")
         
@@ -158,8 +255,9 @@ class IRPythonConverter(IRConverter):
                 condition.addControlFlowEdge(elifCondition, elifCondition.id, "next_statement_if_false")
                 condition = elifCondition
                 condition.isCheck = True
+                self.defineComparison(condition)
 
-        if elseBlock != None:
+        if elseBlock is not None:
             insideElseBlockStmtList, insideElseBlockDefList = self.parseBlocks(elseBlock)
             insideElseBlockStmtList.append(next)
             condition.addControlFlowEdge(insideElseBlockStmtList[0], insideElseBlockStmtList[0].id, "next_statement_if_false")
@@ -168,23 +266,55 @@ class IRPythonConverter(IRConverter):
         else:
             self.parseStatements(condition, next)
 
-    #TODO: while statement, for statement, try statement
+    def handleTryStatement(self, curr: IRNode, next: IRNode):
+        tryBlock: IRNode = None
+        elseBlock: IRNode = None
+        finallyBlock: IRNode = None
+        for child in curr.astChildren:
+            if child.type == "block":
+                tryBlock = child
+            elif child.type == "else_clause":
+                elseBlock = child.astChildren[1]
+            elif child.type == "finally_clause":
+                finallyBlock = child.astChildren[1]
+        
+        stmt: list[IRNode] = []
+        
+        insideTryBlockStmtList, _ = self.parseBlocks(tryBlock)
+        stmt.extend(insideTryBlockStmtList)
+
+        curr.addControlFlowEdge(stmt[0], stmt[0].id)
+        
+        if elseBlock is not None:
+            insideElseBlockStmtList, _ = self.parseBlocks(elseBlock)
+            stmt.extend(insideElseBlockStmtList)
+
+        if finallyBlock is not None:
+            insideFinallyBlockStmtList, _ = self.parseBlocks(finallyBlock)
+            stmt.extend(insideFinallyBlockStmtList)
+        
+        stmt.append(next)
+        for i in range(len(stmt) - 1):
+            self.parseStatements(stmt[i], stmt[i+1])
+
+    #TODO: while statement, for statement
     def handleWhileStatement(self, curr: IRNode, next: IRNode):
         pass
 
     def handleForStatement(self, curr:IRNode, next: IRNode):
         pass
 
-    def handleTryStatement(self, curr: IRNode, next: IRNode):
-        pass
-
     def handleReturnStatement(self, curr: IRNode, next: IRNode):
-        pass
+        res = curr.isStatementWithCall()
+        if res[0] == True:
+            callIdentifier = res[1]
+            self.callStmtList.append((callIdentifier, curr))
 
     def handleNextStatement(self, curr: IRNode, next: IRNode):
-        if curr.isExpressionStatementWithCall()[0] == True:
-            callIdentifier = curr.isExpressionStatementWithCall()[1].astChildren[0].content
-            self.expressionCallStmtList.append((curr, callIdentifier))
+        res = curr.isStatementWithCall()
+        if res[0] == True:
+            callIdentifier = res[1]
+            self.callStmtList.append((callIdentifier, curr))
         
         if next != None:
             curr.addControlFlowEdge(next, next.id, "next_statement")
@@ -192,11 +322,19 @@ class IRPythonConverter(IRConverter):
 
     # Call
     def addCallEdgesToTree(self):
-        for nodeTuple in self.expressionCallStmtList:
-            if nodeTuple[1] in self.functionSymbolTable:
-                id = self.functionSymbolTable[nodeTuple[1]][0]['id']
-                nodeTuple[0].addCallEdge(id)
+        # from decorators
+        for deco in self.decorators:
+            if deco[0] in self.functions:
+                funcNode = self.functions[deco[0]]
+                funcId = funcNode.id
+                deco[1].addCallEdge(funcNode, funcId)
 
+        # from statements
+        for stmt in self.callStmtList:
+            if stmt[0] in self.functions:
+                funcNode = self.functions[stmt[0]]
+                funcId = funcNode.id
+                stmt[1].addCallEdge(funcNode, funcId)
 
     # === END ===
 
