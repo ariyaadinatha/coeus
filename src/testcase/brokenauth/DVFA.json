@@ -1,34 +1,30 @@
 {
     "endpoints": [
-        "/create",
-        "/<int:id>/update",
-        "/<int:id>/delete"
+        "/admin"
     ],
     "builtins": [
     ],
     "specification": {
         "global": {
             "data": {
-                "error": "None",
-                "post": "something"
+                "url": "True"
             },
             "statement": [
-                ["check_author and post[\"author_id\"] != g.user[\"id\"]", false]
             ]
         },
         "role": {
             "a": {
                 "role": "a",
                 "data": {
-                    "user": "user",
-                    "g.user": "user"
+                    "request.cookies.get('admin')": "True"
                 },
                 "statement": [
-                ]
+                ]  
             },
             "b": {
                 "role": "b",
                 "data": {
+                    "request.cookies.get('admin')": "False"
                 },
                 "statement": [
                 ]

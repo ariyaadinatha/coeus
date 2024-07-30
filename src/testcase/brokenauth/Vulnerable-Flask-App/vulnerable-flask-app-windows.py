@@ -102,7 +102,7 @@ def deserialization():
 
 @app.route("/get_admin_mail/<string:control>")
 def get_admin_mail(control):
-    if control=="admin":
+    if control == "admin":
         data="admin@cybersecurity.intra"
         import logging
         logging.basicConfig(filename="restapi.log", filemode='w', level=logging.DEBUG)

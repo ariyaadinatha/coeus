@@ -68,13 +68,19 @@ class IRPythonConverter(IRConverter):
         
         return endpointList
     
-    def identifyStops(self, root: IRNode):
+    def identifyStops(self, root: IRNode, stopWords):
         queue: list[IRNode] = [root]
         
         while len(queue) != 0:
             node = queue.pop(0)
-            c2 = (node.type == "expression_statement" or node.type == "return_statement") and node.astChildren[0].type != "string" and ("abort" in node.content or "flash" in node.content or "redirect" in node.content)
-            if c2:
+            c1 = (node.type == "expression_statement" or node.type == "return_statement") and node.astChildren[0].type != "string"
+            c2 = False
+            for word in stopWords:
+                if word in node.content:
+                    c2 = True
+                    break
+
+            if c1 and c2:
                 node.isStop = True
             
             for ch in node.astChildren:
@@ -119,25 +125,38 @@ class IRPythonConverter(IRConverter):
 
     # parse comparison
     def defineComparison(self, node: IRNode):
-        variable = node.astChildren[0]
-        value = node.astChildren[-1]
-        operator = "=="
-        
+        # handle call and identifier
+        variable = ""
+        value = ""
+        operator = ""
+
+        if node.type == "identifier" or node.type == "call":
+            variable = node.content
+            value = "True"
+            operator = "=="
+
         #TODO: handle boolean operator
         if node.type == "boolean_operator":
             return
+        
+        # handle comparison operator
+        if node.type == "comparison_operator":
+            variable = node.astChildren[0].content
+            valueNode = node.astChildren[-1]
+            value = node.astChildren[-1].content
+            operator = "=="
 
-        for child in node.astChildren:
-            if child.type == "is":
-                operator = "is"
-            if child.type == "is not":
-                operator = "is not"
+            for child in node.astChildren:
+                if child.type == "is":
+                    operator = "is"
+                if child.type == "is not":
+                    operator = "is not"
 
-        # string
-        if value.type == "string":
-            value = value.astChildren[1]
+            # string
+            if valueNode.type == "string":
+                value = valueNode.astChildren[1].content
 
-        node.addComparison(variable.content, value.content, operator)
+        node.addComparison(variable, value, operator)
         
 
     # Control Flow
@@ -153,7 +172,7 @@ class IRPythonConverter(IRConverter):
         n_stmtList = len(stmtList)
         if n_stmtList > 0:
             stmtList.append(None)
-            for i in range(n_stmtList - 1):
+            for i in range(n_stmtList):
                 currStmt = stmtList[i]
                 nextStmt = stmtList[i + 1]
                 self.parseStatements(currStmt, nextStmt)

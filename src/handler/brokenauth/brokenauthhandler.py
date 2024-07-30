@@ -36,6 +36,7 @@ class ACHandler:
         self.specPath = specPath
 
         # create converter to AST
+        self.loadKeywords()
         self.converter = self.createConverter()
 
         # TODO
@@ -43,6 +44,11 @@ class ACHandler:
     '''
         Utils
     '''
+    ### Load keywords
+    def loadKeywords(self):
+        with open(f"./rules/brokenauth/{self.language}-wordlist.json", 'r') as file:
+            self.stopWords = json.load(file)["stop_wordlist"]
+
     ### Create IR converter
     def createConverter(self) -> IRConverter:
         if self.language == "python":
@@ -109,7 +115,7 @@ class ACHandler:
             roots.append(astRoot)
 
         for root in roots:
-            self.converter.identifyStops(root)
+            self.converter.identifyStops(root, self.stopWords)
             self.converter.identifyMiddleware(root, spec["builtins"])
             self.converter.identifyFunctions(root)
             
@@ -131,25 +137,34 @@ class ACHandler:
         self.setLabels()
 
         # 2. Vulnerability detection
-
+        return
         ## Read specification input
         endpSpec = spec["endpoints"]
-        roleSpec = spec["roleSpecification"]
-        specA = roleSpec["a"]
-        specB = roleSpec["b"]
+        dataSpec = spec["specification"]
+        globalSpec = dataSpec["global"]
+        roleASpec = dataSpec["role"]['a']
+        roleBSpec = dataSpec["role"]['b']
+
+        roleASpec["data"].update(globalSpec["data"])
+        roleASpec["statement"].extend(globalSpec['statement'])
+        roleBSpec["data"].update(globalSpec["data"])
+        roleBSpec["statement"].extend(globalSpec['statement'])
+
+        # print(roleASpec)
 
         ## Endpoint path analysis
         ### If no specified endpoints to analyze
         for endp in endpoints:
-            m = re.search(r"\"(.*?)\"", endp.content)
+            m = re.search(r"[\'\"](.*?)[\'\"]", endp.content)
             route = m.group(1)
+            print(route)
             if len(endpSpec) == 0:
-                self.nodePathAnalysis(endp, specA, route)
-                self.nodePathAnalysis(endp, specB, route)
+                self.nodePathAnalysis(endp, roleASpec, route)
+                self.nodePathAnalysis(endp, roleBSpec, route)
             else:
                 if route in endpSpec:
-                    self.nodePathAnalysis(endp, specA, route)
-                    self.nodePathAnalysis(endp, specB, route)
+                    self.nodePathAnalysis(endp, roleASpec, route)
+                    self.nodePathAnalysis(endp, roleBSpec, route)
 
     def nodePathAnalysis(self, node: IRNode, spec, route: str):
         stack: list[IRNode] = [node]
@@ -188,14 +203,24 @@ class ACHandler:
         ## branch
         if node.isCheck:
             ### if data is specified
-            if node.comparison.variable in spec["data"]:
+            if (node.type == "comparison_operator" or node.type == "identifier" or node.type == "call") and node.comparison.variable in spec["data"]:
                 if node.comparison.compare(spec['data'][node.comparison.variable]):
                     cfgEdge = cfgList[0]
                 else:
                     cfgEdge = cfgList[1]
             ### if data is not specified
             else:
-                cfgEdge = cfgList[0]
+                stmts = spec['statement']
+                if len(stmts) > 0:
+                    for stmt in stmts:
+                        if node.content == stmt[0]:
+                            if stmt[1]:
+                                cfgEdge = cfgList[0]
+                            else:
+                                cfgEdge = cfgList[1]
+                            break 
+                else:
+                    cfgEdge = cfgList[0]
 
         ## middleware
         if node.isMiddleware:

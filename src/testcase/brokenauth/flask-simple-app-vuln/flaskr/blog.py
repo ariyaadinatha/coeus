@@ -59,7 +59,7 @@ def get_post(id, check_author=True):
 
 @bp.route("/create", methods=("GET", "POST"))
 # broken access control
-# @login_required
+@login_required
 def create():
     """Create a new post for the current user."""
     if request.method == "POST":
@@ -88,7 +88,7 @@ def create():
 
 @bp.route("/<int:id>/update", methods=("GET", "POST"))
 # broken access control
-# @login_required
+@login_required
 def update(id):
     """Update a post if the current user is the author."""
     post = get_post(id)

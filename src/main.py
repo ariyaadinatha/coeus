@@ -228,12 +228,12 @@ def access(path, language, output, mode):
     logger.info("=============== Starting broken access detection ===============")
     # startTime = time.time()
     
+    handler = ACHandler("./testcase/basic/py", language, "./testcase/brokenauth/flask-simple-app.json")
     # repository tests (python)
-    # handler = ACHandler("./testcase/brokenauth/DVFA", "python", "./testcase/brokenauth/DVFA-spec.json")
-    # handler = ACHandler("./testcase/brokenauth/flask-webgoat", "python", "./testcase/brokenauth/flask-webgoat-spec.json")
-    # handler = ACHandler("./testcase/brokenauth/Vulnerable-Flask-App", "python", "./testcase/brokenauth/Vulnerable-Flask-App-spec.json")
+    # handler = ACHandler("./testcase/brokenauth/DVFA", "python", "./testcase/brokenauth/DVFA.json")
+    # handler = ACHandler("./testcase/brokenauth/Vulnerable-Flask-App", "python", "./testcase/brokenauth/Vulnerable-Flask-App.json")
 
-    handler = ACHandler("./testcase/brokenauth/flask-simple-app-main", language, "./testcase/brokenauth/flask-simple-app.json")
+    # handler = ACHandler("./testcase/brokenauth/flask-simple-app-main", language, "./testcase/brokenauth/flask-simple-app.json")
     # handler = ACHandler("./testcase/brokenauth/flask-simple-app-vuln", language, "./testcase/brokenauth/flask-simple-app.json")
 
     # repository tests (js)

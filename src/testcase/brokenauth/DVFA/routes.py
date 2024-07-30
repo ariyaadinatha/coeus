@@ -6,7 +6,7 @@ from app import app
 import db
 
 
-@app.route('/')
+# @app.route('/')
 @app.route('/index')
 def index():
     return render_template('index.html')
@@ -14,7 +14,7 @@ def index():
 # Broken-Access-Control
 @app.route('/admin')
 def admin():    
-    if(request.cookies.get('admin') == "True"):
+    if request.cookies.get('admin') == "True":
         return render_template('admin.html')
     else:
         return render_template('403.html')

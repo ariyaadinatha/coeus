@@ -1,27 +1,21 @@
 {
     "endpoints": [
-        "/create",
-        "/<int:id>/update",
-        "/<int:id>/delete"
+        "/get_admin_mail/<string:control>"
     ],
     "builtins": [
     ],
     "specification": {
         "global": {
             "data": {
-                "error": "None",
-                "post": "something"
             },
             "statement": [
-                ["check_author and post[\"author_id\"] != g.user[\"id\"]", false]
             ]
         },
         "role": {
             "a": {
                 "role": "a",
                 "data": {
-                    "user": "user",
-                    "g.user": "user"
+                    "control": "admin"
                 },
                 "statement": [
                 ]
@@ -29,6 +23,7 @@
             "b": {
                 "role": "b",
                 "data": {
+                    "control": "user"
                 },
                 "statement": [
                 ]
