@@ -236,7 +236,6 @@ class ACHandler:
         
         ## branch
         if node.isCheck:
-            print(node.content)
             ### simple comparisons
             cfgTrueEdge = None
             cfgFalseEdge = None
