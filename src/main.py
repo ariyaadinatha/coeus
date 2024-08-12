@@ -228,19 +228,19 @@ def access(path, language, output, mode):
     logger.info("=============== Starting broken access detection ===============")
     # startTime = time.time()
     
+    # basic test
     handler = ACHandler("./testcase/basic/py", language, "./testcase/brokenauth/flask-simple-app.json")
+    handler.buildTreeRepository()
+    
     # repository tests (python)
     # handler = ACHandler("./testcase/brokenauth/DVFA", "python", "./testcase/brokenauth/DVFA.json")
+
     # handler = ACHandler("./testcase/brokenauth/Vulnerable-Flask-App", "python", "./testcase/brokenauth/Vulnerable-Flask-App.json")
 
     # handler = ACHandler("./testcase/brokenauth/flask-simple-app-main", language, "./testcase/brokenauth/flask-simple-app.json")
     # handler = ACHandler("./testcase/brokenauth/flask-simple-app-vuln", language, "./testcase/brokenauth/flask-simple-app.json")
 
-    # repository tests (js)
-
-    # dummy test
-    # handler = ACHandler("./testcase/brokenauth/c", language, "./testcase/brokenauth/specification.json")
-    handler.analysis()
+    # handler.analysis()
 
     print("End of program.")
 

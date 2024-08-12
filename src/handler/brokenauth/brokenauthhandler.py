@@ -62,13 +62,45 @@ class ACHandler:
 
     ### Build complete repository representation
     def buildTreeRepository(self):
+        f = open(self.specPath)
+        spec = json.load(f)
+
+        # 1. Intermediate representation generation
+        roots = []
+        endpoints: list[IRNode] = []
+        self.deleteAllNodesAndRelationshipsByAPOC()
+
         fh = FileHandler()
         fh.getAllFilesFromRepository(self.projectPath)
 
         for codePath in fh.getCodeFilesPath():
             if codePath.split('.')[-1] != EXTENSION_ALIAS[self.language]:
                 continue
-            self.buildTreeFile(fh, codePath)
+        
+            astRoot = self.buildAstTreeFile(fh, codePath)
+            roots.append(astRoot)
+
+        for root in roots:
+            self.converter.identifyStops(root, self.stopWords)
+            self.converter.identifyMiddleware(root, spec["builtins"])
+            self.converter.identifyFunctions(root)
+            
+            rootEndpoints: list[IRNode] = self.converter.identifyEndpoints(root)
+            
+            endpoints.extend(rootEndpoints)
+
+            self.converter.addControlFlowEdgesToTree(root)
+            
+            self.insertAllNodesToNeo4j(root)
+            self.insertAllCFGEdgesToNeo4j(root)
+
+        self.converter.addCallEdgesToTree()
+        
+        for root in roots:
+            self.insertAllCallEdgesToNeo4j(root)
+
+        self.createASTRel()
+        self.setLabels()
 
     ### build complete representation from a single file
     def buildTreeFile(self, fileHandler: FileHandler, codePath: str):
@@ -137,7 +169,7 @@ class ACHandler:
         self.setLabels()
 
         # 2. Vulnerability detection
-        return
+
         ## Read specification input
         endpSpec = spec["endpoints"]
         dataSpec = spec["specification"]
@@ -150,30 +182,32 @@ class ACHandler:
         roleBSpec["data"].update(globalSpec["data"])
         roleBSpec["statement"].extend(globalSpec['statement'])
 
-        # print(roleASpec)
+        dataVarList: set = {i for i in roleASpec['data']}
+        roleBVarlist: set = {i for i in roleBSpec['data']}
+        dataVarList.update(roleBVarlist)
 
         ## Endpoint path analysis
         ### If no specified endpoints to analyze
         for endp in endpoints:
             m = re.search(r"[\'\"](.*?)[\'\"]", endp.content)
             route = m.group(1)
-            print(route)
+            # print(route)
             if len(endpSpec) == 0:
-                self.nodePathAnalysis(endp, roleASpec, route)
-                self.nodePathAnalysis(endp, roleBSpec, route)
+                self.nodePathAnalysis(endp, roleASpec, route, dataVarList)
+                self.nodePathAnalysis(endp, roleBSpec, route, dataVarList)
             else:
                 if route in endpSpec:
-                    self.nodePathAnalysis(endp, roleASpec, route)
-                    self.nodePathAnalysis(endp, roleBSpec, route)
+                    self.nodePathAnalysis(endp, roleASpec, route, dataVarList)
+                    print()
+                    self.nodePathAnalysis(endp, roleBSpec, route, dataVarList)
 
-    def nodePathAnalysis(self, node: IRNode, spec, route: str):
+    def nodePathAnalysis(self, node: IRNode, spec, route: str, dataVarList: set):
         stack: list[IRNode] = [node]
-
         while stack:
 
             payload = stack.pop()
 
-            callEdge, cfgEdge = self.getEdges(payload, spec)
+            callEdge, cfgEdge = self.getEdges(payload, spec, dataVarList)
             if cfgEdge != None:
                 stack.append(cfgEdge.cfgChild)
             if callEdge != None:
@@ -185,7 +219,7 @@ class ACHandler:
             if stack:
                 self.addPathEdge(payload, stack[-1], spec['role'], route)
                 
-    def getEdges(self, node: IRNode, spec):
+    def getEdges(self, node: IRNode, spec, dataVarList: set):
         callEdge = None
         cfgEdge = None
         callList = node.callEdges
@@ -202,25 +236,42 @@ class ACHandler:
         
         ## branch
         if node.isCheck:
-            ### if data is specified
-            if (node.type == "comparison_operator" or node.type == "identifier" or node.type == "call") and node.comparison.variable in spec["data"]:
-                if node.comparison.compare(spec['data'][node.comparison.variable]):
-                    cfgEdge = cfgList[0]
+            print(node.content)
+            ### simple comparisons
+            cfgTrueEdge = None
+            cfgFalseEdge = None
+            for edge in cfgList:
+                if edge.controlType == "next_statement_if_true":
+                    cfgTrueEdge = edge
                 else:
-                    cfgEdge = cfgList[1]
-            ### if data is not specified
+                    cfgFalseEdge = edge
+            if (node.type == "comparison_operator" or node.type == "identifier" or node.type == "call"):
+                #### if data is specified
+                if node.comparison.variable in spec["data"]:
+                    if node.comparison.compare(spec['data'][node.comparison.variable]):
+                        cfgEdge = cfgTrueEdge
+                    else:
+                        cfgEdge = cfgFalseEdge
+                #### if data is not specified
+                else:
+                    if node.comparison.variable in dataVarList:
+                        cfgEdge = cfgFalseEdge
+                    ##### default behavior
+                    else:
+                        cfgEdge = cfgTrueEdge
+            ### complex comparisons
             else:
                 stmts = spec['statement']
                 if len(stmts) > 0:
                     for stmt in stmts:
                         if node.content == stmt[0]:
                             if stmt[1]:
-                                cfgEdge = cfgList[0]
+                                cfgEdge = cfgTrueEdge
                             else:
-                                cfgEdge = cfgList[1]
+                                cfgEdge = cfgFalseEdge
                             break 
                 else:
-                    cfgEdge = cfgList[0]
+                    cfgEdge = cfgFalseEdge
 
         ## middleware
         if node.isMiddleware:

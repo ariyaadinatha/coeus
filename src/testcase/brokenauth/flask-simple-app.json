@@ -29,6 +29,8 @@
             "b": {
                 "role": "b",
                 "data": {
+                    "user": "None",
+                    "g.user": "None"
                 },
                 "statement": [
                 ]
